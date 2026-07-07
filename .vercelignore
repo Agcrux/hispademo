@@ -1,0 +1,12 @@
+# Local launcher scripts — not part of the web deployment
+run_page.bat
+run_page.command
+
+# Design source / project context — not web assets
+Stream.svg
+PRODUCT.md
+.claude/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db

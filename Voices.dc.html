@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;}body{margin:0;}</style>
+</helmet>
+<div style="background:#FBF6EE;font-family:'Hanken Grotesk',sans-serif;color:#102A43;overflow-x:hidden;">
+  <dc-import name="Nav" active="voices" hint-size="100%,74px"></dc-import>
+
+  <!-- HERO -->
+  <section style="max-width:880px;margin:0 auto;padding:80px 32px 36px;text-align:center;">
+    <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#F1601A;margin-bottom:16px;">Voices</div>
+    <h1 style="font-family:'Newsreader',serif;font-weight:500;font-size:54px;line-height:1.06;letter-spacing:-0.015em;margin:0 0 20px;">The proof is in <span style="font-style:italic;color:#F1601A;">their words.</span></h1>
+    <p style="font-size:19px;line-height:1.6;color:#3F586F;max-width:560px;margin:0 auto;">Students, role models, teachers, and families on what it means to finally see yourself in someone else's success.</p>
+  </section>
+
+  <!-- FEATURED QUOTE: auto-advancing testimonial carousel -->
+  <section style="max-width:1000px;margin:0 auto;padding:20px 32px 50px;">
+    <div id="hispaCarousel" ref="{{ setCarousel }}" role="region" aria-roledescription="carousel" aria-label="Featured testimonials" tabindex="0" style="position:relative;background:linear-gradient(135deg,#1B3A5B,#102A43);border-radius:24px;padding:60px;overflow:hidden;outline:none;">
+      <div style="position:absolute;top:-50px;left:-30px;font-family:'Newsreader',serif;font-size:240px;color:rgba(241,96,26,0.18);line-height:1;pointer-events:none;">"</div>
+
+      <div style="position:relative;min-height:230px;">
+        <sc-for list="{{ slides }}" as="s">
+          <div style="position:absolute;inset:0;text-align:center;max-width:720px;margin:0 auto;opacity:{{ s.opacity }};z-index:{{ s.zIndex }};transition:opacity .6s ease-out;" aria-hidden="{{ s.hidden }}">
+            <p style="font-family:'Newsreader',serif;font-style:italic;font-size:32px;line-height:1.4;color:#fff;margin:0 0 28px;">{{ s.text }}</p>
+            <div style="display:flex;align-items:center;justify-content:center;gap:14px;">
+              <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,{{ s.gradA }},{{ s.gradB }});"></div>
+              <div style="text-align:left;"><div style="font-weight:700;font-size:16px;color:#fff;">{{ s.name }}</div><div style="font-size:14px;color:#AFC2D6;">{{ s.role }}</div></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">{{ liveText }}</div>
+
+      <button type="button" onclick="{{ onPrev }}" aria-label="Previous testimonial" style="position:absolute;left:18px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.22);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;">‹</button>
+      <button type="button" onclick="{{ onNext }}" aria-label="Next testimonial" style="position:absolute;right:18px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.22);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;">›</button>
+
+      <div style="position:relative;display:flex;justify-content:center;gap:8px;margin-top:28px;">
+        <sc-for list="{{ dots }}" as="d">
+          <button type="button" onclick="{{ d.onClick }}" aria-label="Go to testimonial {{ d.label }}" aria-current="{{ d.active }}" style="width:8px;height:8px;border-radius:4px;background:{{ d.color }};border:none;cursor:pointer;padding:0;transform:{{ d.scale }};transform-origin:center;transition:background .2s ease,transform .2s ease;"></button>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE GRID -->
+  <section style="max-width:1100px;margin:0 auto;padding:0 32px 40px;">
+    <div style="column-count:3;column-gap:24px;">
+      <div style="break-inside:avoid;background:#fff;border-radius:18px;padding:28px;margin-bottom:24px;border:1px solid rgba(16,42,67,0.05);box-shadow:0 1px 3px rgba(16,42,67,0.06);">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#F1601A;margin-bottom:12px;">Student</div>
+        <p style="font-family:'Newsreader',serif;font-size:19px;line-height:1.5;color:#21364A;margin:0 0 18px;">My role model was a software engineer who grew up speaking Spanish at home, just like me. That was the day I started coding.</p>
+        <div style="display:flex;align-items:center;gap:11px;"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#F1601A,#6FB42A);"></div><div style="font-weight:700;font-size:14px;">Carlos M.</div></div>
+      </div>
+      <div style="break-inside:avoid;background:#102A43;border-radius:18px;padding:28px;margin-bottom:24px;box-shadow:0 1px 3px rgba(16,42,67,0.06);">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#6FB42A;margin-bottom:12px;">Role model</div>
+        <p style="font-family:'Newsreader',serif;font-size:19px;line-height:1.5;color:#fff;margin:0 0 18px;">I almost didn't volunteer — I worried my story wasn't 'impressive' enough. The students taught me that showing up as myself was the whole point.</p>
+        <div style="display:flex;align-items:center;gap:11px;"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2E8FB5,#1B3A5B);"></div><div style="font-weight:700;font-size:14px;color:#fff;">Elena G.</div></div>
+      </div>
+      <div style="break-inside:avoid;background:#fff;border-radius:18px;padding:28px;margin-bottom:24px;border:1px solid rgba(16,42,67,0.05);box-shadow:0 1px 3px rgba(16,42,67,0.06);">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1A6E92;margin-bottom:12px;">Teacher</div>
+        <p style="font-family:'Newsreader',serif;font-size:19px;line-height:1.5;color:#21364A;margin:0 0 18px;">I've taught for fifteen years. I've never seen students sit up the way they do when a HISPA role model walks in.</p>
+        <div style="display:flex;align-items:center;gap:11px;"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1A6E92,#2E8FB5);"></div><div style="font-weight:700;font-size:14px;">Mr. Delgado</div></div>
+      </div>
+      <div style="break-inside:avoid;background:#fff;border-radius:18px;padding:28px;margin-bottom:24px;border:1px solid rgba(16,42,67,0.05);box-shadow:0 1px 3px rgba(16,42,67,0.06);">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4C7A12;margin-bottom:12px;">Parent</div>
+        <p style="font-family:'Newsreader',serif;font-size:19px;line-height:1.5;color:#21364A;margin:0 0 18px;">My daughter came home talking about becoming a doctor. We had never heard her say anything like it before.</p>
+        <div style="display:flex;align-items:center;gap:11px;"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6FB42A,#F1601A);"></div><div style="font-weight:700;font-size:14px;">Rosa T.</div></div>
+      </div>
+      <div style="break-inside:avoid;background:#fff;border-radius:18px;padding:28px;margin-bottom:24px;border:1px solid rgba(16,42,67,0.05);box-shadow:0 1px 3px rgba(16,42,67,0.06);">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#F1601A;margin-bottom:12px;">Student</div>
+        <p style="font-family:'Newsreader',serif;font-size:19px;line-height:1.5;color:#21364A;margin:0 0 18px;">I used to say 'if' I go to college. Now I say 'when.' One word, but it changed everything.</p>
+        <div style="display:flex;align-items:center;gap:11px;"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#F1601A,#1B3A5B);"></div><div style="font-weight:700;font-size:14px;">Andrés P.</div></div>
+      </div>
+      <div style="break-inside:avoid;background:#fff;border-radius:18px;padding:28px;margin-bottom:24px;border:1px solid rgba(16,42,67,0.05);box-shadow:0 1px 3px rgba(16,42,67,0.06);">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1A6E92;margin-bottom:12px;">Role model · alum</div>
+        <p style="font-family:'Newsreader',serif;font-size:19px;line-height:1.5;color:#21364A;margin:0 0 18px;">I was a HISPA student in middle school. Now I'm the engineer standing at the front of the room. Full circle.</p>
+        <div style="display:flex;align-items:center;gap:11px;"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2E8FB5,#6FB42A);"></div><div style="font-weight:700;font-size:14px;">Luis F.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="max-width:1100px;margin:0 auto;padding:40px 32px 90px;">
+    <div style="background:#F1601A;border-radius:24px;padding:56px;text-align:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(255,255,255,0.18),transparent 50%);"></div>
+      <div style="position:relative;">
+        <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:38px;line-height:1.1;color:#fff;margin:0 0 14px;">Your story could be the one they remember.</h2>
+        <p style="font-size:17px;line-height:1.6;color:rgba(255,255,255,0.92);max-width:520px;margin:0 auto 28px;">Become a role model and add your voice to theirs.</p>
+        <a href="#" style="text-decoration:none;background:#fff;color:#C24A12;font-weight:700;font-size:16px;padding:15px 30px;border-radius:999px;display:inline-block;">Get involved</a>
+      </div>
+    </div>
+  </section>
+
+  <dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { index: 0 };
+  quotes = [
+    { text: "Before HISPA, college felt like a place for other kinds of families. After meeting my role model, it felt like a plan. Today I'm the first in my family to go.", name: "Jasmine O.", role: "HISPA alum · first-generation college student", g: ['#F1601A', '#6FB42A'] },
+    { text: "A role model told me my accent was a strength, not something to hide. I carried that with me through every classroom after.", name: "Sofia R.", role: "HISPA student", g: ['#2E8FB5', '#1B3A5B'] },
+    { text: "I came to volunteer thinking I'd be the one giving something. I left every visit having received more than I gave.", name: "Marcus D.", role: "Role model & software engineer", g: ['#7CC03B', '#F1601A'] },
+    { text: "My son used to go quiet when teachers asked about the future. Now he won't stop talking about it.", name: "Elena Vásquez", role: "HISPA parent", g: ['#1A6E92', '#2E8FB5'] },
+  ];
+
+  componentDidMount(){
+    this.reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    this._paused = false;
+    this._startTimer();
+  }
+  componentWillUnmount(){ this._stopTimer(); }
+
+  _startTimer(){
+    if (this.reduce) return;
+    this._stopTimer();
+    this._timer = setInterval(() => { if (!this._paused) this.next(); }, 6000);
+  }
+  _stopTimer(){ if (this._timer) clearInterval(this._timer); this._timer = null; }
+  _pause(){ this._paused = true; }
+  _resume(){ this._paused = false; }
+
+  next(){ this.setState({ index: (this.state.index + 1) % this.quotes.length }); this._startTimer(); }
+  prev(){ this.setState({ index: (this.state.index - 1 + this.quotes.length) % this.quotes.length }); this._startTimer(); }
+  goTo(i){ this.setState({ index: i }); this._startTimer(); }
+
+  renderVals(){
+    const i = this.state.index || 0;
+    const slides = this.quotes.map((q, idx) => ({
+      text: q.text, name: q.name, role: q.role,
+      gradA: q.g[0], gradB: q.g[1],
+      opacity: idx === i ? 1 : 0,
+      zIndex: idx === i ? 1 : 0,
+      hidden: idx !== i,
+    }));
+    const dots = this.quotes.map((_, idx) => ({
+      onClick: () => this.goTo(idx),
+      active: idx === i,
+      label: String(idx + 1),
+      scale: idx === i ? 'scaleX(2.75)' : 'scaleX(1)',
+      color: idx === i ? '#F1601A' : 'rgba(255,255,255,0.35)',
+    }));
+    return {
+      slides, dots,
+      onNext: () => this.next(),
+      onPrev: () => this.prev(),
+      liveText: this.quotes[i].name + ': ' + this.quotes[i].text,
+      setCarousel: (el) => {
+        if (!el || this._wired) return;
+        this._wired = true;
+        el.addEventListener('mouseenter', () => this._pause());
+        el.addEventListener('mouseleave', () => this._resume());
+        el.addEventListener('focusin', () => this._pause());
+        el.addEventListener('focusout', () => this._resume());
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowRight'){ e.preventDefault(); this.next(); }
+          else if (e.key === 'ArrowLeft'){ e.preventDefault(); this.prev(); }
+        });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Photos are loaded by string in JS, so the bundler can't discover them — declare them explicitly. -->
+<meta name="ext-resource-dependency" content="photos/p1.jpg" data-resource-id="photo1" />
+<meta name="ext-resource-dependency" content="photos/p2.jpg" data-resource-id="photo2" />
+<meta name="ext-resource-dependency" content="photos/p3.jpg" data-resource-id="photo3" />
+<meta name="ext-resource-dependency" content="photos/p4.jpg" data-resource-id="photo4" />
+<meta name="ext-resource-dependency" content="photos/p5.jpg" data-resource-id="photo5" />
+<meta name="ext-resource-dependency" content="photos/p6.jpg" data-resource-id="photo6" />
+<meta name="ext-resource-dependency" content="photos/p7.jpg" data-resource-id="photo7" />
+<meta name="ext-resource-dependency" content="photos/p8.jpg" data-resource-id="photo8" />
+<script src="./support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#0b0f19">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="tw" x1="180" y1="0" x2="1020" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#E4670F"/><stop offset="0.28" stop-color="#F0A81C"/><stop offset="0.55" stop-color="#71BD30"/><stop offset="0.78" stop-color="#1E9E8A"/><stop offset="1" stop-color="#2C8DBE"/>
+      </linearGradient>
+    </defs>
+    <rect width="1200" height="800" fill="#0b0f19"/>
+    <path d="M180 470 Q 390 320 600 400 T 1020 340" stroke="url(#tw)" stroke-width="120" fill="none" stroke-linecap="round"/>
+    <text x="600" y="250" font-family="Figtree, sans-serif" font-size="150" font-weight="800" fill="#F5F8FC" text-anchor="middle">20</text>
+  </svg>
+</template>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; background:#0b0f19; }
+  a{ color:#E67610; text-decoration:none; }
+  a:hover{ color:#F2862A; }
+</style>
+</helmet>
+<div ref="{{ setWrap }}" style="position:relative; width:100%; aspect-ratio:1920 / 560; overflow:hidden; background:#0b0f19; font-family:'Hanken Grotesk',system-ui,sans-serif;">
+
+  <!-- ============ DESKTOP / WIDE STAGE (1920×560) ============ -->
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+  <div ref="{{ setStage }}" data-screen-label="Hero (desktop)" style="position:absolute; top:0; left:0; width:1920px; height:560px; transform-origin:0 0; background:radial-gradient(125% 90% at 27% 16%, #17233f 0%, #0d1220 62%, #090d16 100%);">
+
+    <!-- faint structured grid (ambient whisper) -->
+    <div style="position:absolute; inset:0; background-image:linear-gradient(rgba(150,180,225,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(150,180,225,0.5) 1px, transparent 1px); background-size:66px 66px; opacity:0.05; z-index:1;"></div>
+
+    <!-- WAVE — live animated photo canvas (decorative; content lives in the text below) -->
+    <canvas ref="{{ setCanvas }}" width="1920" height="560" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; z-index:1; display:block;"></canvas>
+
+    <!-- left legibility gradient so the frosted panel + text always pop -->
+    <div style="position:absolute; inset:0; background:linear-gradient(90deg, rgba(9,13,22,0.62) 0%, rgba(9,13,22,0.12) 42%, rgba(9,13,22,0) 60%); z-index:2;"></div>
+
+    <!-- HISPA logo (official two-figure mark: mentor + student), top-left -->
+    <img src="brand/hispa-logo.png" alt="HISPA" style="position:absolute; top:40px; left:74px; height:94px; z-index:5; display:block; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.35));">
+
+    <!-- 20th-anniversary lockup (official colored mark), focal on the right -->
+    <img src="brand/anniversary-20th.png" alt="HISPA 20th Anniversary" style="position:absolute; right:74px; top:50%; transform:translateY(-50%); height:474px; z-index:4; filter:drop-shadow(0 18px 40px rgba(0,0,0,0.45));">
+
+    <!-- frosted-glass content panel -->
+    <div style="position:absolute; left:74px; top:156px; width:min(52%, 864px); padding:36px 42px 38px; border-radius:26px; background:rgba(13,19,32,0.56); backdrop-filter:blur(20px) saturate(1.35); -webkit-backdrop-filter:blur(20px) saturate(1.35); border:1px solid rgba(255,255,255,0.13); box-shadow:0 34px 90px -24px rgba(0,0,0,0.62), inset 0 1px 0 rgba(255,255,255,0.08); z-index:5;">
+      <div style="display:flex; align-items:center; gap:9px; margin-bottom:20px;">
+        <img src="brand/logo-star.svg" alt="" style="height:15px; display:block;">
+        <span style="font:600 13px/1 'Hanken Grotesk',sans-serif; letter-spacing:0.19em; text-transform:uppercase; color:#F2A73C;">2026 Kick-Off &amp; Recruiting Events</span>
+      </div>
+      <h1 style="margin:0; font-family:'Figtree',sans-serif; font-weight:700; font-size:46px; line-height:1.1; letter-spacing:-0.015em; color:#F5F8FC; text-wrap:balance;">With our voices, cultivating the <span style="color:#8FDC57;">next wave</span> of leaders</h1>
+      <div style="margin-top:24px; display:flex; flex-wrap:wrap; align-items:center; gap:10px; font:500 15.5px/1.2 'Hanken Grotesk',sans-serif; color:rgba(255,255,255,0.72);">
+        <span>Miami</span><span style="color:rgba(255,255,255,0.34);">&middot;</span>
+        <span>Palm Beach</span><span style="color:rgba(255,255,255,0.34);">&middot;</span>
+        <span>New Jersey</span><span style="color:rgba(255,255,255,0.34);">&middot;</span>
+        <span>New York</span><span style="color:rgba(255,255,255,0.34);">&middot;</span>
+        <span>Pennsylvania</span>
+      </div>
+      <a href="https://hispakickoff.org" target="_blank" rel="noopener" style="margin-top:30px; display:inline-flex; align-items:center; gap:10px; padding:15px 27px; border-radius:999px; background:#E67610; color:#fff; font:600 16px/1 'Hanken Grotesk',sans-serif; box-shadow:0 12px 28px -8px rgba(230,118,16,0.6);" style-hover="background:#F2862A; box-shadow:0 16px 34px -8px rgba(230,118,16,0.75);">Become a Role Model <span style="font-size:18px; line-height:0;">&rarr;</span></a>
+    </div>
+
+  </div>
+  </sc-if>
+
+  <!-- ============ MOBILE / RIBBON STAGE (390×548) ============ -->
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <div ref="{{ setStage }}" data-screen-label="Hero (mobile)" style="position:absolute; top:0; left:0; width:390px; height:548px; transform-origin:0 0; background:radial-gradient(135% 74% at 50% 6%, #17233f 0%, #0d1220 58%, #090d16 100%);">
+
+    <!-- faint grid -->
+    <div style="position:absolute; inset:0; background-image:linear-gradient(rgba(150,180,225,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(150,180,225,0.5) 1px, transparent 1px); background-size:48px 48px; opacity:0.05; z-index:1;"></div>
+
+    <!-- WAVE — live animated photo canvas (ribbon; decorative) -->
+    <canvas ref="{{ setCanvas }}" width="390" height="548" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; z-index:1; display:block;"></canvas>
+
+    <!-- top scrim so the logo + 20th mark read cleanly over the wave -->
+    <div style="position:absolute; left:0; right:0; top:0; height:132px; background:linear-gradient(180deg, rgba(9,13,22,0.66) 0%, rgba(9,13,22,0.18) 58%, rgba(9,13,22,0) 100%); z-index:2;"></div>
+    <!-- bottom scrim to seat the panel -->
+    <div style="position:absolute; left:0; right:0; bottom:0; height:62%; background:linear-gradient(180deg, rgba(9,13,22,0) 0%, rgba(9,13,22,0.5) 46%, rgba(9,13,22,0.82) 100%); z-index:2;"></div>
+
+    <!-- HISPA logo, top-left -->
+    <img src="brand/hispa-logo.png" alt="HISPA" style="position:absolute; top:20px; left:18px; height:38px; z-index:5; display:block; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4));">
+
+    <!-- 20th-anniversary lockup, top-right -->
+    <img src="brand/anniversary-20th.png" alt="HISPA 20th Anniversary" style="position:absolute; top:8px; right:8px; height:98px; z-index:4; filter:drop-shadow(0 10px 24px rgba(0,0,0,0.5));">
+
+    <!-- frosted-glass content panel (stacked) -->
+    <div style="position:absolute; left:14px; right:14px; top:238px; bottom:14px; padding:20px 20px 22px; border-radius:22px; background:rgba(13,19,32,0.62); backdrop-filter:blur(18px) saturate(1.35); -webkit-backdrop-filter:blur(18px) saturate(1.35); border:1px solid rgba(255,255,255,0.13); box-shadow:0 24px 60px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08); z-index:5; display:flex; flex-direction:column;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+        <img src="brand/logo-star.svg" alt="" style="height:13px; display:block;">
+        <span style="font:600 10.5px/1.25 'Hanken Grotesk',sans-serif; letter-spacing:0.12em; text-transform:uppercase; color:#F2A73C;">2026 Kick-Off &amp; Recruiting Events</span>
+      </div>
+      <h1 style="margin:0; font-family:'Figtree',sans-serif; font-weight:700; font-size:23px; line-height:1.16; letter-spacing:-0.015em; color:#F5F8FC; text-wrap:balance;">With our voices, cultivating the <span style="color:#8FDC57;">next wave</span> of leaders</h1>
+      <div style="margin-top:12px; display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; font:500 13px/1.2 'Hanken Grotesk',sans-serif; color:rgba(255,255,255,0.72);">
+        <span>Miami</span><span style="color:rgba(255,255,255,0.32);">&middot;</span>
+        <span>Palm Beach</span><span style="color:rgba(255,255,255,0.32);">&middot;</span>
+        <span>New Jersey</span><span style="color:rgba(255,255,255,0.32);">&middot;</span>
+        <span>New York</span><span style="color:rgba(255,255,255,0.32);">&middot;</span>
+        <span>Pennsylvania</span>
+      </div>
+      <a href="https://hispakickoff.org" target="_blank" rel="noopener" style="margin-top:16px; display:flex; align-items:center; justify-content:center; gap:9px; padding:16px 22px; border-radius:999px; background:#E67610; color:#fff; font:600 15.5px/1 'Hanken Grotesk',sans-serif; box-shadow:0 12px 26px -8px rgba(230,118,16,0.6);" style-hover="background:#F2862A; box-shadow:0 16px 34px -8px rgba(230,118,16,0.75);">Become a Role Model <span style="font-size:17px; line-height:0;">&rarr;</span></a>
+    </div>
+
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1920,&quot;height&quot;:560},&quot;motionIntensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0,&quot;max&quot;:1.6,&quot;step&quot;:0.1,&quot;unit&quot;:&quot;x&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;colorWash&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.55,&quot;min&quot;:0,&quot;max&quot;:0.9,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Wave&quot;},&quot;showMotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Ambient&quot;}}">
+class Component extends DCLogic {
+  state = { mode: 'desktop' };
+
+  cfg(){ return this.cfgFor(this.state.mode || 'desktop'); }
+  cfgFor(mode){
+    if(mode==='mobile') return { W:390, H:548, cy:158, amp:20, amp2:6, T:132, cellW:300, cyc:1.05 };
+    return { W:1920, H:560, cy:300, amp:58, amp2:13, T:214, cellW:300, cyc:1.45 };
+  }
+  wy(x, ph){ const {W,cy,amp,amp2,cyc}=this.cfg(); const k=Math.PI*2*cyc/W; return cy + amp*Math.sin(k*x+ph) + amp2*Math.sin(2.3*k*x - ph*0.7); }
+  rgba(hex,a){ const n=parseInt(hex.slice(1),16); return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
+  coverDraw(ctx,img,dx,dy,dw,dh,fx,fy){ const sc=Math.max(dw/img.width,dh/img.height); const sw=dw/sc, sh=dh/sc; ctx.drawImage(img,(img.width-sw)*fx,(img.height-sh)*fy,sw,sh,dx,dy,dw,dh); }
+
+  componentDidMount(){
+    // wrap height comes from aspect-ratio, set from React lifecycle only (never inside the ResizeObserver → no loop warning)
+    this.applyAR=()=>{ if(!this.wrap) return; const c=this.cfgFor(this.state.mode||'desktop'); const ar=c.W+' / '+c.H; if(this.wrap.style.aspectRatio!==ar) this.wrap.style.aspectRatio=ar; };
+    this.fit=()=>{
+      if(!this.wrap) return;
+      const w=this.wrap.clientWidth;
+      if(!w){ // layout not measured yet — a 0 width must NEVER force mobile / scale(0); retry next frame
+        cancelAnimationFrame(this._retryRaf); this._retryRaf=requestAnimationFrame(this.fit); return;
+      }
+      if(this.wrap.style.height) this.wrap.style.height='';   // height governed by aspect-ratio (lifecycle), not JS height
+      const want = w<640 ? 'mobile' : 'desktop';
+      if(want !== (this.state.mode||'desktop')){ this.setState({mode:want}); return; }  // applyAR + rescale run in componentDidUpdate
+      if(this.stage) this.stage.style.transform='scale('+(w/this.cfgFor(want).W)+')';
+    };
+    // fit() only writes transform (never resizes the wrap) → the ResizeObserver can call it directly with no loop and no debounce-deadlock
+    this.ro=new ResizeObserver(()=>this.fit()); if(this.wrap) this.ro.observe(this.wrap); this.applyAR(); this.fit();
+    window.addEventListener('resize', this.fit);
+
+    this.reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    this.motes = Array.from({length:26},()=>({ x:Math.random(), y:Math.random(), r:6+Math.random()*15, sp:0.006+Math.random()*0.013, ph:Math.random()*6.283, hue: Math.random()<0.55?'#FFD9A0':'#CBEBFF' }));
+
+    const order=[1,5,4,6,3,8,7,2];
+    const focalY={1:0.42,2:0.16,3:0.40,4:0.50,5:0.30,6:0.42,7:0.36,8:0.44};
+    this.photos = order.map((n)=>({im:new Image(), focalY:focalY[n]}));
+    let leftN=this.photos.length;
+    this.photos.forEach((p,i)=>{ const done=()=>{ if(--leftN<=0) this.start(); }; p.im.onload=done; p.im.onerror=done; p.im.src=(window.__resources&&window.__resources['photo'+order[i]])||('photos/p'+order[i]+'.jpg'); });
+
+    // pause rendering when tab hidden or hero scrolled off-screen
+    this._vis = true;
+    this.onVis = () => this._pump();
+    document.addEventListener('visibilitychange', this.onVis);
+    if(window.IntersectionObserver && this.wrap){
+      this.io = new IntersectionObserver((es)=>{ this._vis = es[0].isIntersecting; this._pump(); }, {threshold:0});
+      this.io.observe(this.wrap);
+    }
+  }
+  componentDidUpdate(){ if(this.applyAR) this.applyAR(); if(this.fit) this.fit(); }
+  componentWillUnmount(){
+    if(this.ro) this.ro.disconnect();
+    if(this.io) this.io.disconnect();
+    window.removeEventListener('resize', this.fit);
+    document.removeEventListener('visibilitychange', this.onVis);
+    if(this._raf){ cancelAnimationFrame(this._raf); this._raf=0; }
+    if(this._retryRaf){ cancelAnimationFrame(this._retryRaf); this._retryRaf=0; }
+  }
+
+  buildStrip(){
+    const {T,cellW}=this.cfg();
+    const ready=this.photos.filter((p)=>p.im.complete&&p.im.naturalWidth);
+    if(!ready.length) return;
+    const bandH=256; // fixed strip resolution; frame() scales to current T
+    const sw=ready.length*cellW;
+    const s=document.createElement('canvas'); s.width=sw; s.height=bandH; const b=s.getContext('2d');
+    ready.forEach((p,i)=>{ const x0=i*cellW; this.coverDraw(b,p.im,x0,0,cellW,bandH,0.5,p.focalY); b.fillStyle='rgba(6,10,18,0.5)'; b.fillRect(x0-1.5,0,3,bandH); });
+    const f=b.createLinearGradient(0,0,0,bandH);
+    f.addColorStop(0,'rgba(0,0,0,1)'); f.addColorStop(28/bandH,'rgba(0,0,0,0)'); f.addColorStop(1-28/bandH,'rgba(0,0,0,0)'); f.addColorStop(1,'rgba(0,0,0,1)');
+    b.globalCompositeOperation='destination-out'; b.fillStyle=f; b.fillRect(0,0,sw,bandH);
+    b.globalCompositeOperation='source-over';
+    this.strip=s; this.sw=sw; this.cw=cellW; this.bandH=bandH;
+  }
+
+  _pump(){
+    const run = this._started && !this.reduce && !document.hidden && this._vis!==false;
+    if(run && !this._raf){
+      this.t0=performance.now()-(this._lastTs||0)*1000;
+      this._raf=window.__hispaHeroRaf=requestAnimationFrame(this._loop);
+    } else if(!run && this._raf){
+      cancelAnimationFrame(this._raf); this._raf=0;
+    }
+  }
+
+  start(){
+    if(this._started) return; this._started=true;
+    this.buildStrip();
+    if(window.__hispaHeroRaf){ cancelAnimationFrame(window.__hispaHeroRaf); window.__hispaHeroRaf=0; }
+    this._loop=(now)=>{ const ts=(now-this.t0)/1000; this._lastTs=ts; this.frame(ts); this._raf=window.__hispaHeroRaf=requestAnimationFrame(this._loop); };
+    if(this.reduce){ this.frame(0); return; }
+    this.t0=performance.now();
+    this._pump();
+  }
+
+  frame(ts){
+    const cv=this.canvas; if(!cv||!this.strip) return;
+    const {W,H,T}=this.cfg();
+    const mi = this.reduce?0:(this.props.motionIntensity ?? 1);
+    const wash = this.props.colorWash ?? 0.55;
+    const ph = ts*0.5*mi;
+    const drift = mi ? (ts*9*mi)%this.sw : 0;
+    if(cv.width!==W){ cv.width=W; cv.height=H; }
+    const ctx=cv.getContext('2d'); ctx.clearRect(0,0,W,H);
+    const tmp=this._tmp||(this._tmp=document.createElement('canvas'));
+    if(tmp.width!==W||tmp.height!==H){ tmp.width=W; tmp.height=H; }
+    const tctx=tmp.getContext('2d'); tctx.clearRect(0,0,W,H);
+    const step=4, bandH=this.bandH||256;
+    for(let x=0;x<W;x+=step){
+      let sx=(x+drift)%this.sw; if(sx>this.sw-step) sx=this.sw-step;
+      const cell=Math.floor(sx/this.cw);
+      const a = mi ? 0.76+0.24*Math.sin(ts*0.55*mi + cell*1.5) : 1;
+      tctx.globalAlpha=a;
+      tctx.drawImage(this.strip, sx,0,step,bandH, x, this.wy(x,ph)-T/2, step, T);
+    }
+    tctx.globalAlpha=1;
+    // soft underglow then sharp band
+    ctx.save(); ctx.filter='blur(16px)'; ctx.globalAlpha=0.4; ctx.drawImage(tmp,0,0); ctx.restore();
+    ctx.drawImage(tmp,0,0);
+    // fixed spectrum wash — confined to the band so the ground stays dark
+    const cl=this._cl||(this._cl=document.createElement('canvas'));
+    if(cl.width!==W||cl.height!==H){ cl.width=W; cl.height=H; }
+    const clx=cl.getContext('2d'); clx.globalCompositeOperation='source-over'; clx.clearRect(0,0,W,H);
+    const g=clx.createLinearGradient(0,0,W,0);
+    g.addColorStop(0,'#E4670F'); g.addColorStop(0.24,'#F0A81C'); g.addColorStop(0.5,'#71BD30'); g.addColorStop(0.72,'#1E9E8A'); g.addColorStop(1,'#2C8DBE');
+    clx.fillStyle=g; clx.fillRect(0,0,W,H);
+    clx.globalCompositeOperation='destination-in'; clx.drawImage(tmp,0,0);
+    clx.globalCompositeOperation='source-over';
+    ctx.save(); ctx.globalCompositeOperation='overlay'; ctx.globalAlpha=Math.max(0,Math.min(1,wash*(1+0.12*Math.sin(ts*0.6*mi)))); ctx.drawImage(cl,0,0); ctx.restore();
+    // traveling shimmer along the wave
+    const sh=((ts*80*mi)%(W*1.3))-W*0.12, shy=this.wy(sh,ph);
+    ctx.save(); ctx.globalCompositeOperation='screen';
+    const rg=ctx.createRadialGradient(sh,shy,0,sh,shy,W<600?90:160);
+    rg.addColorStop(0,'rgba(255,250,235,0.16)'); rg.addColorStop(1,'rgba(255,250,235,0)');
+    ctx.fillStyle=rg; ctx.fillRect(0,0,W,H); ctx.restore();
+    // bright centerline keyline
+    ctx.save(); ctx.globalCompositeOperation='screen'; ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=2; ctx.beginPath();
+    for(let x=0;x<=W;x+=8){ const y=this.wy(x,ph); if(x===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke(); ctx.restore();
+    // warm ambient motes
+    if(this.props.showMotes!==false){
+      ctx.save(); ctx.globalCompositeOperation='screen';
+      for(const m of this.motes){
+        let yy=(m.y-(this.reduce?0:ts*m.sp))%1; if(yy<0) yy+=1;
+        const x=m.x*W, y=yy*H, tw=0.35+0.65*(0.5+0.5*Math.sin(ts*1.2*mi+m.ph));
+        const rg2=ctx.createRadialGradient(x,y,0,x,y,m.r);
+        rg2.addColorStop(0,this.rgba(m.hue,0.5*tw)); rg2.addColorStop(1,this.rgba(m.hue,0));
+        ctx.fillStyle=rg2; ctx.beginPath(); ctx.arc(x,y,m.r,0,6.2832); ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  renderVals(){
+    const mode = this.state.mode || 'desktop';
+    return {
+      isDesktop: mode !== 'mobile',
+      isMobile: mode === 'mobile',
+      setWrap:(el)=>{ this.wrap=el; if(this.ro&&el){ this.ro.disconnect(); this.ro.observe(el); } if(this.io&&el) this.io.observe(el); if(this.fit) this.fit(); },
+      setStage:(el)=>{ if(el){ this.stage=el; if(this.fit) this.fit(); } },
+      setCanvas:(el)=>{ if(el){ this.canvas=el; if(this._started){ this.frame(this._lastTs||0); this._pump(); } } },
+    };
+  }
+}
+</script>
+</body>
+</html>

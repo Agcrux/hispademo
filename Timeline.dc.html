@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  @keyframes tl-reveal{from{opacity:0;transform:translateY(46px);}to{opacity:1;transform:none;}}
+  @keyframes tl-xfade{0%{opacity:0;}16%{opacity:1;}84%{opacity:1;}100%{opacity:0;}}
+  @keyframes tl-prog{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+  @keyframes tl-bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(9px);}}
+  @keyframes tl-twinkle{0%,100%{opacity:0.45;}50%{opacity:1;}}
+  @keyframes tl-float{0%,100%{transform:translateY(0) rotate(-6deg);}50%{transform:translateY(-14px) rotate(6deg);}}
+  @keyframes tl-spin{from{transform:translate(-50%,-50%) rotate(0);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+  @keyframes tl-pulse{0%,100%{opacity:0.85;}50%{opacity:1;}}
+  /* --- JS-driven scroll choreography (works in every modern browser,
+         replacing the experimental CSS scroll-timeline that only ran in
+         Chromium and was additionally broken by an overflow ancestor) --- */
+  .tl-scene > div{animation:none !important;
+    transition:opacity .85s ease, transform .9s cubic-bezier(.16,.72,.2,1);
+    will-change:opacity,transform;}
+  .tl-scene > div.is-in{opacity:1 !important;transform:none !important;}
+  .tl-media{animation:none !important;transition:opacity .7s ease;}
+  .tl-media.is-active{opacity:1 !important;}
+  #tlProg{will-change:transform;}
+  @media (prefers-reduced-motion:reduce){
+    .tl-scene > div{transition:none !important;opacity:1 !important;transform:none !important;}
+  }
+</style>
+</helmet>
+<div style="position:relative;background:radial-gradient(circle at 50% 0%,#0E2347 0%,#081231 38%,#04070F 100%);font-family:'Hanken Grotesk',sans-serif;color:#EAF1FB;overflow:clip;">
+
+  <!-- STARFIELD + NEBULAE (fixed) -->
+  <div style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;width:2px;height:2px;border-radius:50%;background:transparent;box-shadow:1185px 252px 0 0 #dfe9ff,850px 1233px 0 0 #cfe0ff,522px 927px 0 0 #ffffff,1612px 728px 0 0 #cfe0ff,219px 1126px 0 0 #dfe9ff,33px 837px 0 0 #cfe0ff,571px 632px 0 0 #cfe0ff,1542px 754px 0 0 #ffffff,330px 111px 0 0 #cfe0ff,270px 469px 0 0 #ffffff,808px 947px 0 0 #ffffff,601px 1033px 0 0 #cfe0ff,156px 165px 0 0 #cfe0ff,771px 1048px 0 0 #dfe9ff,456px 45px 0 0 #ffffff,1781px 1px 0 0 #dfe9ff,799px 433px 0 0 #ffffff,1394px 772px 0 0 #dfe9ff,174px 496px 0 0 #cfe0ff,1539px 641px 0 0 #ffffff,727px 853px 0 0 #ffffff,515px 679px 0 0 #ffffff,1661px 891px 0 0 #dfe9ff,95px 341px 0 0 #cfe0ff,234px 1221px 0 0 #cfe0ff,981px 787px 0 0 #ffffff,1387px 1133px 0 0 #ffffff,75px 988px 0 0 #ffffff,1724px 700px 0 0 #dfe9ff,1832px 711px 0 0 #ffffff,81px 15px 0 0 #ffffff,619px 884px 0 0 #ffffff,269px 722px 0 0 #ffffff,1625px 549px 0 0 #dfe9ff,1231px 290px 0 0 #ffffff,495px 805px 0 0 #cfe0ff,626px 838px 0 0 #cfe0ff,548px 767px 0 0 #ffffff,1305px 663px 0 0 #cfe0ff,854px 697px 0 0 #dfe9ff,705px 1145px 0 0 #ffffff,1329px 1202px 0 0 #ffffff,1336px 585px 0 0 #cfe0ff,951px 273px 0 0 #dfe9ff,239px 1211px 0 0 #ffffff,535px 444px 0 0 #ffffff,455px 400px 0 0 #cfe0ff,1645px 569px 0 0 #cfe0ff,507px 648px 0 0 #cfe0ff,363px 799px 0 0 #dfe9ff,1582px 845px 0 0 #ffffff,717px 329px 0 0 #ffffff,326px 163px 0 0 #ffffff,1181px 54px 0 0 #ffffff,626px 300px 0 0 #ffffff,1439px 899px 0 0 #ffffff,565px 492px 0 0 #cfe0ff,1335px 1214px 0 0 #dfe9ff,968px 760px 0 0 #ffffff,1365px 1251px 0 0 #cfe0ff,1070px 519px 0 0 #ffffff,452px 1048px 0 0 #cfe0ff,1849px 1254px 0 0 #ffffff,1872px 923px 0 0 #ffffff,326px 66px 0 0 #cfe0ff,1324px 868px 0 0 #ffffff,1733px 1207px 0 0 #cfe0ff,392px 1194px 0 0 #ffffff,1781px 733px 0 0 #cfe0ff,1581px 1274px 0 0 #ffffff,1765px 96px 0 0 #cfe0ff,481px 82px 0 0 #cfe0ff,1527px 991px 0 0 #ffffff,1880px 696px 0 0 #ffffff,532px 1210px 0 0 #ffffff,757px 210px 0 0 #ffffff,375px 125px 0 0 #ffffff,431px 1293px 0 0 #dfe9ff,526px 107px 0 0 #ffffff,1516px 673px 0 0 #ffffff,1563px 622px 0 0 #ffffff,1426px 681px 0 0 #cfe0ff,1320px 859px 0 0 #dfe9ff,876px 1223px 0 0 #ffffff,747px 720px 0 0 #cfe0ff,1043px 758px 0 0 #ffffff,504px 788px 0 0 #cfe0ff,1905px 724px 0 0 #cfe0ff,1753px 1292px 0 0 #ffffff,420px 661px 0 0 #cfe0ff,1878px 951px 0 0 #cfe0ff,469px 352px 0 0 #ffffff,677px 1197px 0 0 #cfe0ff,1390px 762px 0 0 #ffffff,892px 1069px 0 0 #cfe0ff,396px 956px 0 0 #cfe0ff,940px 1076px 0 0 #ffffff,1112px 52px 0 0 #ffffff,1539px 1025px 0 0 #dfe9ff,1758px 419px 0 0 #ffffff,1761px 468px 0 0 #ffffff,594px 760px 0 0 #ffffff,874px 855px 0 0 #cfe0ff,1661px 670px 0 0 #ffffff,1806px 204px 0 0 #cfe0ff,1391px 814px 0 0 #dfe9ff,1670px 787px 0 0 #cfe0ff,1070px 961px 0 0 #ffffff,574px 769px 0 0 #cfe0ff,1140px 352px 0 0 #dfe9ff,1037px 733px 0 0 #ffffff,73px 664px 0 0 #ffffff,1814px 395px 0 0 #cfe0ff,232px 737px 0 0 #dfe9ff,1311px 415px 0 0 #dfe9ff,604px 1283px 0 0 #dfe9ff,1876px 253px 0 0 #dfe9ff,620px 580px 0 0 #cfe0ff,435px 529px 0 0 #cfe0ff,719px 453px 0 0 #cfe0ff,1421px 901px 0 0 #cfe0ff,1262px 477px 0 0 #cfe0ff,92px 1052px 0 0 #cfe0ff,340px 1085px 0 0 #cfe0ff,1440px 538px 0 0 #ffffff,1661px 1260px 0 0 #ffffff,17px 1173px 0 0 #cfe0ff,1407px 1044px 0 0 #dfe9ff,375px 234px 0 0 #dfe9ff,814px 1270px 0 0 #cfe0ff,791px 1224px 0 0 #cfe0ff,1555px 1123px 0 0 #dfe9ff,1352px 1176px 0 0 #ffffff,1590px 388px 0 0 #ffffff,232px 31px 0 0 #dfe9ff,806px 253px 0 0 #ffffff,223px 183px 0 0 #dfe9ff,1660px 914px 0 0 #ffffff,761px 789px 0 0 #dfe9ff,684px 366px 0 0 #ffffff,1814px 733px 0 0 #ffffff,1157px 625px 0 0 #ffffff,1475px 696px 0 0 #cfe0ff,458px 28px 0 0 #cfe0ff,1203px 18px 0 0 #ffffff,155px 111px 0 0 #ffffff,1844px 944px 0 0 #ffffff,586px 787px 0 0 #ffffff,664px 20px 0 0 #ffffff,1454px 438px 0 0 #cfe0ff;"></div>
+    <div style="position:absolute;top:0;left:0;width:1px;height:1px;border-radius:50%;background:transparent;box-shadow:1123px 1124px 0 0 #eaf2ff,1671px 348px 0 0 #ffffff,429px 1167px 0 0 #eaf2ff,1318px 1030px 0 0 #eaf2ff,1458px 633px 0 0 #eaf2ff,1684px 1033px 0 0 #eaf2ff,878px 512px 0 0 #ffffff,1051px 1299px 0 0 #ffffff,1873px 663px 0 0 #ffffff,880px 121px 0 0 #ffffff,309px 64px 0 0 #ffffff,1007px 1021px 0 0 #eaf2ff,20px 322px 0 0 #ffffff,247px 509px 0 0 #ffffff,1720px 138px 0 0 #ffffff,222px 759px 0 0 #ffffff,269px 223px 0 0 #ffffff,1156px 146px 0 0 #ffffff,479px 1007px 0 0 #ffffff,1628px 942px 0 0 #ffffff,157px 1279px 0 0 #ffffff,449px 1063px 0 0 #eaf2ff,934px 881px 0 0 #ffffff,1166px 1124px 0 0 #eaf2ff,649px 859px 0 0 #eaf2ff,1778px 1056px 0 0 #eaf2ff,1768px 1096px 0 0 #eaf2ff,1239px 240px 0 0 #ffffff,1528px 443px 0 0 #ffffff,868px 1222px 0 0 #ffffff,1827px 1019px 0 0 #eaf2ff,419px 621px 0 0 #ffffff,1697px 1034px 0 0 #ffffff,1734px 147px 0 0 #eaf2ff,1324px 25px 0 0 #ffffff,685px 802px 0 0 #ffffff,1170px 108px 0 0 #ffffff,1340px 928px 0 0 #eaf2ff,313px 825px 0 0 #ffffff,1755px 937px 0 0 #ffffff,1869px 396px 0 0 #ffffff,290px 867px 0 0 #ffffff,266px 1184px 0 0 #eaf2ff,203px 647px 0 0 #ffffff,1624px 777px 0 0 #ffffff,8px 1113px 0 0 #eaf2ff,1267px 695px 0 0 #ffffff,1375px 682px 0 0 #eaf2ff,1851px 230px 0 0 #ffffff,954px 308px 0 0 #ffffff,566px 1197px 0 0 #eaf2ff,1558px 307px 0 0 #ffffff,520px 732px 0 0 #eaf2ff,986px 347px 0 0 #ffffff,841px 289px 0 0 #ffffff,697px 1214px 0 0 #eaf2ff,1512px 867px 0 0 #eaf2ff,946px 228px 0 0 #ffffff,1382px 123px 0 0 #ffffff,1579px 349px 0 0 #ffffff,1298px 586px 0 0 #ffffff,1731px 1048px 0 0 #ffffff,452px 4px 0 0 #eaf2ff,200px 487px 0 0 #ffffff,113px 1135px 0 0 #ffffff,1734px 211px 0 0 #ffffff,1286px 894px 0 0 #ffffff,180px 990px 0 0 #ffffff,143px 444px 0 0 #ffffff,407px 177px 0 0 #ffffff,285px 622px 0 0 #ffffff,648px 156px 0 0 #ffffff,41px 994px 0 0 #ffffff,275px 412px 0 0 #eaf2ff,515px 965px 0 0 #ffffff,793px 423px 0 0 #ffffff,1433px 752px 0 0 #ffffff,1785px 898px 0 0 #eaf2ff,527px 218px 0 0 #ffffff,308px 1173px 0 0 #ffffff,310px 209px 0 0 #ffffff,1412px 1138px 0 0 #ffffff,525px 987px 0 0 #ffffff,666px 610px 0 0 #ffffff,984px 1231px 0 0 #ffffff,1361px 1211px 0 0 #ffffff,861px 1190px 0 0 #eaf2ff,905px 50px 0 0 #ffffff,9px 725px 0 0 #eaf2ff,1217px 249px 0 0 #ffffff,616px 931px 0 0 #ffffff,1120px 999px 0 0 #eaf2ff,927px 200px 0 0 #ffffff,1119px 817px 0 0 #ffffff,1451px 311px 0 0 #eaf2ff;animation:tl-twinkle 4.5s ease-in-out infinite;"></div>
+    <div style="position:absolute;top:0;left:0;width:3px;height:3px;border-radius:50%;background:transparent;box-shadow:180px 571px 0 0 #7CC03B,396px 1072px 0 0 #FF8A4D,1000px 599px 0 0 #9FE0FF,1342px 114px 0 0 #9FE0FF,301px 730px 0 0 #9FE0FF,1747px 115px 0 0 #FF8A4D,338px 384px 0 0 #7CC03B,890px 1070px 0 0 #FF6A1F,370px 890px 0 0 #7CC03B,368px 1194px 0 0 #FF8A4D,275px 223px 0 0 #9FE0FF,687px 1042px 0 0 #FF6A1F,1635px 868px 0 0 #9FE0FF,226px 923px 0 0 #9FE0FF,1277px 21px 0 0 #FF6A1F,1125px 559px 0 0 #FF8A4D,539px 962px 0 0 #FF8A4D,374px 344px 0 0 #39A7D4,113px 973px 0 0 #39A7D4,1166px 1063px 0 0 #7CC03B,948px 703px 0 0 #39A7D4,138px 514px 0 0 #7CC03B,915px 29px 0 0 #FF6A1F,125px 777px 0 0 #9FE0FF,1013px 1085px 0 0 #39A7D4,487px 592px 0 0 #FF8A4D;animation:tl-twinkle 7s ease-in-out infinite;"></div>
+    <div style="position:absolute;top:-12%;left:-6%;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(255,106,31,0.16),transparent 70%);filter:blur(26px);"></div>
+    <div style="position:absolute;bottom:2%;right:-10%;width:720px;height:720px;border-radius:50%;background:radial-gradient(circle,rgba(46,143,181,0.18),transparent 70%);filter:blur(28px);"></div>
+    <div style="position:absolute;top:42%;left:26%;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(124,192,32,0.10),transparent 70%);filter:blur(30px);"></div>
+  </div>
+
+  <div style="position:relative;z-index:1;">
+    <dc-import name="Nav" active="timeline" hint-size="100%,74px"></dc-import>
+
+    <!-- scroll progress (CSS scroll-driven) -->
+    <div style="position:fixed;top:74px;left:0;right:0;height:3px;z-index:40;background:rgba(255,255,255,0.07);">
+      <div id="tlProg" style="height:100%;background:linear-gradient(90deg,#FF6A1F,#FFB07A);box-shadow:0 0 12px rgba(255,106,31,0.7);transform-origin:left;transform:scaleX(0);"></div>
+    </div>
+
+    <!-- HERO -->
+    <section style="max-width:900px;margin:0 auto;padding:84px 32px 70px;text-align:center;position:relative;">
+      <div style="display:flex;justify-content:center;margin-bottom:24px;">
+        <svg width="64" height="64" viewBox="0 0 24 24" style="animation:tl-float 6s ease-in-out infinite;filter:drop-shadow(0 0 16px rgba(255,106,31,0.65));"><path d="M12 2L14.2 8.6L21 9L15.6 13.2L17.6 20L12 15.8L6.4 20L8.4 13.2L3 9L9.8 8.6L12 2Z" fill="#FF6A1F"/></svg>
+      </div>
+      <div style="font-size:13px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#FF8A4D;margin-bottom:16px;">Our timeline · est. 2007</div>
+      <h1 style="font-family:'Newsreader',serif;font-weight:500;font-size:62px;line-height:1.04;letter-spacing:-0.015em;margin:0 0 22px;color:#fff;">A journey written <span style="font-style:italic;color:#FF8A4D;">in the stars.</span></h1>
+      <p style="font-size:19px;line-height:1.6;color:#9DB0CC;max-width:560px;margin:0 auto 42px;">Nearly two decades of showing up for students — one milestone at a time. Keep scrolling to travel through the HISPA story.</p>
+      <div style="display:inline-flex;flex-direction:column;align-items:center;gap:8px;color:#6F84A6;">
+        <span style="font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;">Begin</span>
+        <span style="animation:tl-bounce 1.6s ease-in-out infinite;font-size:22px;color:#FF8A4D;">↓</span>
+      </div>
+    </section>
+
+    <!-- SCROLLYTELLING TRACK -->
+    <section id="tl-track" style="max-width:1240px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;timeline-scope:--s0,--s1,--s2,--s3,--s4,--s5,--s6,--s7;">
+
+      <!-- LEFT: scrolling scenes -->
+      <div style="position:relative;">
+        <div class="tl-scene" style="min-height:90vh;display:flex;flex-direction:column;justify-content:center;view-timeline-name:--s0;view-timeline-axis:block;">
+          <div style="opacity:0;transform:translateY(46px);animation:tl-reveal linear both;animation-timeline:view();animation-range:entry 4% cover 32%;">
+            <div style="display:inline-flex;align-items:center;gap:9px;font-family:'Newsreader',serif;font-size:64px;font-weight:600;color:#FF8A4D;line-height:1;margin-bottom:14px;">2007</div>
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7FB0CC;margin-bottom:16px;">The launch</div>
+            <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:36px;line-height:1.12;margin:0 0 16px;color:#fff;">HISPA is founded</h2>
+            <p style="font-size:17px;line-height:1.7;color:#9DB0CC;margin:0;max-width:440px;">Dr. Ivonne Díaz-Claisse launches HISPA and recruits the first Latino professionals to step into classrooms and share their journeys.</p>
+          </div>
+        </div>
+
+        <div class="tl-scene" style="min-height:90vh;display:flex;flex-direction:column;justify-content:center;view-timeline-name:--s1;view-timeline-axis:block;">
+          <div style="opacity:0;transform:translateY(46px);animation:tl-reveal linear both;animation-timeline:view();animation-range:entry 4% cover 32%;">
+            <div style="font-family:'Newsreader',serif;font-size:64px;font-weight:600;color:#FF8A4D;line-height:1;margin-bottom:14px;">2009</div>
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7FB0CC;margin-bottom:16px;">First orbit</div>
+            <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:36px;line-height:1.12;margin:0 0 16px;color:#fff;">First Youth Conference</h2>
+            <p style="font-size:17px;line-height:1.7;color:#9DB0CC;margin:0;max-width:440px;">Students step onto a college campus for the first HISPA youth leadership conference — and higher education suddenly feels real.</p>
+          </div>
+        </div>
+
+        <div class="tl-scene" style="min-height:90vh;display:flex;flex-direction:column;justify-content:center;view-timeline-name:--s2;view-timeline-axis:block;">
+          <div style="opacity:0;transform:translateY(46px);animation:tl-reveal linear both;animation-timeline:view();animation-range:entry 4% cover 32%;">
+            <div style="font-family:'Newsreader',serif;font-size:64px;font-weight:600;color:#FF8A4D;line-height:1;margin-bottom:14px;">2011</div>
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7FB0CC;margin-bottom:16px;">Expansion</div>
+            <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:36px;line-height:1.12;margin:0 0 16px;color:#fff;">Expanding the reach</h2>
+            <p style="font-size:17px;line-height:1.7;color:#9DB0CC;margin:0;max-width:440px;">The Role Model Program grows across New Jersey and into New York City schools, reaching thousands more students.</p>
+          </div>
+        </div>
+
+        <div class="tl-scene" style="min-height:90vh;display:flex;flex-direction:column;justify-content:center;view-timeline-name:--s3;view-timeline-axis:block;">
+          <div style="opacity:0;transform:translateY(46px);animation:tl-reveal linear both;animation-timeline:view();animation-range:entry 4% cover 32%;">
+            <div style="font-family:'Newsreader',serif;font-size:64px;font-weight:600;color:#FF8A4D;line-height:1;margin-bottom:14px;">2013</div>
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7FB0CC;margin-bottom:16px;">Constellation</div>
+            <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:36px;line-height:1.12;margin:0 0 16px;color:#fff;">The Three Kings Banquet</h2>
+            <p style="font-size:17px;line-height:1.7;color:#9DB0CC;margin:0;max-width:440px;">An annual celebration begins — honoring Latino leaders and rallying the community behind the mission.</p>
+          </div>
+        </div>
+
+        <div class="tl-scene" style="min-height:90vh;display:flex;flex-direction:column;justify-content:center;view-timeline-name:--s4;view-timeline-axis:block;">
+          <div style="opacity:0;transform:translateY(46px);animation:tl-reveal linear both;animation-timeline:view();animation-range:entry 4% cover 32%;">
+            <div style="font-family:'Newsreader',serif;font-size:64px;font-weight:600;color:#FF8A4D;line-height:1;margin-bottom:14px;">2015</div>
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7FB0CC;margin-bottom:16px;">Alignment</div>
+            <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:36px;line-height:1.12;margin:0 0 16px;color:#fff;">Joining forces for Camden</h2>
+            <p style="font-size:17px;line-height:1.7;color:#9DB0CC;margin:0;max-width:440px;">Corporate and university partners rally behind bilingual classroom visits for English learners.</p>
+          </div>
+        </div>
+
+        <div class="tl-scene" style="min-height:90vh;display:flex;flex-direction:column;justify-content:center;view-timeline-name:--s5;view-timeline-axis:block;">
+          <div style="opacity:0;transform:translateY(46px);animation:tl-reveal linear both;animation-timeline:view();animation-range:entry 4% cover 32%;">
+            <div style="font-family:'Newsreader',serif;font-size:64px;font-weight:600;color:#FF8A4D;line-height:1;margin-bottom:14px;">2020</div>
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7FB0CC;margin-bottom:16px;">Deep space</div>
+            <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:36px;line-height:1.12;margin:0 0 16px;color:#fff;">Showing up, virtually</h2>
+            <p style="font-size:17px;line-height:1.7;color:#9DB0CC;margin:0;max-width:440px;">When schools close, HISPA pivots to virtual visits — proving the connection travels through any screen.</p>
+          </div>
+        </div>
+
+        <div class="tl-scene" style="min-height:90vh;display:flex;flex-direction:column;justify-content:center;view-timeline-name:--s6;view-timeline-axis:block;">
+          <div style="opacity:0;transform:translateY(46px);animation:tl-reveal linear both;animation-timeline:view();animation-range:entry 4% cover 32%;">
+            <div style="font-family:'Newsreader',serif;font-size:64px;font-weight:600;color:#FF8A4D;line-height:1;margin-bottom:14px;">2023</div>
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7FB0CC;margin-bottom:16px;">Full circle</div>
+            <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:36px;line-height:1.12;margin:0 0 16px;color:#fff;">The students come back</h2>
+            <p style="font-size:17px;line-height:1.7;color:#9DB0CC;margin:0;max-width:440px;">Former HISPA students — now graduates and professionals — return as role models themselves.</p>
+          </div>
+        </div>
+
+        <div class="tl-scene" style="min-height:90vh;display:flex;flex-direction:column;justify-content:center;view-timeline-name:--s7;view-timeline-axis:block;">
+          <div style="opacity:0;transform:translateY(46px);animation:tl-reveal linear both;animation-timeline:view();animation-range:entry 4% cover 32%;">
+            <div style="font-family:'Newsreader',serif;font-size:64px;font-weight:600;color:#FF8A4D;line-height:1;margin-bottom:14px;">2026</div>
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#FF8A4D;margin-bottom:16px;">The north star</div>
+            <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:36px;line-height:1.12;margin:0 0 16px;color:#fff;">40,000+ students later</h2>
+            <p style="font-size:17px;line-height:1.7;color:#9DB0CC;margin:0;max-width:440px;">The mission is the same as launch day — only now it reaches further than Ivonne ever imagined. And the journey is still climbing.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: sticky viewport into space -->
+      <div style="position:sticky;top:0;height:100vh;display:flex;align-items:center;">
+        <div style="position:relative;width:100%;aspect-ratio:4/5;border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,0.10);box-shadow:0 30px 80px rgba(0,0,0,0.55),inset 0 0 80px rgba(0,0,0,0.5);background:radial-gradient(circle at 50% 38%,#13284f 0%,#070D20 72%);">
+
+          <!-- 2007 · orange planet -->
+          <div class="tl-media" style="position:absolute;inset:0;opacity:0;animation:tl-xfade linear both;animation-timeline:--s0;animation-range:cover 0% cover 100%;background:radial-gradient(circle at 50% 40%,#13284f 0%,#060B1A 72%);">
+            <div style="position:absolute;left:50%;top:40%;width:230px;height:230px;border-radius:50%;border:1px dashed rgba(255,255,255,0.12);transform:translate(-50%,-50%);"></div>
+            <div style="position:absolute;left:50%;top:40%;width:158px;height:158px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 36% 30%,#FFC79E,#FF6A1F 46%,#B23C08 100%);box-shadow:0 0 70px 8px rgba(255,106,31,0.5),inset -14px -14px 34px rgba(0,0,0,0.4);"></div>
+            <div style="position:absolute;top:22px;left:22px;display:inline-flex;align-items:center;gap:7px;background:rgba(8,16,40,0.72);border:1px solid rgba(255,255,255,0.12);padding:7px 13px;border-radius:999px;font-size:12px;font-weight:700;color:#EAF1FB;">📷 Add photo · the first classroom visit</div>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:30px;background:linear-gradient(to top,rgba(4,8,18,0.92),transparent);display:flex;align-items:flex-end;justify-content:space-between;">
+              <div><div style="font-family:'Newsreader',serif;font-size:48px;font-weight:600;line-height:1;color:#FF8A4D;">2007</div><div style="font-size:13px;font-weight:600;color:#9DB0CC;margin-top:6px;">HISPA is founded</div></div>
+              <div style="font-family:'Newsreader',serif;font-size:16px;color:#7E93B4;"><span style="color:#fff;font-weight:600;">01</span> / 08</div>
+            </div>
+          </div>
+
+          <!-- 2009 · blue planet -->
+          <div class="tl-media" style="position:absolute;inset:0;opacity:0;animation:tl-xfade linear both;animation-timeline:--s1;animation-range:cover 0% cover 100%;background:radial-gradient(circle at 50% 40%,#102a4e 0%,#060B1A 72%);">
+            <div style="position:absolute;left:50%;top:40%;width:230px;height:230px;border-radius:50%;border:1px dashed rgba(255,255,255,0.12);transform:translate(-50%,-50%);"></div>
+            <div style="position:absolute;left:50%;top:40%;width:158px;height:158px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 36% 30%,#BEEBFF,#2E8FB5 46%,#155E80 100%);box-shadow:0 0 70px 8px rgba(46,143,181,0.5),inset -14px -14px 34px rgba(0,0,0,0.4);"></div>
+            <div style="position:absolute;top:22px;left:22px;display:inline-flex;align-items:center;gap:7px;background:rgba(8,16,40,0.72);border:1px solid rgba(255,255,255,0.12);padding:7px 13px;border-radius:999px;font-size:12px;font-weight:700;color:#EAF1FB;">📷 Add photo · first youth conference</div>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:30px;background:linear-gradient(to top,rgba(4,8,18,0.92),transparent);display:flex;align-items:flex-end;justify-content:space-between;">
+              <div><div style="font-family:'Newsreader',serif;font-size:48px;font-weight:600;line-height:1;color:#FF8A4D;">2009</div><div style="font-size:13px;font-weight:600;color:#9DB0CC;margin-top:6px;">First Youth Conference</div></div>
+              <div style="font-family:'Newsreader',serif;font-size:16px;color:#7E93B4;"><span style="color:#fff;font-weight:600;">02</span> / 08</div>
+            </div>
+          </div>
+
+          <!-- 2011 · green planet -->
+          <div class="tl-media" style="position:absolute;inset:0;opacity:0;animation:tl-xfade linear both;animation-timeline:--s2;animation-range:cover 0% cover 100%;background:radial-gradient(circle at 50% 40%,#13314a 0%,#060B1A 72%);">
+            <div style="position:absolute;left:50%;top:40%;width:230px;height:230px;border-radius:50%;border:1px dashed rgba(255,255,255,0.12);transform:translate(-50%,-50%);"></div>
+            <div style="position:absolute;left:50%;top:40%;width:158px;height:158px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 36% 30%,#E2F8B0,#7CC03B 46%,#4E7A12 100%);box-shadow:0 0 70px 8px rgba(124,192,32,0.45),inset -14px -14px 34px rgba(0,0,0,0.4);"></div>
+            <div style="position:absolute;top:22px;left:22px;display:inline-flex;align-items:center;gap:7px;background:rgba(8,16,40,0.72);border:1px solid rgba(255,255,255,0.12);padding:7px 13px;border-radius:999px;font-size:12px;font-weight:700;color:#EAF1FB;">📷 Add photo · NJ &amp; NYC classrooms</div>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:30px;background:linear-gradient(to top,rgba(4,8,18,0.92),transparent);display:flex;align-items:flex-end;justify-content:space-between;">
+              <div><div style="font-family:'Newsreader',serif;font-size:48px;font-weight:600;line-height:1;color:#FF8A4D;">2011</div><div style="font-size:13px;font-weight:600;color:#9DB0CC;margin-top:6px;">Expanding the reach</div></div>
+              <div style="font-family:'Newsreader',serif;font-size:16px;color:#7E93B4;"><span style="color:#fff;font-weight:600;">03</span> / 08</div>
+            </div>
+          </div>
+
+          <!-- 2013 · orange planet -->
+          <div class="tl-media" style="position:absolute;inset:0;opacity:0;animation:tl-xfade linear both;animation-timeline:--s3;animation-range:cover 0% cover 100%;background:radial-gradient(circle at 50% 40%,#3a2238 0%,#060B1A 72%);">
+            <div style="position:absolute;left:50%;top:40%;width:230px;height:230px;border-radius:50%;border:1px dashed rgba(255,255,255,0.12);transform:translate(-50%,-50%);"></div>
+            <div style="position:absolute;left:50%;top:40%;width:158px;height:158px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 36% 30%,#FFD6B0,#FF8A2A 46%,#C24A12 100%);box-shadow:0 0 70px 8px rgba(255,138,42,0.5),inset -14px -14px 34px rgba(0,0,0,0.4);"></div>
+            <div style="position:absolute;top:22px;left:22px;display:inline-flex;align-items:center;gap:7px;background:rgba(8,16,40,0.72);border:1px solid rgba(255,255,255,0.12);padding:7px 13px;border-radius:999px;font-size:12px;font-weight:700;color:#EAF1FB;">📷 Add photo · Three Kings Banquet</div>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:30px;background:linear-gradient(to top,rgba(4,8,18,0.92),transparent);display:flex;align-items:flex-end;justify-content:space-between;">
+              <div><div style="font-family:'Newsreader',serif;font-size:48px;font-weight:600;line-height:1;color:#FF8A4D;">2013</div><div style="font-size:13px;font-weight:600;color:#9DB0CC;margin-top:6px;">The Three Kings Banquet</div></div>
+              <div style="font-family:'Newsreader',serif;font-size:16px;color:#7E93B4;"><span style="color:#fff;font-weight:600;">04</span> / 08</div>
+            </div>
+          </div>
+
+          <!-- 2015 · blue planet -->
+          <div class="tl-media" style="position:absolute;inset:0;opacity:0;animation:tl-xfade linear both;animation-timeline:--s4;animation-range:cover 0% cover 100%;background:radial-gradient(circle at 50% 40%,#0f3346 0%,#060B1A 72%);">
+            <div style="position:absolute;left:50%;top:40%;width:230px;height:230px;border-radius:50%;border:1px dashed rgba(255,255,255,0.12);transform:translate(-50%,-50%);"></div>
+            <div style="position:absolute;left:50%;top:40%;width:158px;height:158px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 36% 30%,#BEEBFF,#39A7D4 46%,#176A8E 100%);box-shadow:0 0 70px 8px rgba(57,167,212,0.48),inset -14px -14px 34px rgba(0,0,0,0.4);"></div>
+            <div style="position:absolute;top:22px;left:22px;display:inline-flex;align-items:center;gap:7px;background:rgba(8,16,40,0.72);border:1px solid rgba(255,255,255,0.12);padding:7px 13px;border-radius:999px;font-size:12px;font-weight:700;color:#EAF1FB;">📷 Add photo · Camden role models</div>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:30px;background:linear-gradient(to top,rgba(4,8,18,0.92),transparent);display:flex;align-items:flex-end;justify-content:space-between;">
+              <div><div style="font-family:'Newsreader',serif;font-size:48px;font-weight:600;line-height:1;color:#FF8A4D;">2015</div><div style="font-size:13px;font-weight:600;color:#9DB0CC;margin-top:6px;">Joining forces for Camden</div></div>
+              <div style="font-family:'Newsreader',serif;font-size:16px;color:#7E93B4;"><span style="color:#fff;font-weight:600;">05</span> / 08</div>
+            </div>
+          </div>
+
+          <!-- 2020 · green planet -->
+          <div class="tl-media" style="position:absolute;inset:0;opacity:0;animation:tl-xfade linear both;animation-timeline:--s5;animation-range:cover 0% cover 100%;background:radial-gradient(circle at 50% 40%,#16331f 0%,#060B1A 72%);">
+            <div style="position:absolute;left:50%;top:40%;width:230px;height:230px;border-radius:50%;border:1px dashed rgba(255,255,255,0.12);transform:translate(-50%,-50%);"></div>
+            <div style="position:absolute;left:50%;top:40%;width:158px;height:158px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 36% 30%,#E2F8B0,#8FD03A 46%,#577F18 100%);box-shadow:0 0 70px 8px rgba(143,208,58,0.45),inset -14px -14px 34px rgba(0,0,0,0.4);"></div>
+            <div style="position:absolute;top:22px;left:22px;display:inline-flex;align-items:center;gap:7px;background:rgba(8,16,40,0.72);border:1px solid rgba(255,255,255,0.12);padding:7px 13px;border-radius:999px;font-size:12px;font-weight:700;color:#EAF1FB;">📷 Add photo · virtual classroom visit</div>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:30px;background:linear-gradient(to top,rgba(4,8,18,0.92),transparent);display:flex;align-items:flex-end;justify-content:space-between;">
+              <div><div style="font-family:'Newsreader',serif;font-size:48px;font-weight:600;line-height:1;color:#FF8A4D;">2020</div><div style="font-size:13px;font-weight:600;color:#9DB0CC;margin-top:6px;">Showing up, virtually</div></div>
+              <div style="font-family:'Newsreader',serif;font-size:16px;color:#7E93B4;"><span style="color:#fff;font-weight:600;">06</span> / 08</div>
+            </div>
+          </div>
+
+          <!-- 2023 · orange planet -->
+          <div class="tl-media" style="position:absolute;inset:0;opacity:0;animation:tl-xfade linear both;animation-timeline:--s6;animation-range:cover 0% cover 100%;background:radial-gradient(circle at 50% 40%,#33263f 0%,#060B1A 72%);">
+            <div style="position:absolute;left:50%;top:40%;width:230px;height:230px;border-radius:50%;border:1px dashed rgba(255,255,255,0.12);transform:translate(-50%,-50%);"></div>
+            <div style="position:absolute;left:50%;top:40%;width:158px;height:158px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 36% 30%,#FFD6B0,#FF6A1F 46%,#B23C08 100%);box-shadow:0 0 70px 8px rgba(255,106,31,0.5),inset -14px -14px 34px rgba(0,0,0,0.4);"></div>
+            <div style="position:absolute;top:22px;left:22px;display:inline-flex;align-items:center;gap:7px;background:rgba(8,16,40,0.72);border:1px solid rgba(255,255,255,0.12);padding:7px 13px;border-radius:999px;font-size:12px;font-weight:700;color:#EAF1FB;">📷 Add photo · alumni return as role models</div>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:30px;background:linear-gradient(to top,rgba(4,8,18,0.92),transparent);display:flex;align-items:flex-end;justify-content:space-between;">
+              <div><div style="font-family:'Newsreader',serif;font-size:48px;font-weight:600;line-height:1;color:#FF8A4D;">2023</div><div style="font-size:13px;font-weight:600;color:#9DB0CC;margin-top:6px;">The students come back</div></div>
+              <div style="font-family:'Newsreader',serif;font-size:16px;color:#7E93B4;"><span style="color:#fff;font-weight:600;">07</span> / 08</div>
+            </div>
+          </div>
+
+          <!-- 2026 · the HISPA north star -->
+          <div class="tl-media" style="position:absolute;inset:0;opacity:0;animation:tl-xfade linear both;animation-timeline:--s7;animation-range:cover 0% cover 100%;background:radial-gradient(circle at 50% 40%,#3a2410 0%,#060B1A 72%);">
+            <div style="position:absolute;left:50%;top:40%;width:260px;height:260px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(255,106,31,0.30),transparent 70%);"></div>
+            <svg width="190" height="190" viewBox="0 0 24 24" style="position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 30px rgba(255,106,31,0.85));animation:tl-pulse 3s ease-in-out infinite;"><path d="M12 2L14.2 8.6L21 9L15.6 13.2L17.6 20L12 15.8L6.4 20L8.4 13.2L3 9L9.8 8.6L12 2Z" fill="#FF7A2E"/></svg>
+            <div style="position:absolute;top:22px;left:22px;display:inline-flex;align-items:center;gap:7px;background:rgba(8,16,40,0.72);border:1px solid rgba(255,255,255,0.12);padding:7px 13px;border-radius:999px;font-size:12px;font-weight:700;color:#EAF1FB;">📷 Add photo · students today</div>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:30px;background:linear-gradient(to top,rgba(4,8,18,0.92),transparent);display:flex;align-items:flex-end;justify-content:space-between;">
+              <div><div style="font-family:'Newsreader',serif;font-size:48px;font-weight:600;line-height:1;color:#fff;">2026</div><div style="font-size:13px;font-weight:600;color:#FFB07A;margin-top:6px;">40,000+ students later</div></div>
+              <div style="font-family:'Newsreader',serif;font-size:16px;color:#FFB07A;"><span style="color:#fff;font-weight:600;">08</span> / 08</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section style="max-width:1000px;margin:0 auto;padding:90px 32px 100px;text-align:center;position:relative;">
+      <svg width="44" height="44" viewBox="0 0 24 24" style="margin-bottom:18px;filter:drop-shadow(0 0 14px rgba(255,106,31,0.6));"><path d="M12 2L14.2 8.6L21 9L15.6 13.2L17.6 20L12 15.8L6.4 20L8.4 13.2L3 9L9.8 8.6L12 2Z" fill="#FF7A2E"/></svg>
+      <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:40px;line-height:1.1;margin:0 0 14px;color:#fff;">The next milestone could be yours.</h2>
+      <p style="font-size:17px;line-height:1.6;color:#9DB0CC;max-width:480px;margin:0 auto 28px;">Help write the next chapter of the HISPA story.</p>
+      <a href="Then%20Now%20Next.dc.html" style="text-decoration:none;background:#FF6A1F;color:#fff;font-weight:700;font-size:16px;padding:15px 30px;border-radius:999px;box-shadow:0 8px 28px rgba(255,106,31,0.4);">Where we're headed →</a>
+    </section>
+
+    <dc-import name="Footer" hint-size="100%,420px"></dc-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  componentDidMount(){ this.__tries = 0; this.__boot(); }
+  componentWillUnmount(){ this.__teardown(); }
+
+  __teardown(){
+    if (this.__onScroll){
+      window.removeEventListener('scroll', this.__onScroll);
+      window.removeEventListener('resize', this.__onScroll);
+      this.__onScroll = null;
+    }
+    if (this.__io){ this.__io.disconnect(); this.__io = null; }
+    this.__wired = false;
+  }
+
+  __boot(){
+    if (this.__wired) return;
+    const scenes = [].slice.call(document.querySelectorAll('#tl-track .tl-scene'));
+    const medias = [].slice.call(document.querySelectorAll('#tl-track .tl-media'));
+    const prog   = document.getElementById('tlProg');
+
+    // The template streams in just after first mount; retry until it's here.
+    if (scenes.length < 2 || medias.length < 2){
+      if (this.__tries++ < 40) requestAnimationFrame(() => this.__boot());
+      return;
+    }
+    this.__wired = true;
+
+    const cards  = scenes.map(s => s.querySelector(':scope > div')).filter(Boolean);
+    const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches);
+
+    // 1) Reveal each event card as it scrolls into view.
+    if (reduce){
+      cards.forEach(c => c.classList.add('is-in'));
+    } else if ('IntersectionObserver' in window){
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('is-in'); });
+      }, { rootMargin: '0px 0px -16% 0px', threshold: 0.2 });
+      cards.forEach(c => io.observe(c));
+      this.__io = io;
+    } else {
+      cards.forEach(c => c.classList.add('is-in'));
+    }
+
+    // 2) On scroll: cross-fade the pinned panel to match the centered event,
+    //    fill the progress bar, and rotate the planet in place (Apple-style).
+    let activeIdx = -1, ticking = false;
+    const clamp = (v, a, b) => (v < a ? a : (v > b ? b : v));
+    const docEl = document.documentElement;
+
+    const update = () => {
+      ticking = false;
+      const vh = window.innerHeight, mid = vh * 0.5;
+
+      let best = Infinity, idx = 0;
+      for (let i = 0; i < scenes.length; i++){
+        const r = scenes[i].getBoundingClientRect();
+        const c = r.top + r.height * 0.5;
+        const d = Math.abs(c - mid);
+        if (d < best){ best = d; idx = i; }
+      }
+
+      if (idx !== activeIdx){
+        if (medias[activeIdx]) medias[activeIdx].classList.remove('is-active');
+        activeIdx = idx;
+        if (medias[idx]) medias[idx].classList.add('is-active');
+      }
+
+      const y = window.scrollY || docEl.scrollTop || 0;
+      const max = (docEl.scrollHeight - vh) || 1;
+      if (prog) prog.style.transform = 'scaleX(' + clamp(y / max, 0, 1).toFixed(4) + ')';
+
+      if (!reduce){
+        const rot = y * 0.08;
+        const m = medias[idx];
+        if (m){
+          const spin = m.children[1];   // planet sphere / north-star
+          const ring = m.children[0];   // orbit ring / glow
+          if (spin) spin.style.transform = 'translate(-50%,-50%) rotate(' + rot.toFixed(2) + 'deg)';
+          if (ring) ring.style.transform = 'translate(-50%,-50%) rotate(' + (-rot * 0.6).toFixed(2) + 'deg)';
+        }
+      }
+    };
+
+    const onScroll = () => { if (!ticking){ ticking = true; requestAnimationFrame(update); } };
+    this.__onScroll = onScroll;
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+
+    update();
+    setTimeout(update, 250);
+    setTimeout(update, 800);
+  }
+}
+</script>
+</body>
+</html>
