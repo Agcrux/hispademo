@@ -7,6 +7,10 @@ Stream.svg
 PRODUCT.md
 .claude/
 
+# Archived full-resolution source photos (optimized copies ship as photos/p*.jpg)
+photo-originals/
+_optimize_all.py
+
 # OS / editor junk
 .DS_Store
 Thumbs.db

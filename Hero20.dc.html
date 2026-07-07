@@ -132,9 +132,15 @@ class Component extends DCLogic {
     this.reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
     this.motes = Array.from({length:30},()=>({ x:Math.random(), y:Math.random(), r:6+Math.random()*16, sp:0.006+Math.random()*0.013, ph:Math.random()*6.283, hue: Math.random()<0.55?'#FFD9A0':'#CBEBFF' }));
 
-    const order=[1,5,4,6,3,8,7,2];
-    const focalY={1:0.35,2:0.30,3:0.40,4:0.28,5:0.38,6:0.35,7:0.35,8:0.28};
-    this.photos = order.map((n)=>({im:new Image(), focalY:focalY[n]}));
+    // device GPU texture limit — buildStrip() uses it to size the photo strip so it never overflows
+    try{ const _gc=document.createElement('canvas'); const _g=_gc.getContext('webgl')||_gc.getContext('webgl2'); this._maxTex=_g?_g.getParameter(_g.MAX_TEXTURE_SIZE):8192; }catch(e){ this._maxTex=8192; }
+
+    // ALL 112 real HISPA event photos (photos/p1..p112.jpg). A coprime stride scatters the
+    // playback order so consecutive film cells come from different events (files are grouped by
+    // event). focalY=0.38 keeps faces (usually upper-centre) in frame when each cell is cover-cropped.
+    const N=112, stride=37;   // 37 is coprime with 112 → the sequence is a full shuffle of 1..112
+    const order=Array.from({length:N},(_,i)=>((i*stride)%N)+1);
+    this.photos = order.map(()=>({im:new Image(), focalY:0.38}));
     let leftN=this.photos.length;
     this.photos.forEach((p,i)=>{ const done=()=>{ if(--leftN<=0) this.start(); }; p.im.onload=done; p.im.onerror=done; p.im.src='photos/p'+order[i]+'.jpg'; });
 
@@ -162,17 +168,27 @@ class Component extends DCLogic {
   }
 
   buildStrip(){
-    const {cellW}=this.cfg();
     const ready=this.photos.filter((p)=>p.im.complete&&p.im.naturalWidth);
     if(!ready.length) return;
-    const bandH=256, margin=27, innerY=27, innerH=bandH-54, gut=9;
+    // Whole strip is one GPU texture / 2D canvas. With many photos, shrink each cell so the
+    // total width stays under the device's texture limit (query'd at mount) — otherwise a
+    // weaker GPU silently drops the texture and the reel goes blank. Small sets keep full width.
+    const capW=Math.min(this._maxTex||8192, 16384)-128;
+    const cellW=Math.max(48, Math.min(this.cfg().cellW, Math.floor(capW/ready.length)));
     const sw=ready.length*cellW;
+    // Band height so each cell's aspect matches how it's shown on the ribbon → photos aren't
+    // stretched. No-distortion condition: rowLen*bandH == sw*ROWU*ribbonWidth, with ROWU=0.11,
+    // ribbonWidth=2*halfW=1.64, rowLen≈25 (these MUST match buildRibbonGeo). Since sw scales with
+    // the photo count, bandH tracks it so the film frames stay correctly proportioned at any N.
+    const ROWU=0.11, ribbonW=1.64, rowLen=25;
+    const bandH=Math.max(64, Math.min(256, Math.round(sw*ROWU*ribbonW/rowLen)));
+    const margin=Math.max(9,Math.round(bandH*0.11)), innerY=margin, innerH=bandH-2*margin, gut=Math.max(4,Math.round(cellW*0.06));
     const s=document.createElement('canvas'); s.width=sw; s.height=bandH; const b=s.getContext('2d');
     b.fillStyle='#0b0c10'; b.fillRect(0,0,sw,bandH);
     ready.forEach((p,i)=>{ const x0=i*cellW; this.coverDraw(b,p.im,x0+gut,innerY,cellW-gut*2,innerH,0.5,p.focalY); });
     b.strokeStyle='rgba(255,255,255,0.07)'; b.lineWidth=1;
     for(let i=0;i<ready.length;i++){ const x0=i*cellW; b.strokeRect(x0+gut+0.5,innerY+0.5,cellW-gut*2-1,innerH-1); }
-    const pitch=48, pw=22, ph=15, ty=(margin-ph)/2, by=bandH-margin+(margin-ph)/2;
+    const pitch=Math.max(20,Math.round(bandH*0.19)), pw=Math.max(8,Math.round(bandH*0.086)), ph=Math.max(5,Math.round(bandH*0.059)), ty=(margin-ph)/2, by=bandH-margin+(margin-ph)/2;
     for(let x=pitch/2; x<sw; x+=pitch){
       b.fillStyle='rgba(242,246,251,0.92)';
       this.roundRect(b, x-pw/2, ty, pw, ph, 3); b.fill();
@@ -212,7 +228,10 @@ class Component extends DCLogic {
       {y:-0.20, amp:0.34, aph:2.2, zamp:0.62, zph:1.4, x0: 13.5, x1:-13.5},
       {y:-3.00, amp:0.32, aph:3.7, zamp:0.58, zph:2.8, x0: 13.5, x1:-13.5}
     ];
-    const perRow=90, halfW=0.82, TW=Math.PI*2*0.05, ROWU=1.15, wash=this.props.colorWash ?? 0;
+    // ROWU = how much of the (112-photo) strip one row spans on screen. Kept small so ~10 frames
+    // show at a readable size per row; the animated texture offset scrolls through all 112 over the
+    // loop. MUST match the ROWU used in buildStrip's band-height (no-distortion) formula.
+    const perRow=90, halfW=0.82, TW=Math.PI*2*0.05, ROWU=0.11, wash=this.props.colorWash ?? 0;
     const up=new THREE.Vector3(0,0,1);
     const pos=[], uv=[], idx=[], base=[], col=[];
     const yAt=(R,s)=>R.y + R.amp*Math.sin(s*Math.PI*2*1.5 + R.aph);
@@ -230,7 +249,7 @@ class Component extends DCLogic {
         const Wv=n.applyQuaternion(q).multiplyScalar(halfW);
         const L=C.clone().add(Wv), Rr=C.clone().sub(Wv);
         pos.push(L.x,L.y,L.z, Rr.x,Rr.y,Rr.z);
-        const u=r*ROWU + s*ROWU;                 // film runs continuously across the rows
+        const u=(r/rows.length) + s*ROWU;        // each row starts a third of the way further into the strip, so rows never show the same photo at once
         uv.push(u,1, u,0);
         const gt=(r+s)/rows.length;              // spectrum flows warm→cool down the whole run
         const sp=this.spectrumBase(gt); base.push(sp[0],sp[1],sp[2], sp[0],sp[1],sp[2]);
@@ -301,7 +320,7 @@ class Component extends DCLogic {
     const {renderer,scene,cam}=this.three;
     const mi=this.reduce?0:(this.props.motionIntensity ?? 1);
     let dt=ts-(this._lt3||ts); this._lt3=ts; if(dt<0||dt>0.1) dt=0.016;
-    if(this.filmTex) this.filmTex.offset.x = this.filmTex.offset.x - 0.05*mi*dt;
+    if(this.filmTex) this.filmTex.offset.x = this.filmTex.offset.x - 0.0036*mi*dt;   // ~0.05×(8/112): the strip holds 112 photos now, so scale the scroll down to keep the original slow drift
     if(this._reelSpin) this._reelSpin.rotation.z += 0.9*mi*dt;
     const wash=this.props.colorWash ?? 0;
     if(this._colAttr && wash!==this._lastWash){ const arr=this._colAttr.array, base=this._specBase; for(let i=0;i<arr.length;i++) arr[i]=(1-wash)+base[i]*wash; this._colAttr.needsUpdate=true; this._lastWash=wash; }
