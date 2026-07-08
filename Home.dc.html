@@ -44,15 +44,6 @@
   .hispa-intro-overlay--leaving{
     opacity:0;backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);pointer-events:none;
   }
-  .hispa-intro-skip{
-    position:absolute;top:20px;right:20px;z-index:2;pointer-events:auto;cursor:pointer;
-    display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,0.22);
-    background:rgba(255,255,255,0.08);color:#dceef7;padding:9px 16px;border-radius:999px;
-    font-family:'Hanken Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.08em;
-    text-transform:uppercase;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-    transition:background .18s,border-color .18s;
-  }
-  .hispa-intro-skip:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.4);}
 
   /* prefers-reduced-motion: freeze to a deliberately-composed static bloom (NOT animation:none
      alone, which resets to opacity:1 — set the intended frozen opacity/rotation explicitly). */
@@ -71,7 +62,6 @@
   <sc-if value="{{ introVisible }}" hint-placeholder-val="{{ false }}">
     <div class="hispa-intro-overlay{{ introLeavingClass }}">
       <dc-import name="Intro20" hint-size="100%,100%"></dc-import>
-      <button type="button" class="hispa-intro-skip" onclick="{{ onSkipIntro }}">Skip intro →</button>
     </div>
   </sc-if>
 
@@ -286,26 +276,30 @@ class Component extends DCLogic {
   componentDidMount(){
     this._onIntroDone = () => this.beginIntroExit();
     document.addEventListener('hispa-intro-done', this._onIntroDone);
+    // Safety net: there's no manual Skip control anymore, so guarantee the intro can never get
+    // stuck. It dispatches 'hispa-intro-done' at ~10.5s; if that event ever fails to arrive, this
+    // dismisses the overlay anyway.
+    if (this.state.introVisible) this._introFailsafe = setTimeout(() => this.beginIntroExit(), 14000);
   }
   componentWillUnmount(){
     document.removeEventListener('hispa-intro-done', this._onIntroDone);
     if (this._introExitTimer) clearTimeout(this._introExitTimer);
+    if (this._introFailsafe) clearTimeout(this._introFailsafe);
   }
 
   beginIntroExit(){
     if (!this.state.introVisible || this.state.introLeaving) return;
+    if (this._introFailsafe) clearTimeout(this._introFailsafe);
     try { sessionStorage.setItem('hispaIntroSeen', '1'); } catch (e) {}
     this.setState({ introLeaving: true });
     // matches the CSS transition duration (1.1s) + a small buffer, then fully unmounts Intro20
     this._introExitTimer = setTimeout(() => this.setState({ introVisible: false }), 1200);
   }
-  onSkipIntro = () => this.beginIntroExit();
 
   renderVals(){
     return {
       introVisible: this.state.introVisible,
       introLeavingClass: this.state.introLeaving ? ' hispa-intro-overlay--leaving' : '',
-      onSkipIntro: this.onSkipIntro,
     };
   }
 }

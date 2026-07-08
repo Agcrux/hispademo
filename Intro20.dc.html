@@ -38,10 +38,7 @@
     <div ref="{{ tagEyebrowRef }}" style="opacity:0;white-space:nowrap;font-family:'Great Vibes',cursive;font-weight:400;line-height:1.0;font-size:min(9vh,12vw);color:#F6F1E7;text-shadow:0 3px 34px rgba(0,167,210,0.4),0 0 2px rgba(255,255,255,0.25);">With our Voices</div>
     <div ref="{{ tagMainRef }}" style="opacity:0;margin-top:min(0.4vh,0.4vw);font-family:'Baloo 2','Segoe UI',sans-serif;font-weight:600;letter-spacing:0.005em;line-height:1.12;font-size:min(3vh,4.1vw);color:#7FB6DE;">Cultivating the Next Wave of Leaders</div>
   </div>
-  <div style="position:absolute;left:0;right:0;bottom:26px;display:flex;gap:12px;justify-content:center;align-items:center;animation:uiFadeUp 0.8s ease 7.8s both;">
-    <button onClick="{{ onReplay }}" style="pointer-events:auto;cursor:pointer;display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.07);color:#dceef7;padding:9px 18px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:background 0.18s,border-color 0.18s;" style-hover="background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.4);">↻ Replay</button>
-    <button onClick="{{ onToggleSound }}" style="pointer-events:auto;cursor:pointer;display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.16);background:rgba(255,255,255,0.05);color:#9fb6c2;padding:9px 16px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:background 0.18s,color 0.18s;" style-hover="background:rgba(255,255,255,0.1);color:#dceef7;">{{ soundLabel }}</button>
-  </div>
+  <!-- Replay / Sound controls removed — the intro auto-plays once and dissolves on its own. -->
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;background&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#000000&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#000000&quot;,&quot;#05091c&quot;,&quot;#0b0b10&quot;],&quot;section&quot;:&quot;Look&quot;},&quot;beamDensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:70,&quot;min&quot;:30,&quot;max&quot;:100,&quot;step&quot;:2,&quot;tsType&quot;:&quot;number&quot;,&quot;unit&quot;:&quot;beams&quot;,&quot;section&quot;:&quot;Look&quot;},&quot;soundEnabled&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Playback&quot;},&quot;loopEnabled&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Playback&quot;}}">
@@ -325,7 +322,7 @@ class Component extends DCLogic {
     window.addEventListener('resize', this._onResize);
     this._onSeek = (e) => { this.override = (e.detail && typeof e.detail.time === 'number') ? e.detail.time : 0; this.render(this.override); };
     if (stage) stage.addEventListener('data-om-seek-to-time-frame', this._onSeek);
-    this.loadAudioBuffers();
+    this._audioLoad = this.loadAudioBuffers();   // keep the fetch promise so decode can wait on it
     this._unlock = () => { this.restart(); };
     window.addEventListener('pointerdown', this._unlock, { once: true });
     this.playT = 0;
@@ -376,19 +373,21 @@ class Component extends DCLogic {
   }
   async loadAudioBuffers() {
     try {
-      const [rb, vb, sb] = await Promise.all([
+      const [rb, sb] = await Promise.all([
         fetch('assets/riser.mp3').then(r => r.arrayBuffer()),
-        fetch('assets/voice.mp3').then(r => r.arrayBuffer()),
         fetch('assets/shutter.mp3').then(r => r.arrayBuffer())
       ]);
-      this._riserAB = rb; this._voiceAB = vb; this._shutterAB = sb;
+      this._riserAB = rb; this._shutterAB = sb;
     } catch (e) { console.warn('audio fetch failed', e); }
   }
   async decodeBuffers() {
     if (!this.ac) return;
+    // Close the race: if the click that unlocks audio arrives before the mp3s finish downloading,
+    // wait for the fetch to complete first — otherwise the buffers are undefined and audio is
+    // silently skipped ("sometimes the audio doesn't apply").
+    if (this._audioLoad) { try { await this._audioLoad; } catch (e) {} }
     try {
       if (this._riserAB && !this.riserBuf) this.riserBuf = await this.ac.decodeAudioData(this._riserAB.slice(0));
-      if (this._voiceAB && !this.voiceBuf) this.voiceBuf = await this.ac.decodeAudioData(this._voiceAB.slice(0));
       if (this._shutterAB && !this.shutterBuf) this.shutterBuf = await this.ac.decodeAudioData(this._shutterAB.slice(0));
     } catch (e) { console.warn('audio decode failed', e); }
   }
@@ -415,7 +414,7 @@ class Component extends DCLogic {
     const base = this.ac.currentTime + 0.04;
     this.scheduleClip(this.riserBuf, this.TL.RISER_AT, playhead, base, 0.72);
     if (this.shutterBuf) for (const f of this.paps) this.scheduleClip(this.shutterBuf, f.t, playhead, base, 0.7, 0.28);
-    this.scheduleClip(this.voiceBuf, this.TL.VOICE_AT, playhead, base, 1.0);
+    // voiceover removed — only the riser + camera-shutter SFX play now.
   }
 
   restart = async () => {
@@ -431,23 +430,11 @@ class Component extends DCLogic {
     this.lastSec = -1;
     if (this.state.soundOn) this.scheduleAudioFrom(0);
   };
-  onReplay = () => { this.restart(); };
-  onToggleSound = () => {
-    this.setState(s => {
-      const on = !s.soundOn;
-      if (on) { this.ensureAudio(); this.decodeBuffers().then(() => this.scheduleAudioFrom(this.playT)); }
-      else { this.stopAudioNodes(); }
-      return { soundOn: on };
-    });
-  };
-
   renderVals() {
     return {
       stageRef: this.stageRef, aRef: this.aRef, bRef: this.bRef,
       imgRef: this.imgRef, flashRef: this.flashRef, boxRef: this.boxRef, vignetteRef: this.vignetteRef,
-      tagEyebrowRef: this.tagEyebrowRef, tagMainRef: this.tagMainRef, papWrapRef: this.papWrapRef,
-      onReplay: this.onReplay, onToggleSound: this.onToggleSound,
-      soundLabel: this.state.soundOn ? 'Sound: On' : 'Sound: Off'
+      tagEyebrowRef: this.tagEyebrowRef, tagMainRef: this.tagMainRef, papWrapRef: this.papWrapRef
     };
   }
 }
