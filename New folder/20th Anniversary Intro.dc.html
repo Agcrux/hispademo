@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    html,body{margin:0;padding:0;height:100%;background:#000;}
+    body{overflow:hidden;}
+    *{box-sizing:border-box;}
+    a{color:#00A7D2;text-decoration:none;} a:hover{color:#6FE9FF;}
+    @keyframes uiFadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+</helmet>
+<div ref="{{ stageRef }}" data-screen-label="20th Anniversary intro — 0s" data-om-exportable-video-with-duration-secs="11" style="position:fixed;inset:0;background:#000;overflow:hidden;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;">
+  <canvas ref="{{ aRef }}" style="position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;"></canvas>
+  <div ref="{{ vignetteRef }}" style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(125% 125% at 50% 46%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.62) 100%);"></div>
+  <div ref="{{ boxRef }}" style="position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);pointer-events:none;will-change:transform;">
+    <img ref="{{ imgRef }}" src="assets/anniversary20.png" alt="20th Anniversary" style="position:relative;display:block;width:100%;height:auto;opacity:0;filter:drop-shadow(0 10px 46px rgba(0,167,210,0.28));"/>
+    <canvas ref="{{ bRef }}" style="position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;mix-blend-mode:screen;"></canvas>
+  </div>
+  <div ref="{{ flashRef }}" style="position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(62% 58% at 50% 47%, rgba(255,255,255,0.96) 0%, rgba(186,236,255,0.55) 34%, rgba(120,220,255,0) 72%);"></div>
+  <div ref="{{ papWrapRef }}" style="position:absolute;inset:0;pointer-events:none;">
+    <div style="position:absolute;inset:0;opacity:0;mix-blend-mode:screen;background:radial-gradient(58% 58% at 20% 24%, #fff 0%, rgba(255,255,255,0.96) 3%, rgba(230,244,255,0.5) 24%, rgba(200,225,255,0) 56%);"></div>
+    <div style="position:absolute;inset:0;opacity:0;mix-blend-mode:screen;background:radial-gradient(58% 58% at 80% 20%, #fff 0%, rgba(255,255,255,0.96) 3%, rgba(230,244,255,0.5) 24%, rgba(200,225,255,0) 56%);"></div>
+    <div style="position:absolute;inset:0;opacity:0;mix-blend-mode:screen;background:radial-gradient(64% 64% at 50% 12%, #fff 0%, rgba(255,255,255,0.98) 3%, rgba(235,246,255,0.55) 26%, rgba(205,228,255,0) 60%);"></div>
+    <div style="position:absolute;inset:0;opacity:0;mix-blend-mode:screen;background:radial-gradient(56% 56% at 26% 74%, #fff 0%, rgba(255,255,255,0.95) 3%, rgba(230,244,255,0.48) 24%, rgba(200,225,255,0) 55%);"></div>
+    <div style="position:absolute;inset:0;opacity:0;mix-blend-mode:screen;background:radial-gradient(58% 58% at 76% 70%, #fff 0%, rgba(255,255,255,0.96) 3%, rgba(230,244,255,0.5) 24%, rgba(200,225,255,0) 56%);"></div>
+  </div>
+  <div style="position:absolute;left:50%;top:78%;transform:translate(-50%,-50%);width:92%;max-width:1220px;text-align:center;pointer-events:none;">
+    <div ref="{{ tagEyebrowRef }}" style="opacity:0;white-space:nowrap;font-family:'Great Vibes',cursive;font-weight:400;line-height:1.0;font-size:min(9vh,12vw);color:#F6F1E7;text-shadow:0 3px 34px rgba(0,167,210,0.4),0 0 2px rgba(255,255,255,0.25);">With our Voices</div>
+    <div ref="{{ tagMainRef }}" style="opacity:0;margin-top:min(0.4vh,0.4vw);font-family:'Baloo 2','Segoe UI',sans-serif;font-weight:600;letter-spacing:0.005em;line-height:1.12;font-size:min(3vh,4.1vw);color:#7FB6DE;">Cultivating the Next Wave of Leaders</div>
+  </div>
+  <div style="position:absolute;left:0;right:0;bottom:26px;display:flex;gap:12px;justify-content:center;align-items:center;animation:uiFadeUp 0.8s ease 7.8s both;">
+    <button onClick="{{ onReplay }}" style="pointer-events:auto;cursor:pointer;display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.07);color:#dceef7;padding:9px 18px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:background 0.18s,border-color 0.18s;" style-hover="background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.4);">↻ Replay</button>
+    <button onClick="{{ onToggleSound }}" style="pointer-events:auto;cursor:pointer;display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,0.16);background:rgba(255,255,255,0.05);color:#9fb6c2;padding:9px 16px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:background 0.18s,color 0.18s;" style-hover="background:rgba(255,255,255,0.1);color:#dceef7;">{{ soundLabel }}</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;background&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#000000&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#000000&quot;,&quot;#05091c&quot;,&quot;#0b0b10&quot;],&quot;section&quot;:&quot;Look&quot;},&quot;beamDensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:70,&quot;min&quot;:30,&quot;max&quot;:100,&quot;step&quot;:2,&quot;tsType&quot;:&quot;number&quot;,&quot;unit&quot;:&quot;beams&quot;,&quot;section&quot;:&quot;Look&quot;},&quot;soundEnabled&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Playback&quot;},&quot;loopEnabled&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Playback&quot;}}">
+class Component extends DCLogic {
+  stageRef = React.createRef();
+  aRef = React.createRef();
+  bRef = React.createRef();
+  imgRef = React.createRef();
+  flashRef = React.createRef();
+  boxRef = React.createRef();
+  vignetteRef = React.createRef();
+  tagEyebrowRef = React.createRef();
+  tagMainRef = React.createRef();
+  papWrapRef = React.createRef();
+  paps = [ { t: 4.50, i: 0.92 }, { t: 4.82, i: 0.88 }, { t: 5.12, i: 1.0 }, { t: 5.38, i: 0.82 }, { t: 5.60, i: 0.9 } ];
+  state = { soundOn: this.props.soundEnabled !== false };
+
+  // ---- timeline (seconds) ----
+  TL = {
+    SEED: 0.5, SPREAD_END: 2.0,
+    CONV_START: 2.05, CONV_END: 3.5,
+    FLASH_PEAK: 4.2, LOGO_START: 4.15, LOGO_END: 5.1,
+    SETTLE_END: 5.6,
+    DOCK_START: 5.7, DOCK_END: 6.55,
+    TAG_EYE_START: 5.95, TAG_EYE_END: 6.75,
+    TAG_MAIN_START: 6.5, TAG_MAIN_END: 7.4,
+    RISER_AT: 0.0, VOICE_AT: 5.95,
+    HOLD_END: 10.5, LOOP_AT: 11.3
+  };
+  ASPECT = 1454 / 1082;
+
+  // ---- utils ----
+  clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  lerp(a, b, t) { return a + (b - a) * t; }
+  smooth(a, b, x) { if (b === a) return x >= b ? 1 : 0; let t = this.clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); }
+  easeInOut(p) { return p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; }
+  easeOutCubic(p) { return 1 - Math.pow(1 - p, 3); }
+  gauss(t, mu, sig) { const z = (t - mu) / sig; return Math.exp(-z * z); }
+  hex(h) { h = h.replace('#', ''); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+  rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
+  rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  initBeams(n) {
+    const rand = this.rng(1337);
+    const pal = [
+      { m: '#00A7D2', h: '#8AF0FF' }, // cyan
+      { m: '#6CB03D', h: '#C4F58A' }, // green
+      { m: '#FB481B', h: '#FF9A6E' }, // red
+      { m: '#246792', h: '#6FB6EA' }, // blue
+      { m: '#FCBC02', h: '#FFE98A' }, // gold
+      { m: '#00A7D2', h: '#8AF0FF' }, // cyan (weight)
+      { m: '#173D82', h: '#4E86D8' }, // deep blue
+      { m: '#6CB03D', h: '#C4F58A' }  // green (weight)
+    ];
+    const beams = [];
+    for (let i = 0; i < n; i++) {
+      const fr = (i + 0.5) / n;
+      const spreadFrac = this.clamp(0.05 + 0.9 * fr + (rand() - 0.5) * (1.1 / n), 0.01, 0.99);
+      const tfrac = this.clamp(0.06 + 0.88 * fr + (rand() - 0.5) * 0.05, 0.02, 0.98);
+      const p = pal[(i + (rand() < 0.25 ? 1 : 0)) % pal.length];
+      beams.push({
+        spreadFrac, tfrac,
+        w: 5 + Math.pow(rand(), 1.7) * 20,
+        rgb: this.hex(p.m), hot: this.hex(p.h),
+        swayAmp: 6 + rand() * 24,
+        swayFreq: 0.12 + rand() * 0.5,
+        swayPhase: rand() * Math.PI * 2,
+        riseSpeed: 0.12 + rand() * 0.36,
+        risePhase: rand(),
+        brightBase: 0.55 + rand() * 0.5,
+        delay: Math.abs(spreadFrac - 0.5) * 2 * 1.45 + rand() * 0.16
+      });
+    }
+    this.beams = beams;
+  }
+
+  buildGradients() {
+    const g = this.fctx, H = this.H;
+    for (const b of this.beams) {
+      const bg = g.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, this.rgba(b.rgb, 0));
+      bg.addColorStop(0.12, this.rgba(b.rgb, 0.05));
+      bg.addColorStop(0.36, this.rgba(b.rgb, 0.62));
+      bg.addColorStop(0.56, this.rgba(b.rgb, 0.96));
+      bg.addColorStop(0.8, this.rgba(b.rgb, 0.32));
+      bg.addColorStop(1, this.rgba(b.rgb, 0));
+      b.baseGrad = bg;
+      const cg = g.createLinearGradient(0, 0, 0, H);
+      cg.addColorStop(0, this.rgba(b.hot, 0));
+      cg.addColorStop(0.4, this.rgba(b.hot, 0.5));
+      cg.addColorStop(0.58, this.rgba(b.hot, 0.95));
+      cg.addColorStop(0.78, this.rgba(b.hot, 0.35));
+      cg.addColorStop(1, this.rgba(b.hot, 0));
+      b.coreGrad = cg;
+    }
+    const bandH = H * 0.16;
+    const band = g.createLinearGradient(0, 0, 0, bandH);
+    band.addColorStop(0, 'rgba(255,255,255,0)');
+    band.addColorStop(0.5, 'rgba(255,255,255,0.85)');
+    band.addColorStop(1, 'rgba(255,255,255,0)');
+    this.bandGrad = band; this.bandH = bandH;
+    const sg = g.createLinearGradient(0, 0, 0, H);
+    sg.addColorStop(0, 'rgba(190,242,255,0)');
+    sg.addColorStop(0.5, 'rgba(212,247,255,0.95)');
+    sg.addColorStop(1, 'rgba(190,242,255,0)');
+    this.seedGrad = sg;
+    const cy = this.boxCenterY, maxR = Math.max(this.W, this.H) * 0.6;
+    const gl = g.createRadialGradient(this.W / 2, cy, 0, this.W / 2, cy, maxR);
+    gl.addColorStop(0, 'rgba(130,214,255,0.5)');
+    gl.addColorStop(0.3, 'rgba(70,170,255,0.2)');
+    gl.addColorStop(0.62, 'rgba(36,103,146,0.05)');
+    gl.addColorStop(1, 'rgba(0,0,0,0)');
+    this.glowGrad = gl;
+  }
+
+  setupSize() {
+    const stage = this.stageRef.current; if (!stage) return;
+    const r = stage.getBoundingClientRect();
+    const W = Math.max(1, r.width), H = Math.max(1, r.height);
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    this.W = W; this.H = H; this.dpr = dpr;
+    if (!this.field) this.field = document.createElement('canvas');
+    this.field.width = Math.round(W * dpr); this.field.height = Math.round(H * dpr);
+    this.fctx = this.field.getContext('2d');
+    const A = this.aRef.current; A.width = Math.round(W * dpr); A.height = Math.round(H * dpr);
+    this.ctxA = A.getContext('2d');
+    const boxW = this.clamp(Math.min(0.62 * W, 0.78 * H * this.ASPECT), 240, 1180);
+    const boxH = boxW / this.ASPECT;
+    this.boxW = boxW; this.boxH = boxH;
+    this.boxLeft = (W - boxW) / 2;
+    this.boxCenterY = 0.47 * H;
+    this.boxTop = this.boxCenterY - boxH / 2;
+    const box = this.boxRef.current; if (box) box.style.width = boxW + 'px';
+    const B = this.bRef.current; B.width = Math.round(boxW * dpr); B.height = Math.round(boxH * dpr);
+    this.ctxB = B.getContext('2d');
+    for (const b of this.beams) { b.spreadPx = b.spreadFrac * W; b.targetPx = this.boxLeft + b.tfrac * boxW; }
+    this.buildGradients();
+    if (this.override != null) this.render(this.override);
+  }
+
+  render(t) {
+    t = Math.max(0, t);
+    const TL = this.TL, g = this.fctx, W = this.W, H = this.H, dpr = this.dpr;
+    if (!g) return;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.globalCompositeOperation = 'lighter';
+
+    // seed line
+    const seedA = this.smooth(0.04, 0.22, t) * (1 - this.smooth(TL.SEED, TL.SEED + 0.72, t));
+    if (seedA > 0.002) {
+      const pw = 4 + 3 * Math.sin(t * 9);
+      g.globalAlpha = this.clamp(seedA, 0, 1);
+      g.fillStyle = this.seedGrad;
+      g.fillRect(W / 2 - pw / 2, 0, pw, H);
+    }
+
+    const cf = this.easeInOut(this.smooth(TL.CONV_START, TL.CONV_END, t));
+    for (const b of this.beams) {
+      const rev = this.smooth(b.delay, b.delay + 0.5, t);
+      if (rev <= 0.001) continue;
+      const sway = b.swayAmp * Math.sin(2 * Math.PI * b.swayFreq * t + b.swayPhase) * (1 - 0.55 * cf);
+      const x = this.lerp(b.spreadPx, b.targetPx, cf) + sway;
+      const we = b.w * (1 + 0.55 * cf);
+      let bright = b.brightBase * rev * (0.5 + 0.85 * cf);
+      bright = Math.min(bright, 1.35);
+      g.globalAlpha = this.clamp(bright * 0.82, 0, 1);
+      g.fillStyle = b.baseGrad;
+      g.fillRect(x - we / 2, 0, we, H);
+      const cw = Math.max(1.5, we * 0.26);
+      g.globalAlpha = this.clamp(bright * 0.55, 0, 1);
+      g.fillStyle = b.coreGrad;
+      g.fillRect(x - cw / 2, 0, cw, H);
+      const frac = (((t * b.riseSpeed + b.risePhase) % 1) + 1) % 1;
+      const cy = H * 1.12 - (H * 1.24) * frac;
+      g.save();
+      g.globalAlpha = this.clamp(bright * 0.6, 0, 1);
+      g.translate(x - we * 0.6, cy - this.bandH / 2);
+      g.fillStyle = this.bandGrad;
+      g.fillRect(0, 0, we * 1.2, this.bandH);
+      g.restore();
+    }
+
+    const gi = 0.12 + 0.9 * cf + 0.7 * this.gauss(t, TL.FLASH_PEAK, 0.2);
+    g.globalAlpha = this.clamp(0.2 * gi, 0, 1);
+    g.fillStyle = this.glowGrad;
+    g.fillRect(0, 0, W, H);
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = 'source-over';
+
+    // blit fullscreen
+    const A = this.ctxA;
+    A.clearRect(0, 0, this.field.width, this.field.height);
+    const opA = t < TL.CONV_START ? 1 : 1 - 0.9 * this.smooth(TL.CONV_START + 0.25, TL.CONV_END + 0.15, t);
+    A.globalAlpha = this.clamp(opA, 0, 1);
+    A.drawImage(this.field, 0, 0);
+    A.globalAlpha = 1;
+
+    // blit masked logo-light
+    const B = this.ctxB, bw = this.bRef.current.width, bh = this.bRef.current.height;
+    B.clearRect(0, 0, bw, bh);
+    const opB = this.smooth(TL.CONV_START + 0.15, TL.CONV_END, t) * (1 - 0.78 * this.smooth(TL.LOGO_START, TL.LOGO_START + 0.75, t));
+    if (this.logoReady && opB > 0.001) {
+      B.globalAlpha = 1;
+      B.globalCompositeOperation = 'source-over';
+      B.drawImage(this.field, this.boxLeft * dpr, this.boxTop * dpr, this.boxW * dpr, this.boxH * dpr, 0, 0, bw, bh);
+      B.globalCompositeOperation = 'destination-in';
+      B.drawImage(this.logoImg, 0, 0, bw, bh);
+      B.globalCompositeOperation = 'source-over';
+    }
+    this.bRef.current.style.opacity = this.clamp(opB, 0, 1);
+
+    // DOM layers
+    const flash = this.flashRef.current;
+    if (flash) flash.style.opacity = this.clamp(0.95 * this.gauss(t, TL.FLASH_PEAK, 0.15) + 0.12 * this.gauss(t, TL.CONV_END, 0.3), 0, 1);
+    const papw = this.papWrapRef.current;
+    if (papw) { const kids = papw.children; for (let i = 0; i < this.paps.length && i < kids.length; i++) { const f = this.paps[i]; const z = (t - f.t) / 0.052; kids[i].style.opacity = (f.i * Math.exp(-z * z)).toFixed(3); } }
+    const img = this.imgRef.current;
+    if (img) {
+      img.style.opacity = this.smooth(TL.LOGO_START, TL.LOGO_END, t);
+      const glowA = 0.26 + 0.14 * (0.5 + 0.5 * Math.sin((t - TL.LOGO_END) * 1.4));
+      img.style.filter = t >= TL.LOGO_START ? 'drop-shadow(0 10px 46px rgba(0,167,210,' + glowA.toFixed(3) + '))' : 'drop-shadow(0 10px 46px rgba(0,167,210,0.28))';
+    }
+    const box = this.boxRef.current;
+    if (box) {
+      const pL = this.smooth(TL.LOGO_START, TL.LOGO_END, t);
+      const resolveScale = t >= TL.LOGO_START ? 1 + 0.055 * (1 - this.easeOutCubic(pL)) : 1;
+      const dock = this.easeInOut(this.smooth(TL.DOCK_START, TL.DOCK_END, t));
+      const s = resolveScale * (1 - 0.24 * dock);
+      const dy = -dock * H * 0.13;
+      box.style.transform = 'translate(-50%, calc(-50% + ' + dy.toFixed(1) + 'px)) scale(' + s.toFixed(4) + ')';
+    }
+    // tagline reveal (staggered, seek-safe)
+    const pe = this.smooth(TL.TAG_EYE_START, TL.TAG_EYE_END, t);
+    const pm = this.smooth(TL.TAG_MAIN_START, TL.TAG_MAIN_END, t);
+    const eye = this.tagEyebrowRef.current;
+    if (eye) {
+      eye.style.opacity = this.clamp(pe, 0, 1).toFixed(3);
+      const esc = 0.9 + 0.1 * this.easeOutCubic(pe);
+      eye.style.transform = 'translateY(' + ((1 - pe) * 14).toFixed(1) + 'px) scale(' + esc.toFixed(3) + ')';
+    }
+    const main = this.tagMainRef.current;
+    if (main) {
+      main.style.opacity = this.clamp(pm, 0, 1).toFixed(3);
+      main.style.transform = 'translateY(' + ((1 - pm) * 14).toFixed(1) + 'px)';
+      main.style.filter = 'blur(' + ((1 - pm) * 3).toFixed(2) + 'px)';
+    }
+    const sec = Math.min(11, Math.floor(t));
+    if (sec !== this.lastSec) { this.lastSec = sec; if (this.stageRef.current) this.stageRef.current.dataset.screenLabel = '20th Anniversary intro — ' + sec + 's'; }
+  }
+
+  loop = () => {
+    const now = performance.now();
+    let t;
+    if (this.override != null) { t = this.override; }
+    else {
+      const dt = (now - this.lastTick) / 1000; this.lastTick = now;
+      if (!this.paused) this.playT += dt;
+      if (this.props.loopEnabled && this.playT > this.TL.LOOP_AT) { this.playT = 0; if (this.state.soundOn) this.scheduleAudioFrom(0); }
+      t = this.playT;
+    }
+    this.render(t);
+    this.raf = requestAnimationFrame(this.loop);
+  };
+
+  componentDidMount() {
+    this.initBeams(Math.round(this.props.beamDensity || 64));
+    const stage = this.stageRef.current;
+    if (stage && this.props.background) stage.style.background = this.props.background;
+    this.logoImg = new Image();
+    this.logoImg.onload = () => { this.logoReady = true; };
+    this.logoImg.src = 'assets/anniversary20.png';
+    this.setupSize();
+    this._onResize = () => this.setupSize();
+    window.addEventListener('resize', this._onResize);
+    this._onSeek = (e) => { this.override = (e.detail && typeof e.detail.time === 'number') ? e.detail.time : 0; this.render(this.override); };
+    if (stage) stage.addEventListener('data-om-seek-to-time-frame', this._onSeek);
+    this.loadAudioBuffers();
+    this._unlock = () => { this.restart(); };
+    window.addEventListener('pointerdown', this._unlock, { once: true });
+    this.playT = 0;
+    this.override = null;
+    this.paused = document.visibilityState !== 'visible';
+    this.lastTick = performance.now();
+    this._onVis = () => {
+      if (document.visibilityState === 'visible') {
+        this.lastTick = performance.now(); this.paused = false;
+        if (this._wasAudible && this.state.soundOn) this.scheduleAudioFrom(this.playT);
+      } else {
+        this.paused = true;
+        this._wasAudible = !!(this.audioNodes && this.audioNodes.length);
+        this.stopAudioNodes();
+      }
+    };
+    document.addEventListener('visibilitychange', this._onVis);
+    this.render(0);
+    this.raf = requestAnimationFrame(this.loop);
+  }
+
+  componentDidUpdate(prev) {
+    if (prev.beamDensity !== this.props.beamDensity) { this.initBeams(Math.round(this.props.beamDensity || 64)); this.setupSize(); }
+    if (prev.background !== this.props.background && this.stageRef.current) this.stageRef.current.style.background = this.props.background || '#000';
+  }
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf);
+    window.removeEventListener('resize', this._onResize);
+    window.removeEventListener('pointerdown', this._unlock);
+    document.removeEventListener('visibilitychange', this._onVis);
+    if (this.stageRef.current) this.stageRef.current.removeEventListener('data-om-seek-to-time-frame', this._onSeek);
+    this.stopAudioNodes();
+  }
+
+  // ---- audio: riser SFX + ElevenLabs voiceover ----
+  ensureAudio() {
+    if (!this.ac) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      this.ac = new AC();
+      this.master = this.ac.createGain();
+      this.master.gain.value = 1.0;
+      this.master.connect(this.ac.destination);
+      this.audioNodes = [];
+    }
+    if (this.ac.state === 'suspended') this.ac.resume();
+  }
+  async loadAudioBuffers() {
+    try {
+      const [rb, vb, sb] = await Promise.all([
+        fetch('assets/riser.mp3').then(r => r.arrayBuffer()),
+        fetch('assets/voice.mp3').then(r => r.arrayBuffer()),
+        fetch('assets/shutter.mp3').then(r => r.arrayBuffer())
+      ]);
+      this._riserAB = rb; this._voiceAB = vb; this._shutterAB = sb;
+    } catch (e) { console.warn('audio fetch failed', e); }
+  }
+  async decodeBuffers() {
+    if (!this.ac) return;
+    try {
+      if (this._riserAB && !this.riserBuf) this.riserBuf = await this.ac.decodeAudioData(this._riserAB.slice(0));
+      if (this._voiceAB && !this.voiceBuf) this.voiceBuf = await this.ac.decodeAudioData(this._voiceAB.slice(0));
+      if (this._shutterAB && !this.shutterBuf) this.shutterBuf = await this.ac.decodeAudioData(this._shutterAB.slice(0));
+    } catch (e) { console.warn('audio decode failed', e); }
+  }
+  stopAudioNodes() {
+    if (this.audioNodes) { for (const s of this.audioNodes) { try { s.stop(); } catch (e) {} } }
+    this.audioNodes = [];
+  }
+  scheduleClip(buf, startT, playhead, base, vol, bufOffset) {
+    if (!buf || !this.ac) return;
+    bufOffset = bufOffset || 0;
+    const playable = buf.duration - bufOffset;
+    if (playhead >= startT + playable) return;
+    const src = this.ac.createBufferSource(); src.buffer = buf;
+    const g = this.ac.createGain(); g.gain.value = vol;
+    src.connect(g); g.connect(this.master);
+    if (playhead <= startT) src.start(base + (startT - playhead), bufOffset);
+    else src.start(base, bufOffset + (playhead - startT));
+    this.audioNodes.push(src);
+  }
+  scheduleAudioFrom(playhead) {
+    this.ensureAudio();
+    if (!this.ac) return;
+    this.stopAudioNodes();
+    const base = this.ac.currentTime + 0.04;
+    this.scheduleClip(this.riserBuf, this.TL.RISER_AT, playhead, base, 0.72);
+    if (this.shutterBuf) for (const f of this.paps) this.scheduleClip(this.shutterBuf, f.t, playhead, base, 0.7, 0.28);
+    this.scheduleClip(this.voiceBuf, this.TL.VOICE_AT, playhead, base, 1.0);
+  }
+
+  restart = async () => {
+    const nowMs = performance.now();
+    if (this._lastRestart && nowMs - this._lastRestart < 300) return;
+    this._lastRestart = nowMs;
+    this.ensureAudio();
+    await this.decodeBuffers();
+    this.override = null;
+    this.playT = 0;
+    this.lastTick = performance.now();
+    this.paused = document.visibilityState !== 'visible';
+    this.lastSec = -1;
+    if (this.state.soundOn) this.scheduleAudioFrom(0);
+  };
+  onReplay = () => { this.restart(); };
+  onToggleSound = () => {
+    this.setState(s => {
+      const on = !s.soundOn;
+      if (on) { this.ensureAudio(); this.decodeBuffers().then(() => this.scheduleAudioFrom(this.playT)); }
+      else { this.stopAudioNodes(); }
+      return { soundOn: on };
+    });
+  };
+
+  renderVals() {
+    return {
+      stageRef: this.stageRef, aRef: this.aRef, bRef: this.bRef,
+      imgRef: this.imgRef, flashRef: this.flashRef, boxRef: this.boxRef, vignetteRef: this.vignetteRef,
+      tagEyebrowRef: this.tagEyebrowRef, tagMainRef: this.tagMainRef, papWrapRef: this.papWrapRef,
+      onReplay: this.onReplay, onToggleSound: this.onToggleSound,
+      soundLabel: this.state.soundOn ? 'Sound: On' : 'Sound: Off'
+    };
+  }
+}
+</script>
+</body>
+</html>
