@@ -59,14 +59,14 @@
   .hp-glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);border:1px solid rgba(255,255,255,0.12);box-shadow:0 14px 44px rgba(0,0,0,0.38),inset 0 1px 0 rgba(255,255,255,0.08);}
   .hp-glass-hover{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;}
   .hp-glass-hover:hover{transform:translateY(-4px);border-color:rgba(95,208,234,0.45);box-shadow:0 24px 60px rgba(0,0,0,0.46),0 0 34px rgba(0,167,210,0.14),inset 0 1px 0 rgba(255,255,255,0.1);}
-  .hispa-fw svg{filter:drop-shadow(0 0 5px currentColor);}   /* sparks glow against the dark bg */
+  .hispa-fw svg{filter:drop-shadow(0 0 9px currentColor) drop-shadow(0 0 2px currentColor);}   /* festive glowing sparks against the dark bg */
   .hp-link{color:#5FD0EA;border-bottom:2px solid rgba(0,167,210,0.45);padding-bottom:3px;text-decoration:none;font-weight:700;transition:color .2s,border-color .2s;}
   .hp-link:hover{color:#9CF0FF;border-color:rgba(95,208,234,0.8);}
   .hp-btn-ghost{background:rgba(255,255,255,0.06);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1.5px solid rgba(255,255,255,0.22);color:#EAF2FB;transition:background .2s,border-color .2s;}
   .hp-btn-ghost:hover{background:rgba(255,255,255,0.12);border-color:rgba(95,208,234,0.55);}
 </style>
 </helmet>
-<div style="background:linear-gradient(180deg,#12305a 0%,#0b2246 26%,#081a38 60%,#050e22 100%);font-family:'Hanken Grotesk',sans-serif;color:#EAF2FB;overflow-x:hidden;">
+<div style="background:radial-gradient(120% 78% at 50% -8%,rgba(64,140,230,0.45),transparent 55%),radial-gradient(90% 60% at 88% 4%,rgba(0,190,225,0.16),transparent 60%),linear-gradient(180deg,#184488 0%,#133c74 24%,#0e2f5c 52%,#0a2145 78%,#07162f 100%);font-family:'Hanken Grotesk',sans-serif;color:#EAF2FB;overflow-x:hidden;">
   <!-- 20th-anniversary entry intro: plays once per browser session, then dissolves through a
        frosted-glass blur to reveal the real site. Skipped entirely under prefers-reduced-motion. -->
   <sc-if value="{{ introVisible }}" hint-placeholder-val="{{ false }}">
@@ -104,13 +104,13 @@
     <div style="position:relative;z-index:1;">
       <!-- left-column marks: anchored to THIS column's own box, only in the empty top strip + gutter margin -->
       <div aria-hidden="true" style="position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:visible;">
-        <span class="hispa-fw" style="top:-44px;left:2px;width:30px;height:30px;color:#F1601A;--r:-12deg;--o:.8;--d:6.2s;--dl:-1.1s;"><svg><use href="#hispaBurst"></use></svg></span>
-        <span class="hispa-dot" style="top:-24px;left:128px;width:6px;height:6px;background:#2E8FB5;--o:.7;--d:4.3s;--dl:-.6s;"></span>
-        <span class="hispa-dot" style="top:2px;right:-36px;width:7px;height:7px;background:#F1601A;--o:.75;--d:4.8s;--dl:-2.2s;"></span>
-        <span class="hispa-dot" style="bottom:26px;right:-30px;width:5px;height:5px;background:#7CC03B;--o:.8;--d:4.1s;--dl:-3.1s;"></span>
+        <span class="hispa-fw" style="top:-46px;left:2px;width:34px;height:34px;color:#FCBC02;--r:-12deg;--o:.9;--d:6.2s;--dl:-1.1s;"><svg><use href="#hispaBurst"></use></svg></span>
+        <span class="hispa-dot" style="top:-24px;left:128px;width:6px;height:6px;background:#00C6E8;box-shadow:0 0 8px #00C6E8;--o:.85;--d:4.3s;--dl:-.6s;"></span>
+        <span class="hispa-dot" style="top:2px;right:-36px;width:7px;height:7px;background:#FF7A3D;box-shadow:0 0 8px #FF7A3D;--o:.85;--d:4.8s;--dl:-2.2s;"></span>
+        <span class="hispa-dot" style="bottom:26px;right:-30px;width:5px;height:5px;background:#7BD836;box-shadow:0 0 8px #7BD836;--o:.85;--d:4.1s;--dl:-3.1s;"></span>
       </div>
-      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(0,167,210,0.12);color:#8FE6FA;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:7px 14px;border-radius:999px;margin-bottom:26px;border:1px solid rgba(0,167,210,0.28);">
-        <span style="width:7px;height:7px;border-radius:50%;background:#00A7D2;box-shadow:0 0 8px #00A7D2;"></span>Celebrating 20 years · role models since 2007
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(0,167,210,0.12);color:#9FEBFC;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:7px 14px;border-radius:999px;margin-bottom:26px;border:1px solid rgba(0,167,210,0.3);box-shadow:0 0 20px rgba(0,167,210,0.15),inset 0 1px 0 rgba(255,255,255,0.08);">
+        <span style="width:8px;height:8px;border-radius:50%;background:#FCBC02;box-shadow:0 0 10px #FCBC02;"></span><span style="color:#FCD34A;">Celebrating 20 years</span> · role models since 2007
       </div>
       <h1 style="font-family:'Newsreader',serif;font-weight:500;font-size:60px;line-height:1.04;letter-spacing:-0.015em;margin:0 0 24px;color:#F3F8FF;">Every child deserves to meet <span style="font-style:italic;color:#5FD0EA;">someone who looks like their future.</span></h1>
       <p style="font-size:19px;line-height:1.6;color:#A9C0DC;max-width:480px;margin:0 0 34px;">HISPA connects Latino professionals with middle-school students, so young people can see themselves in the people they admire — and believe their own dreams are within reach.</p>
@@ -122,15 +122,15 @@
     <div style="position:relative;z-index:1;">
       <!-- right-column firework cluster: anchored to the card's own box, placed in the cream margins AROUND it -->
       <div aria-hidden="true" style="position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:visible;">
-        <span class="hispa-fw" style="top:-48px;right:34px;width:42px;height:42px;color:#F1601A;--r:10deg;--o:.9;--d:6.5s;--dl:-.3s;"><svg><use href="#hispaBurst"></use></svg></span>
-        <span class="hispa-fw" style="top:96px;right:-52px;width:34px;height:34px;color:#2E8FB5;--r:-8deg;--o:.85;--d:5.8s;--dl:-2.6s;"><svg><use href="#hispaBurst"></use></svg></span>
-        <span class="hispa-fw" style="bottom:128px;right:-46px;width:28px;height:28px;color:#F1601A;--r:16deg;--o:.8;--d:7s;--dl:-4.1s;"><svg><use href="#hispaBurst"></use></svg></span>
-        <span class="hispa-fw" style="bottom:-18px;right:74px;width:26px;height:26px;color:#2E8FB5;--r:22deg;--o:.75;--d:6.1s;--dl:-3.2s;"><svg><use href="#hispaBurst"></use></svg></span>
-        <span class="hispa-fw" style="top:-32px;left:-74px;width:30px;height:30px;color:#F1601A;--r:-18deg;--o:.8;--d:6.7s;--dl:-1.7s;"><svg><use href="#hispaBurst"></use></svg></span>
-        <span class="hispa-dot" style="top:26px;right:-24px;width:7px;height:7px;background:#F1601A;--o:.8;--d:4.2s;--dl:-.8s;"></span>
-        <span class="hispa-dot" style="top:220px;right:-34px;width:5px;height:5px;background:#2E8FB5;--o:.65;--d:4.7s;--dl:-2.9s;"></span>
-        <span class="hispa-dot" style="top:-18px;right:118px;width:5px;height:5px;background:#7CC03B;--o:.8;--d:4.1s;--dl:-3.3s;"></span>
-        <span class="hispa-dot" style="bottom:-8px;right:154px;width:6px;height:6px;background:#2E8FB5;--o:.7;--d:4.9s;--dl:-.4s;"></span>
+        <span class="hispa-fw" style="top:-50px;right:34px;width:46px;height:46px;color:#00C6E8;--r:10deg;--o:.95;--d:6.5s;--dl:-.3s;"><svg><use href="#hispaBurst"></use></svg></span>
+        <span class="hispa-fw" style="top:96px;right:-52px;width:36px;height:36px;color:#FCBC02;--r:-8deg;--o:.9;--d:5.8s;--dl:-2.6s;"><svg><use href="#hispaBurst"></use></svg></span>
+        <span class="hispa-fw" style="bottom:128px;right:-46px;width:30px;height:30px;color:#7BD836;--r:16deg;--o:.85;--d:7s;--dl:-4.1s;"><svg><use href="#hispaBurst"></use></svg></span>
+        <span class="hispa-fw" style="bottom:-18px;right:74px;width:28px;height:28px;color:#4AA8FF;--r:22deg;--o:.8;--d:6.1s;--dl:-3.2s;"><svg><use href="#hispaBurst"></use></svg></span>
+        <span class="hispa-fw" style="top:-32px;left:-74px;width:32px;height:32px;color:#FF7A3D;--r:-18deg;--o:.85;--d:6.7s;--dl:-1.7s;"><svg><use href="#hispaBurst"></use></svg></span>
+        <span class="hispa-dot" style="top:26px;right:-24px;width:7px;height:7px;background:#FCBC02;box-shadow:0 0 9px #FCBC02;--o:.9;--d:4.2s;--dl:-.8s;"></span>
+        <span class="hispa-dot" style="top:220px;right:-34px;width:5px;height:5px;background:#00C6E8;box-shadow:0 0 8px #00C6E8;--o:.8;--d:4.7s;--dl:-2.9s;"></span>
+        <span class="hispa-dot" style="top:-18px;right:118px;width:5px;height:5px;background:#7BD836;box-shadow:0 0 8px #7BD836;--o:.85;--d:4.1s;--dl:-3.3s;"></span>
+        <span class="hispa-dot" style="bottom:-8px;right:154px;width:6px;height:6px;background:#FF7A3D;box-shadow:0 0 8px #FF7A3D;--o:.8;--d:4.9s;--dl:-.4s;"></span>
       </div>
       <div style="aspect-ratio:4/5;border-radius:20px;overflow:hidden;background-image:linear-gradient(0deg,rgba(16,42,67,0.9) 0%,rgba(16,42,67,0.5) 26%,rgba(16,42,67,0.06) 52%,rgba(16,42,67,0) 66%),url('photos/p100.jpg');background-size:cover,cover;background-position:center,center;background-color:#102A43;position:relative;display:flex;align-items:flex-end;box-shadow:0 30px 60px rgba(16,42,67,0.22);">
         <div style="position:absolute;inset:0;background:radial-gradient(circle at 74% 20%,rgba(241,96,26,0.20),transparent 52%);mix-blend-mode:screen;pointer-events:none;"></div>

@@ -9,10 +9,12 @@
 <x-dc>
 <helmet>
   <style>
-    html,body{margin:0;padding:0;height:100%;background:#000;}
-    body{overflow:hidden;}
+    /* NOTE: no global html/body overflow, height, background or `a{}` rules here. This component
+       is dc-imported into Home.dc.html, and helmet <style> is injected into the shared document
+       head — a body{overflow:hidden} here silently disabled scrolling on the whole homepage. The
+       intro's own stage is position:fixed;inset:0, so it covers the viewport without needing them. */
+    html,body{margin:0;padding:0;}
     *{box-sizing:border-box;}
-    a{color:#00A7D2;text-decoration:none;} a:hover{color:#6FE9FF;}
     @keyframes uiFadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
