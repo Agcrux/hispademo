@@ -323,8 +323,14 @@ class Component extends DCLogic {
     this._onSeek = (e) => { this.override = (e.detail && typeof e.detail.time === 'number') ? e.detail.time : 0; this.render(this.override); };
     if (stage) stage.addEventListener('data-om-seek-to-time-frame', this._onSeek);
     this._audioLoad = this.loadAudioBuffers();   // keep the fetch promise so decode can wait on it
-    this._unlock = () => { this.restart(); };
-    window.addEventListener('pointerdown', this._unlock, { once: true });
+    // Best-effort autoplay: try to start sound immediately (succeeds for returning/engaged visitors
+    // whose browser permits autoplay). If the browser blocks it on a cold visit, the FIRST
+    // interaction of ANY kind (pointer/touch/key/wheel — not just a click) starts it, synced to the
+    // current playhead with no visual restart.
+    this._startAudioBE = () => this.startAudio(this.playT);
+    this._gestureEvents = ['pointerdown','touchstart','keydown','click','wheel'];
+    this._gestureEvents.forEach((ev) => window.addEventListener(ev, this._startAudioBE, { passive: true }));
+    this.startAudio(0);
     this.playT = 0;
     this.override = null;
     this.paused = document.visibilityState !== 'visible';
@@ -352,7 +358,7 @@ class Component extends DCLogic {
   componentWillUnmount() {
     cancelAnimationFrame(this.raf);
     window.removeEventListener('resize', this._onResize);
-    window.removeEventListener('pointerdown', this._unlock);
+    if (this._gestureEvents && this._startAudioBE) this._gestureEvents.forEach((ev) => window.removeEventListener(ev, this._startAudioBE));
     document.removeEventListener('visibilitychange', this._onVis);
     if (this.stageRef.current) this.stageRef.current.removeEventListener('data-om-seek-to-time-frame', this._onSeek);
     this.stopAudioNodes();
@@ -406,6 +412,21 @@ class Component extends DCLogic {
     if (playhead <= startT) src.start(base + (startT - playhead), bufOffset);
     else src.start(base, bufOffset + (playhead - startT));
     this.audioNodes.push(src);
+  }
+  async startAudio(playhead) {
+    // Idempotent: runs on mount (autoplay attempt) and on the first user gesture. It only
+    // "sticks" once the AudioContext is actually running (i.e. the browser has allowed sound);
+    // until then each attempt is harmless and the gesture listeners stay armed.
+    if (this._audioStarted) return;
+    this.ensureAudio();
+    if (!this.ac) return;
+    try { await this.ac.resume(); } catch (e) {}
+    await this.decodeBuffers();
+    if (this.ac.state === 'running' && this.state.soundOn) {
+      this.scheduleAudioFrom(playhead);
+      this._audioStarted = true;
+      if (this._gestureEvents && this._startAudioBE) this._gestureEvents.forEach((ev) => window.removeEventListener(ev, this._startAudioBE));
+    }
   }
   scheduleAudioFrom(playhead) {
     this.ensureAudio();
