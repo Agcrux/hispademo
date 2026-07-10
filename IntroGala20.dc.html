@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================================
+     IntroGala20 — the site's original cinematic opening (~3.6s, silent).
+     Replaces the old camera-flash intro. Matches the homepage identity:
+     deep space-blue glass, subtle stars, flowing metallic-gold wireframe
+     ribbons (same fine-line language as the hero's two gold waves), then a
+     soft HISPA + 20th-anniversary logo reveal and a dissolve into the page.
+
+     Phases (desktop; CSS delays via --d* vars, canvas via the same clock):
+       0.0–0.7s  navy atmosphere + stars + centre glow fade in
+       0.7–1.8s  gold ribbon A flows in from the LEFT (upper third),
+                 ribbon B from the RIGHT (lower third) — many fine bezier-
+                 smooth gold lines with a traveling highlight sheen
+       1.5–2.6s  HISPA logo (sharp, undistorted) fades up; 20th mark follows
+       2.6–3.6s  ribbons keep flowing outward toward the hero's wave
+                 positions while the host page dissolves the overlay
+     Mobile compresses to ~2s with fewer ribbon lines. Reduced-motion shows a
+     ≤0.5s static logo fade. No audio. Skip: button (top-right), click
+     anywhere, Enter or Escape.
+     ============================================================================ */
+  .ig-stage{position:fixed;inset:0;overflow:hidden;cursor:default;
+    font-family:'Figtree',system-ui,sans-serif;
+    background:
+      radial-gradient(1100px 700px at 50% 38%, rgba(24,44,92,0.55), transparent 62%),
+      linear-gradient(168deg,#0D1A3A 0%,#07132D 52%,#090F23 100%);}
+
+  /* phase 1 — atmosphere */
+  .ig-atmo{position:absolute;inset:0;opacity:0;animation:igFade .8s ease-out forwards;
+    background:
+      radial-gradient(760px 460px at 24% 20%, rgba(64,120,220,0.14), transparent 70%),
+      radial-gradient(820px 520px at 78% 74%, rgba(0,140,200,0.10), transparent 70%),
+      radial-gradient(560px 380px at 70% 16%, rgba(96,90,220,0.08), transparent 70%);}
+  .ig-stars{position:absolute;inset:0;width:100%;height:100%;opacity:0;
+    animation:igFade .9s ease-out .15s forwards;}
+  .ig-glow{position:absolute;left:50%;top:44%;width:min(56vw,640px);height:min(40vh,420px);
+    transform:translate(-50%,-50%);border-radius:50%;opacity:0;pointer-events:none;
+    background:radial-gradient(closest-side, rgba(190,222,255,0.20), rgba(140,185,245,0.08) 55%, transparent 75%);
+    animation:igGlowIn 1s ease-out .2s forwards;}
+  @keyframes igFade{to{opacity:1;}}
+  @keyframes igGlowIn{to{opacity:1;}}
+  @keyframes igTwinkle{0%,100%{opacity:.3;}50%{opacity:1;}}
+  .ig-star{animation:igTwinkle var(--d,4.4s) ease-in-out infinite;animation-delay:var(--dl,0s);}
+
+  /* phase 2 — ribbons (canvas) */
+  .ig-ribbons{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;}
+
+  /* phase 3 — logos (sharp, no distortion: opacity + small translate only) */
+  .ig-logos{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:26px;pointer-events:none;}
+  .ig-logo-halo{position:absolute;left:50%;top:50%;width:min(64vw,700px);height:min(46vh,460px);
+    transform:translate(-50%,-50%);border-radius:50%;opacity:0;
+    background:radial-gradient(closest-side, rgba(243,209,126,0.10), rgba(140,185,245,0.07) 55%, transparent 75%);
+    animation:igFade .9s ease-out var(--dLogo,1.5s) forwards;}
+  .ig-logo,.ig-anniv{opacity:0;transform:translateY(16px);
+    animation:igRise .85s cubic-bezier(.22,.8,.3,1) forwards;
+    filter:drop-shadow(0 10px 34px rgba(2,6,18,0.55));}
+  .ig-logo{width:min(58vw,330px);height:auto;animation-delay:var(--dLogo,1.5s);}
+  .ig-anniv{width:min(52vw,300px);height:auto;animation-delay:var(--dAnniv,1.9s);}
+  @keyframes igRise{to{opacity:1;transform:translateY(0);}}
+  /* glass reflection: one soft streak sweeping across the logo block */
+  .ig-sheen{position:absolute;left:50%;top:50%;width:min(70vw,760px);height:min(50vh,500px);
+    transform:translate(-50%,-50%);overflow:hidden;border-radius:24px;pointer-events:none;}
+  .ig-sheen::after{content:"";position:absolute;top:-20%;bottom:-20%;left:-46%;width:34%;
+    background:linear-gradient(104deg, transparent 8%, rgba(210,232,255,0.05) 42%, rgba(230,242,255,0.10) 50%, rgba(210,232,255,0.05) 58%, transparent 92%);
+    transform:skewX(-12deg);
+    animation:igSheen 1.3s ease-in-out var(--dSheen,1.9s) forwards;}
+  @keyframes igSheen{to{left:112%;}}
+
+  /* skip control */
+  .ig-skip{position:absolute;top:22px;right:26px;z-index:5;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;
+    background:rgba(255,255,255,0.07);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,0.2);color:#DCE8F8;font:600 13.5px/1 'Figtree',sans-serif;
+    letter-spacing:0.04em;opacity:0;animation:igFade .5s ease-out .3s forwards;
+    transition:background .2s ease,border-color .2s ease;}
+  .ig-skip:hover{background:rgba(255,255,255,0.14);border-color:rgba(243,209,126,0.55);}
+  .ig-skip:focus-visible{outline:2px solid #F3D17E;outline-offset:3px;}
+
+  /* reduced-motion variant: everything static, quick ≤0.5s logo fade only */
+  .ig--reduced .ig-atmo,.ig--reduced .ig-stars,.ig--reduced .ig-glow,
+  .ig--reduced .ig-logo-halo,.ig--reduced .ig-skip{animation:none;opacity:1;}
+  .ig--reduced .ig-star{animation:none;opacity:.6;}
+  .ig--reduced .ig-sheen::after{animation:none;}
+  .ig--reduced .ig-logo,.ig--reduced .ig-anniv{
+    transform:none;animation:igFade .4s ease-out forwards;}
+</style>
+</helmet>
+
+<div ref="{{ setStage }}" class="ig-stage{{ reducedClass }}" style="{{ timingVars }}" onclick="{{ onSkip }}" role="img" aria-label="HISPA 20th anniversary opening animation">
+
+  <!-- phase 1: atmosphere, stars, centre glow -->
+  <div class="ig-atmo" aria-hidden="true"></div>
+  <svg class="ig-stars" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g fill="#CFE4FF">
+      <circle class="ig-star" style="--d:4.1s;--dl:-.3s" cx="140" cy="120" r="1.6"/>
+      <circle class="ig-star" style="--d:5s;--dl:-1.5s" cx="320" cy="240" r="1.2"/>
+      <circle class="ig-star" style="--d:3.8s;--dl:-2.3s" cx="238" cy="560" r="1.7"/>
+      <circle class="ig-star" style="--d:4.6s;--dl:-.8s" cx="120" cy="770" r="1.3"/>
+      <circle class="ig-star" style="--d:4.3s;--dl:-3s" cx="480" cy="120" r="1.4"/>
+      <circle class="ig-star" style="--d:5.2s;--dl:-1.1s" cx="560" cy="700" r="1.6"/>
+      <circle class="ig-star" style="--d:4s;--dl:-2s" cx="700" cy="200" r="1.2"/>
+      <circle class="ig-star" style="--d:4.8s;--dl:-.5s" cx="900" cy="140" r="1.7"/>
+      <circle class="ig-star" style="--d:4.2s;--dl:-2.7s" cx="1050" cy="640" r="1.3"/>
+      <circle class="ig-star" style="--d:5.3s;--dl:-1.3s" cx="1180" cy="240" r="1.6"/>
+      <circle class="ig-star" style="--d:4.5s;--dl:-3.2s" cx="1320" cy="520" r="1.4"/>
+      <circle class="ig-star" style="--d:3.9s;--dl:-.9s" cx="1460" cy="150" r="1.7"/>
+      <circle class="ig-star" style="--d:4.7s;--dl:-2.1s" cx="1500" cy="720" r="1.3"/>
+      <circle class="ig-star" style="--d:5.1s;--dl:-1.7s" cx="820" cy="820" r="1.4"/>
+      <circle class="ig-star" style="--d:4.4s;--dl:-.2s" cx="1360" cy="840" r="1.2"/>
+    </g>
+    <g fill="#F3D17E">
+      <circle class="ig-star" style="--d:4.9s;--dl:-1.9s" cx="420" cy="420" r="1.3"/>
+      <circle class="ig-star" style="--d:4.1s;--dl:-2.9s" cx="1240" cy="420" r="1.4"/>
+      <circle class="ig-star" style="--d:5.4s;--dl:-.6s" cx="760" cy="560" r="1.1"/>
+      <circle class="ig-star" style="--d:4.3s;--dl:-1.2s" cx="980" cy="330" r="1.2"/>
+    </g>
+  </svg>
+  <div class="ig-glow" aria-hidden="true"></div>
+
+  <!-- phase 2/4: gold ribbons -->
+  <canvas ref="{{ setCanvas }}" class="ig-ribbons" aria-hidden="true"></canvas>
+
+  <!-- phase 3: logos -->
+  <div class="ig-logos" aria-hidden="true">
+    <div class="ig-logo-halo"></div>
+    <div class="ig-sheen"></div>
+    <img class="ig-logo" src="brand/hispa-logo-white.svg" alt="" onerror="{{ onAssetFail }}" decoding="async">
+    <img class="ig-anniv" src="assets/anniversary20.png" alt="" onerror="{{ onAssetFail }}" decoding="async">
+  </div>
+
+  <button ref="{{ setSkip }}" type="button" class="ig-skip" onclick="{{ onSkip }}">Skip intro <span style="font-size:15px;line-height:0;">&rarr;</span></button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;}}">
+class Component extends DCLogic {
+
+  /* timing (seconds). Desktop ≈3.6s incl. the host page's 1.1s dissolve;
+     mobile compresses to ≈2s of intro before the dissolve begins. */
+  timings(){
+    if (this._T) return this._T;
+    const mobile = (window.innerWidth || 1024) < 640;
+    this._T = mobile
+      ? { rib: 0.4, ribDur: 0.8, logo: 0.9, anniv: 1.2, sheen: 1.2, out: 1.6, done: 1.7, K: 20 }
+      : { rib: 0.7, ribDur: 1.05, logo: 1.5, anniv: 1.9, sheen: 1.9, out: 2.6, done: 2.7, K: 32 };
+    this._T.mobile = mobile;
+    return this._T;
+  }
+
+  ease(t){ t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); }
+
+  /* two ribbons in normalized coords — positioned so their final resting bands
+     line up with the hero's two gold waves (upper ~26% / lower ~74% of height),
+     making the dissolve read as continuous. */
+  ribbonDefs(){
+    const T = this.timings();
+    return [
+      { dir: 1,  t0: T.rib,        dur: T.ribDur,        drift: -1,   // A: enters LEFT, upper third
+        yC: (u) => 0.26 + 0.055 * Math.sin(u * 4.4 + 0.6) + 0.02 * Math.sin(u * 9.1 + 2.0),
+        half: (u) => 0.048 + 0.026 * Math.sin(u * 5.2 + 1.3) },
+      { dir: -1, t0: T.rib + 0.22, dur: T.ribDur + 0.1,  drift: 1,    // B: enters RIGHT, lower third
+        yC: (u) => 0.74 + 0.065 * Math.sin(u * 3.8 + 2.2) + 0.02 * Math.sin(u * 8.3 + 0.7),
+        half: (u) => 0.055 + 0.030 * Math.sin(u * 4.6 + 3.9) },
+    ];
+  }
+
+  sizeCanvas(){
+    const cv = this.canvas; if (!cv) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = cv.clientWidth || window.innerWidth, h = cv.clientHeight || window.innerHeight;
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    this._dims = { w, h, dpr };
+  }
+
+  /* one frame of the ribbon canvas at intro-time t (seconds) */
+  draw(t){
+    const cv = this.canvas; if (!cv || !this._dims) return;
+    const { w, h, dpr } = this._dims;
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineWidth = 1;
+    const T = this.timings();
+    const outP = this.ease((t - T.out) / 1.1);          // phase-4 outward flow
+    const S = 110;
+    for (const def of this.ribbonDefs()) {
+      const p = this.ease((t - def.t0) / def.dur);
+      if (p <= 0) continue;
+      const sheenU = ((t - def.t0) * 0.5) % 1.35;       // traveling highlight position
+      for (let k = 0; k < T.K; k++) {
+        const o = -1 + 2 * k / (T.K - 1);
+        const reveal = Math.max(0, Math.min(1, p * 1.25 - Math.abs(o) * 0.25));
+        if (reveal <= 0) continue;
+        const wgt = Math.pow(1 - Math.abs(o), 1.4);
+        const alpha = (0.10 + 0.45 * wgt) * (0.8 + 0.25 * Math.sin(k * 1.7));
+        // gold ramp: bright core → deep edge, with a bright stop at the sheen
+        const x0 = def.dir > 0 ? -0.08 * w : 1.08 * w;
+        const x1 = def.dir > 0 ? 1.16 * w : -1.16 * w;
+        const grad = ctx.createLinearGradient(x0, 0, x0 + (x1 - x0), 0);
+        const core = [Math.round(138 + 105 * wgt), Math.round(90 + 119 * wgt), Math.round(18 + 108 * wgt)];
+        const c = 'rgba(' + core[0] + ',' + core[1] + ',' + core[2] + ',';
+        const su = Math.max(0.02, Math.min(0.98, sheenU));
+        grad.addColorStop(0, c + (alpha * 0.55) + ')');
+        grad.addColorStop(Math.max(0.01, su - 0.09), c + alpha + ')');
+        grad.addColorStop(su, 'rgba(255,246,220,' + Math.min(1, alpha * 2.1) + ')');
+        grad.addColorStop(Math.min(0.99, su + 0.09), c + alpha + ')');
+        grad.addColorStop(1, c + (alpha * 0.55) + ')');
+        ctx.strokeStyle = grad;
+        ctx.beginPath();
+        const n = Math.max(2, Math.round(S * reveal));
+        for (let i = 0; i <= n; i++) {
+          const u = i / S;
+          const px = def.dir > 0 ? (-0.08 + 1.16 * u) * w : (1.08 - 1.16 * u) * w;
+          const spread = 1 + 0.7 * outP;
+          const py = (def.yC(u) + o * def.half(u) * spread + def.drift * outP * 0.075 * (0.4 + 0.6 * u)) * h
+                   + 5 * Math.sin(u * 7.3 + o * 1.6 + t * 0.9) * (0.4 + 0.6 * wgt);
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+    }
+  }
+
+  componentDidMount(){
+    this.reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const T = this.timings();
+    this.sizeCanvas();
+    this._onResize = () => this.sizeCanvas();
+    window.addEventListener('resize', this._onResize);
+
+    // skip: Enter / Escape anywhere (plus click via template bindings)
+    this._onKeys = (e) => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); this.finish(); } };
+    window.addEventListener('keydown', this._onKeys);
+    setTimeout(() => { try { if (this.skipBtn) this.skipBtn.focus(); } catch (e) {} }, 80);
+
+    if (this.reduce) {
+      // static variant: one gently-lit frame behind an instant scene; done ≤0.5s
+      this.draw(T.logo + 0.6);
+      this._doneTimer = setTimeout(() => this.finish(), 450);
+      return;
+    }
+    // completion clock uses setTimeout (rAF can be throttled in background tabs)
+    this._doneTimer = setTimeout(() => this.finish(), T.done * 1000);
+    this._t0 = performance.now();
+    const loop = (now) => {
+      this.draw((now - this._t0) / 1000);
+      this._raf = requestAnimationFrame(loop);
+    };
+    this._raf = requestAnimationFrame(loop);
+  }
+
+  componentWillUnmount(){
+    if (this._raf) cancelAnimationFrame(this._raf);
+    if (this._doneTimer) clearTimeout(this._doneTimer);
+    window.removeEventListener('resize', this._onResize);
+    window.removeEventListener('keydown', this._onKeys);
+  }
+
+  /* signal the host page to begin its dissolve (idempotent; also used by Skip
+     and by asset-load failure so the homepage is never blocked) */
+  finish(){
+    if (this._finished) return;
+    this._finished = true;
+    document.dispatchEvent(new CustomEvent('hispa-intro-done', { bubbles: true }));
+  }
+
+  renderVals(){
+    const T = this.timings();
+    return {
+      reducedClass: this.reduce ? ' ig--reduced' : '',
+      timingVars: '--dLogo:' + T.logo + 's;--dAnniv:' + T.anniv + 's;--dSheen:' + (T.sheen + 0.3) + 's;',
+      onSkip: () => this.finish(),
+      onAssetFail: () => this.finish(),
+      setStage: (el) => { if (el) this.stage = el; },
+      setCanvas: (el) => { if (el) { this.canvas = el; this.sizeCanvas(); } },
+      setSkip: (el) => { if (el) this.skipBtn = el; },
+    };
+  }
+}
+</script>
+</body>
+</html>

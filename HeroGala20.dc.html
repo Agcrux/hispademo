@@ -29,9 +29,8 @@
        5  foreground gold-wave pass — second three.js canvas, CSS-masked to the
           right side so the bottom wave reads as weaving IN FRONT of the collage
        6  glass content card
-       7  gold section headings
 
-     The gold waves are TEXTURED (a ruled mesh of ~46 thin gold lines per wave,
+     The gold waves are TEXTURED (a ruled mesh of ~56 thin gold lines per wave,
      additive-blended, varied opacity) — not solid ribbons — and they respond to
      the mouse: hover tilts them, click-dragging swings them further, and they
      ease back on release. Reduced-motion renders one static frame. If WebGL or
@@ -169,11 +168,6 @@
     transition:transform .18s ease, box-shadow .18s ease;}
   .gcard-cta:hover{transform:translateY(-2px);box-shadow:0 14px 30px -6px rgba(211,168,78,0.6), 0 0 28px rgba(243,209,126,0.3);}
 
-  /* ---- layer 7: gold section headings ---- */
-  .gh{position:absolute;z-index:7;margin:0;transform:translateX(-50%);white-space:nowrap;
-    font:500 21px/1.25 'Figtree',sans-serif;color:#E9BE62;letter-spacing:0.015em;
-    text-shadow:0 2px 14px rgba(2,6,18,0.9), 0 0 28px rgba(2,6,18,0.75);pointer-events:none;}
-
   /* ---- twinkle for the gold background stars ---- */
   @keyframes gTwinkle{0%,100%{opacity:.35;}50%{opacity:1;}}
   .gstar-tw{animation:gTwinkle var(--d,4.5s) ease-in-out infinite;animation-delay:var(--dl,0s);}
@@ -184,8 +178,6 @@
     background:
       radial-gradient(560px 380px at 68% 4%, rgba(24,44,92,0.5), transparent 62%),
       linear-gradient(168deg, var(--navy-secondary) 0%, var(--navy-primary) 52%, var(--navy-dark) 100%);}
-  .gm-h{position:relative;z-index:3;margin:0 0 14px;text-align:center;
-    font:500 16.5px/1.3 'Figtree',sans-serif;color:#E9BE62;text-shadow:0 2px 12px rgba(2,6,18,0.6);}
   .gm-row{position:relative;z-index:3;display:flex;overflow-x:auto;padding:16px 22px 22px;
     -webkit-overflow-scrolling:touch;scrollbar-width:none;}
   .gm-row::-webkit-scrollbar{display:none;}
@@ -294,10 +286,6 @@
     <!-- GOLD WAVE BOTTOM — foreground pass (masked to the right, weaves over the collage) -->
     <canvas ref="{{ setFrontCanvas }}" class="gwave gwave-front" width="1672" height="756" aria-hidden="true"></canvas>
 
-    <!-- gold headings -->
-    <h2 class="gh" style="left:720px;top:48px;">Then: The Beginnings (2006–2015)</h2>
-    <h2 class="gh" style="left:884px;top:448px;">Now: A Growing Impact</h2>
-
     <!-- MAIN GLASS CONTENT CARD -->
     <div class="gcard">
       <div class="gcard-eyebrow">
@@ -323,8 +311,7 @@
   <div class="gm" data-screen-label="Hero (mobile)">
     <div ref="{{ setMobWaves }}" class="gm-waves" aria-hidden="true"></div>
 
-    <h2 class="gm-h">Then: The Beginnings (2006–2015)</h2>
-    <div class="gm-row" aria-label="HISPA photo gallery — the beginnings">
+    <div class="gm-row" aria-label="HISPA photo gallery — row one">
       <sc-for list="{{ mobTop }}" as="f">
         <figure class="grf" data-photo-slot="{{ f.slot }}" style="{{ f.style }}" role="button" aria-label="{{ f.label }}" onclick="{{ f.open }}">
           <span class="grf-gold"><span class="grf-mat"><img src="{{ f.src }}" alt="" decoding="async"></span></span>
@@ -348,8 +335,7 @@
       <a class="gcard-cta" href="https://hispakickoff.org" target="_blank" rel="noopener" style="width:100%;margin-top:20px;">Become a Role Model <span style="font-size:17px;line-height:0;">&rarr;</span></a>
     </div>
 
-    <h2 class="gm-h" style="margin-top:26px;">Now: A Growing Impact</h2>
-    <div class="gm-row" aria-label="HISPA photo gallery — a growing impact">
+    <div class="gm-row" style="margin-top:14px;" aria-label="HISPA photo gallery — row two">
       <sc-for list="{{ mobLow }}" as="f">
         <figure class="grf" data-photo-slot="{{ f.slot }}" style="{{ f.style }}" role="button" aria-label="{{ f.label }}" onclick="{{ f.open }}">
           <span class="grf-gold"><span class="grf-mat"><img src="{{ f.src }}" alt="" decoding="async"></span></span>
@@ -495,19 +481,24 @@ class Component extends DCLogic {
     if (this._wd) return this._wd;
     const S = this.smooth;
     this._wd = {
-      // GOLD WAVE TOP — grows in near x≈800, big crest ~1050, dip ~1280, rises ~1470, exits right
+      // GOLD RIBBON 1 (top) — ONE CONTINUOUS band: enters off the LEFT edge as a
+      // calm stream, swells into the big crest ~1050 / dip ~1280, exits off the
+      // right. No taper-to-a-point start anymore (a visible mid-air origin read as
+      // the ribbon being "cut"); the band keeps its full body across the whole run
+      // and both endpoints sit outside the viewport with margin for mouse-drag tilt.
       top: {
-        x0: 760, x1: 2160, seg: 130, K: 56, seed: 20260710,
-        cy: (x) => 205 - 95 * S(760, 1010, x) * Math.cos((x - 1050) * 0.01366) + 16 * Math.sin(x * 0.0058 + 2.1),
-        half: (x) => (58 + 46 * Math.sin(x * 0.0043 + 0.8)) * S(760, 930, x),
+        x0: -260, x1: 2260, seg: 160, K: 56, seed: 20260710,
+        cy: (x) => { const e = 0.42 + 0.58 * S(300, 1000, x); return 205 - 95 * e * Math.cos((x - 1050) * 0.01366) + 16 * Math.sin(x * 0.0058 + 2.1); },
+        half: (x) => 58 + 46 * Math.sin(x * 0.0043 + 0.8),
         z: (x, o) => o * 70 * Math.sin(x * 0.0021 + 0.9) + 26 * Math.sin(x * 0.0037 + o * 1.7),
-        rip: (x, o, t) => 8 * S(760, 1010, x) * Math.sin(x * 0.009 - t * 1.15 + o * 1.5),
+        rip: (x, o, t) => 8 * (0.42 + 0.58 * S(300, 1000, x)) * Math.sin(x * 0.009 - t * 1.15 + o * 1.5),
       },
-      // GOLD WAVE BOTTOM — subtle left tail, prominent from ~930, valley ~1130, folds ~1320–1500
+      // GOLD RIBBON 2 (bottom) — continuous from beyond the left edge (fuller-bodied
+      // tail than before, never a point), valley ~1130, folds ~1320–1500, exits right.
       bot: {
-        x0: -140, x1: 2160, seg: 150, K: 56, seed: 47110815,
+        x0: -260, x1: 2260, seg: 170, K: 56, seed: 47110815,
         cy: (x) => { const m = S(700, 1010, x); return (636 + 14 * Math.sin(x * 0.0045 + 1.0)) * (1 - m) + (566 + 96 * Math.cos((x - 1130) * 0.01083)) * m; },
-        half: (x) => (74 + 56 * Math.sin(x * 0.0047 + 3.99)) * (0.35 + 0.65 * S(260, 900, x)),
+        half: (x) => (74 + 56 * Math.sin(x * 0.0047 + 3.99)) * (0.55 + 0.45 * S(200, 900, x)),
         z: (x, o) => o * 80 * Math.sin(x * 0.0019 + 0.4) + 30 * Math.sin(x * 0.0033 + o * 2.0),
         rip: (x, o, t) => 9 * Math.sin(x * 0.008 - t * 1.0 + o * 1.4),
       },

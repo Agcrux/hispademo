@@ -23,7 +23,16 @@
   @media (prefers-reduced-motion:reduce){ .gfoot-star{animation:none;opacity:.5;} }
   .gfoot-glow{position:absolute;left:0;top:0;width:420px;height:420px;border-radius:50%;pointer-events:none;
     opacity:0;transition:opacity .45s ease;mix-blend-mode:screen;will-change:transform;
-    background:radial-gradient(circle, rgba(158,206,255,0.13) 0%, rgba(120,170,240,0.06) 40%, rgba(120,170,240,0) 70%);}
+    background:radial-gradient(circle, rgba(178,220,255,0.24) 0%, rgba(140,190,250,0.11) 34%, rgba(120,170,240,0) 68%);}
+  /* pointer-parallax layers + glass sheen + drifting particles (mirrors the header) */
+  footer [data-plx]{will-change:transform;}
+  .gfoot-sheen{position:absolute;top:-40px;bottom:-40px;left:-80px;right:-80px;pointer-events:none;
+    background:linear-gradient(112deg, transparent 36%, rgba(160,200,255,0.04) 46%, rgba(212,236,255,0.08) 50%, rgba(160,200,255,0.04) 54%, transparent 64%);}
+  @keyframes gfootDrift{0%,100%{transform:translate(0,0);}50%{transform:translate(11px,-7px);}}
+  .gfoot-drift{position:absolute;width:3px;height:3px;border-radius:50%;pointer-events:none;
+    background:rgba(200,228,255,0.5);box-shadow:0 0 6px rgba(160,205,255,0.75);
+    animation:gfootDrift var(--d,18s) ease-in-out infinite;animation-delay:var(--dl,0s);}
+  @media (prefers-reduced-motion:reduce){ .gfoot-drift{animation:none;} }
   .gfoot-h{margin:0 0 18px;font:600 18px/1.2 'Figtree','Hanken Grotesk',sans-serif;color:#E9BE62;letter-spacing:0.13em;text-transform:uppercase;}
   .gfoot-link{display:block;text-decoration:none;color:#C9D3E5;font-size:14.5px;line-height:1.4;margin-bottom:11px;transition:color .18s ease;}
   .gfoot-link:hover{color:#F3D17E;}
@@ -37,9 +46,13 @@
   <div class="gfoot-ring" style="width:240px;height:240px;left:34%;bottom:-120px;border-color:rgba(150,175,220,0.08);" aria-hidden="true"></div>
   <div class="gfoot-dots" style="left:-40px;top:-30px;width:320px;height:220px;" aria-hidden="true"></div>
   <div class="gfoot-dots" style="right:16%;bottom:-40px;width:300px;height:180px;opacity:.08;" aria-hidden="true"></div>
-  <div class="gfoot-neb" style="left:22%;top:-90px;width:520px;height:260px;background:radial-gradient(closest-side, rgba(64,120,220,0.14), transparent 70%);" aria-hidden="true"></div>
-  <div class="gfoot-neb" style="right:6%;bottom:-110px;width:460px;height:280px;background:radial-gradient(closest-side, rgba(96,90,220,0.10), transparent 70%);" aria-hidden="true"></div>
-  <svg class="gfoot-sky" viewBox="0 0 1672 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <div class="gfoot-neb" data-plx="13" style="left:22%;top:-90px;width:520px;height:260px;background:radial-gradient(closest-side, rgba(64,120,220,0.14), transparent 70%);" aria-hidden="true"></div>
+  <div class="gfoot-neb" data-plx="9" style="right:6%;bottom:-110px;width:460px;height:280px;background:radial-gradient(closest-side, rgba(96,90,220,0.10), transparent 70%);" aria-hidden="true"></div>
+  <div class="gfoot-sheen" data-plx="24" aria-hidden="true"></div>
+  <span class="gfoot-drift" style="left:18%;top:26%;--d:17s;--dl:-5s;" aria-hidden="true"></span>
+  <span class="gfoot-drift" style="left:52%;top:58%;--d:21s;--dl:-11s;width:2px;height:2px;" aria-hidden="true"></span>
+  <span class="gfoot-drift" style="left:78%;top:34%;--d:19s;--dl:-3s;" aria-hidden="true"></span>
+  <svg class="gfoot-sky" data-plx="5" viewBox="0 0 1672 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g stroke="rgba(158,206,255,0.11)" stroke-width="1" fill="none">
       <path d="M170,80 L262,128 L360,84 L448,120"/>
       <path d="M1280,300 L1372,252 L1478,290 L1560,244"/>
@@ -167,8 +180,9 @@ class Component extends DCLogic {
   }
   componentWillUnmount(){ if (this._glow) { this._glow(); this._glow = null; } }
 
-  /* Mouse-follow light (same behaviour as the gala header): eased soft glow inside
-     `host`; disabled on touch/coarse-pointer devices and under prefers-reduced-motion. */
+  /* Interactive space environment (same behaviour as the gala header): eased
+     mouse-follow glow + pointer parallax on every [data-plx] decor layer.
+     Disabled on touch/coarse-pointer devices and under prefers-reduced-motion. */
   _initGlow(host){
     try {
       if (!host || !window.matchMedia) return null;
@@ -176,20 +190,30 @@ class Component extends DCLogic {
       if (matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
       const glow = host.querySelector(".gfoot-glow");
       if (!glow) return null;
-      let tx = 0, ty = 0, x = -1e4, y = -1e4, raf = 0, over = false;
+      const half = glow.offsetWidth / 2 || 210;
+      const plx = [...host.querySelectorAll("[data-plx]")].map((el) => ({ el, f: parseFloat(el.getAttribute("data-plx")) || 0 }));
+      let tx = 0, ty = 0, x = -1e4, y = -1e4, nxT = 0, nyT = 0, nx = 0, ny = 0, raf = 0, over = false;
       const step = () => {
         raf = 0;
         x += (tx - x) * 0.14; y += (ty - y) * 0.14;
-        glow.style.transform = "translate3d(" + (x - 210) + "px," + (y - 210) + "px,0)";
-        if (over || Math.abs(tx - x) + Math.abs(ty - y) > 0.6) raf = requestAnimationFrame(step);
+        nx += (nxT - nx) * 0.10; ny += (nyT - ny) * 0.10;
+        glow.style.transform = "translate3d(" + (x - half) + "px," + (y - half) + "px,0)";
+        for (const p of plx) p.el.style.transform = "translate3d(" + (nx * p.f).toFixed(2) + "px," + (ny * p.f * 0.55).toFixed(2) + "px,0)";
+        if (over || Math.abs(tx - x) + Math.abs(ty - y) + (Math.abs(nxT - nx) + Math.abs(nyT - ny)) * 60 > 0.8) raf = requestAnimationFrame(step);
       };
       const move = (e) => {
         const r = host.getBoundingClientRect();
+        if (!r.width || !r.height) return;
         tx = e.clientX - r.left; ty = e.clientY - r.top;
+        nxT = (tx / r.width) * 2 - 1; nyT = (ty / r.height) * 2 - 1;
         if (!over) { over = true; if (x < -9000) { x = tx; y = ty; } glow.style.opacity = "1"; }
         if (!raf) raf = requestAnimationFrame(step);
       };
-      const leave = () => { over = false; glow.style.opacity = "0"; };
+      const leave = () => {
+        over = false; glow.style.opacity = "0";
+        nxT = 0; nyT = 0;                       // sky eases back to rest
+        if (!raf) raf = requestAnimationFrame(step);
+      };
       host.addEventListener("pointermove", move, { passive: true });
       host.addEventListener("pointerleave", leave, { passive: true });
       return () => { host.removeEventListener("pointermove", move); host.removeEventListener("pointerleave", leave); if (raf) cancelAnimationFrame(raf); };

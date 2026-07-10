@@ -58,11 +58,22 @@
   @keyframes hispaTwinkle{0%,100%{opacity:.25;}50%{opacity:.9;}}
   .hispa-star{animation:hispaTwinkle var(--d,4.5s) ease-in-out infinite;animation-delay:var(--dl,0s);}
   @media (prefers-reduced-motion:reduce){ .hispa-star{animation:none;opacity:.55;} }
-  /* mouse-follow light: faint diffused blue-white glow, eased toward the cursor by JS
-     (initialised only on fine-pointer, motion-tolerant devices) */
+  /* mouse-follow light: soft diffused blue-white glow with a brighter core, eased
+     toward the cursor by JS (initialised only on fine-pointer, motion-tolerant devices) */
   .hispa-glow{position:absolute;left:0;top:0;width:340px;height:340px;border-radius:50%;pointer-events:none;
     opacity:0;transition:opacity .45s ease;mix-blend-mode:screen;will-change:transform;
-    background:radial-gradient(circle, rgba(158,206,255,0.16) 0%, rgba(120,170,240,0.08) 40%, rgba(120,170,240,0) 70%);}
+    background:radial-gradient(circle, rgba(178,220,255,0.28) 0%, rgba(140,190,250,0.13) 34%, rgba(120,170,240,0) 68%);}
+  /* pointer-parallax layers: JS eases each [data-plx] element by (normalized cursor × factor) */
+  .hispa-head-decor [data-plx]{will-change:transform;}
+  /* glass reflection streak — slides subtly with the cursor (high parallax factor) */
+  .hispa-sheen{position:absolute;top:-30px;bottom:-30px;left:-70px;right:-70px;pointer-events:none;
+    background:linear-gradient(112deg, transparent 34%, rgba(160,200,255,0.05) 46%, rgba(212,236,255,0.10) 50%, rgba(160,200,255,0.05) 54%, transparent 66%);}
+  /* tiny particles that drift slowly on their own (independent of the cursor) */
+  @keyframes hispaDrift{0%,100%{transform:translate(0,0);}50%{transform:translate(10px,-6px);}}
+  .hispa-drift{position:absolute;width:3px;height:3px;border-radius:50%;pointer-events:none;
+    background:rgba(200,228,255,0.55);box-shadow:0 0 6px rgba(160,205,255,0.8);
+    animation:hispaDrift var(--d,16s) ease-in-out infinite;animation-delay:var(--dl,0s);}
+  @media (prefers-reduced-motion:reduce){ .hispa-drift{animation:none;} }
   @media (max-width:820px){
     .hispa-head--gala .hispa-head-inner{height:74px;}
     .hispa-head--gala .hispa-mobile-panel{top:74px;}
@@ -89,12 +100,18 @@
 <header ref="{{ setHead }}" class="hispa-head{{ galaClass }}" style="position:sticky;top:0;z-index:50;background:{{ headerBg }};backdrop-filter:{{ headerBlur }};-webkit-backdrop-filter:{{ headerBlur }};border-bottom:{{ headerBorder }};box-shadow:{{ headerShadow }};font-family:{{ headerFont }};">
   <sc-if value="{{ isGala }}" hint-placeholder-val="{{ false }}">
     <div class="hispa-head-decor" aria-hidden="true">
-      <!-- nebula washes -->
-      <div class="hispa-neb" style="left:6%;top:-140%;width:460px;height:300px;background:radial-gradient(closest-side, rgba(64,120,220,0.20), transparent 70%);"></div>
-      <div class="hispa-neb" style="left:38%;top:-60%;width:560px;height:240px;background:radial-gradient(closest-side, rgba(0,167,210,0.10), transparent 70%);"></div>
-      <div class="hispa-neb" style="right:4%;top:-100%;width:420px;height:260px;background:radial-gradient(closest-side, rgba(96,90,220,0.12), transparent 70%);"></div>
-      <!-- stars + constellation threads -->
-      <svg viewBox="0 0 1672 104" preserveAspectRatio="xMidYMid slice">
+      <!-- nebula washes (pointer-parallax: each layer eases by cursor × its data-plx factor) -->
+      <div class="hispa-neb" data-plx="14" style="left:6%;top:-140%;width:460px;height:300px;background:radial-gradient(closest-side, rgba(64,120,220,0.20), transparent 70%);"></div>
+      <div class="hispa-neb" data-plx="9" style="left:38%;top:-60%;width:560px;height:240px;background:radial-gradient(closest-side, rgba(0,167,210,0.10), transparent 70%);"></div>
+      <div class="hispa-neb" data-plx="12" style="right:4%;top:-100%;width:420px;height:260px;background:radial-gradient(closest-side, rgba(96,90,220,0.12), transparent 70%);"></div>
+      <!-- glass reflection streak — shifts with the cursor -->
+      <div class="hispa-sheen" data-plx="26"></div>
+      <!-- slow-drifting particles -->
+      <span class="hispa-drift" style="left:22%;top:30%;--d:15s;--dl:-4s;"></span>
+      <span class="hispa-drift" style="left:57%;top:64%;--d:19s;--dl:-9s;width:2px;height:2px;"></span>
+      <span class="hispa-drift" style="left:83%;top:38%;--d:17s;--dl:-2s;"></span>
+      <!-- stars + constellation threads (gentle counter-parallax vs the nebulas) -->
+      <svg data-plx="6" viewBox="0 0 1672 104" preserveAspectRatio="xMidYMid slice">
         <g stroke="rgba(158,206,255,0.13)" stroke-width="1" fill="none">
           <path d="M116,34 L212,66 L306,28 L392,52"/>
           <path d="M1332,72 L1428,34 L1536,60 L1612,30"/>
@@ -193,9 +210,11 @@ class Component extends DCLogic {
   }
   componentWillUnmount(){ if (this._glow) { this._glow(); this._glow = null; } }
 
-  /* Mouse-follow light: eased soft glow inside `host`. Skipped entirely on
-     touch/coarse-pointer devices and under prefers-reduced-motion. Returns a
-     cleanup function (or null when disabled). */
+  /* Interactive space environment: eased mouse-follow glow + pointer parallax on
+     every [data-plx] decor layer (stars, nebulas, glass sheen — each eases by
+     normalized-cursor × its factor, so the sky shifts subtly around the pointer).
+     Skipped entirely on touch/coarse-pointer devices and under prefers-reduced-motion
+     (those get the graceful static version). Returns a cleanup function. */
   _initGlow(host){
     try {
       if (!host || !window.matchMedia) return null;
@@ -203,20 +222,30 @@ class Component extends DCLogic {
       if (matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
       const glow = host.querySelector(".hispa-glow");
       if (!glow) return null;
-      let tx = 0, ty = 0, x = -1e4, y = -1e4, raf = 0, over = false;
+      const half = glow.offsetWidth / 2 || 170;
+      const plx = [...host.querySelectorAll("[data-plx]")].map((el) => ({ el, f: parseFloat(el.getAttribute("data-plx")) || 0 }));
+      let tx = 0, ty = 0, x = -1e4, y = -1e4, nxT = 0, nyT = 0, nx = 0, ny = 0, raf = 0, over = false;
       const step = () => {
         raf = 0;
         x += (tx - x) * 0.14; y += (ty - y) * 0.14;
-        glow.style.transform = "translate3d(" + (x - 170) + "px," + (y - 170) + "px,0)";
-        if (over || Math.abs(tx - x) + Math.abs(ty - y) > 0.6) raf = requestAnimationFrame(step);
+        nx += (nxT - nx) * 0.10; ny += (nyT - ny) * 0.10;
+        glow.style.transform = "translate3d(" + (x - half) + "px," + (y - half) + "px,0)";
+        for (const p of plx) p.el.style.transform = "translate3d(" + (nx * p.f).toFixed(2) + "px," + (ny * p.f * 0.55).toFixed(2) + "px,0)";
+        if (over || Math.abs(tx - x) + Math.abs(ty - y) + (Math.abs(nxT - nx) + Math.abs(nyT - ny)) * 60 > 0.8) raf = requestAnimationFrame(step);
       };
       const move = (e) => {
         const r = host.getBoundingClientRect();
+        if (!r.width || !r.height) return;
         tx = e.clientX - r.left; ty = e.clientY - r.top;
+        nxT = (tx / r.width) * 2 - 1; nyT = (ty / r.height) * 2 - 1;
         if (!over) { over = true; if (x < -9000) { x = tx; y = ty; } glow.style.opacity = "1"; }
         if (!raf) raf = requestAnimationFrame(step);
       };
-      const leave = () => { over = false; glow.style.opacity = "0"; };
+      const leave = () => {
+        over = false; glow.style.opacity = "0";
+        nxT = 0; nyT = 0;                       // sky eases back to rest
+        if (!raf) raf = requestAnimationFrame(step);
+      };
       host.addEventListener("pointermove", move, { passive: true });
       host.addEventListener("pointerleave", leave, { passive: true });
       return () => { host.removeEventListener("pointermove", move); host.removeEventListener("pointerleave", leave); if (raf) cancelAnimationFrame(raf); };
