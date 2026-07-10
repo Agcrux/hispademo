@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -13,11 +13,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;}body{margin:0;}
-  /* --- 20th-anniversary entry intro (IntroGala20): full-viewport overlay shown on the
-         FIRST visit (and again after 24h), then dissolved through a frosted-glass blur
-         into the page. Navy (not black) so the dissolve reads as one continuous space
-         — the intro's gold ribbons hand off to the hero's gold waves. Reduced-motion
-         visitors get the intro's own ≤0.5s static logo fade. --- */
+  /* --- 20th-anniversary entry intro (IntroGala20): full-viewport overlay shown on
+         EVERY visit/refresh (still skippable), then dissolved through a frosted-glass
+         blur into the page. Navy (not black) so the dissolve reads as one continuous
+         space — the intro's gold ribbons hand off to the hero's gold waves.
+         Reduced-motion visitors get the intro's own ≤0.5s static logo fade. --- */
   .hispa-intro-overlay{
     position:fixed;inset:0;z-index:9999;background:#090F23;opacity:1;
     backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
@@ -28,8 +28,8 @@
   }
 </style>
 </helmet>
-<div style="background:#090F23;font-family:'Figtree','Hanken Grotesk',sans-serif;overflow-x:hidden;">
-  <!-- entry intro overlay (first visit / after 24h; skippable; reduced-motion = static fade) -->
+<div style="background:#090F23;font-family:'Sofia Pro','Figtree','Hanken Grotesk',sans-serif;overflow-x:hidden;">
+  <!-- entry intro overlay (every visit/refresh; skippable; reduced-motion = static fade) -->
   <sc-if value="{{ introVisible }}" hint-placeholder-val="{{ false }}">
     <div class="hispa-intro-overlay{{ introLeavingClass }}">
       <dc-import name="IntroGala20" hint-size="100%,100%"></dc-import>
@@ -47,25 +47,20 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1672,&quot;height&quot;:941}}">
 class Component extends DCLogic {
-  // Shows the cinematic intro (IntroGala20, ~3.6s incl. dissolve) on the FIRST visit,
-  // replaying only after 24 hours — returning visitors go straight to the page.
+  // Shows the cinematic intro (IntroGala20, ~5.6s incl. dissolve) on EVERY visit and
+  // refresh (user request) — it stays skippable via the Skip button / click / Enter / Esc.
   // Reduced-motion isn't gated here: the intro itself renders a ≤0.5s static logo fade.
   state = {
-    introVisible: (() => {
-      try {
-        const last = +(localStorage.getItem('hispaIntroShownAt') || 0);
-        return (Date.now() - last) > 24 * 60 * 60 * 1000;
-      } catch (e) { return true; }
-    })(),
+    introVisible: true,
     introLeaving: false,
   };
 
   componentDidMount(){
     this._onIntroDone = () => this.beginIntroExit();
     document.addEventListener('hispa-intro-done', this._onIntroDone);
-    // Safety net: the intro signals done at ~2.7s (or instantly on skip / asset failure);
+    // Safety net: the intro signals done at ~4.5s (or instantly on skip / asset failure);
     // if that event ever fails to arrive, dismiss the overlay anyway so the page is never blocked.
-    if (this.state.introVisible) this._introFailsafe = setTimeout(() => this.beginIntroExit(), 8000);
+    if (this.state.introVisible) this._introFailsafe = setTimeout(() => this.beginIntroExit(), 9000);
   }
   componentWillUnmount(){
     document.removeEventListener('hispa-intro-done', this._onIntroDone);
@@ -76,7 +71,6 @@ class Component extends DCLogic {
   beginIntroExit(){
     if (!this.state.introVisible || this.state.introLeaving) return;
     if (this._introFailsafe) clearTimeout(this._introFailsafe);
-    try { localStorage.setItem('hispaIntroShownAt', String(Date.now())); } catch (e) {}
     this.setState({ introLeaving: true });
     // matches the CSS transition duration (1.1s) + a small buffer, then fully unmounts the intro
     this._introExitTimer = setTimeout(() => this.setState({ introVisible: false }), 1200);

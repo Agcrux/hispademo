@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -12,42 +12,44 @@
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   /* ============================================================================
-     IntroGala20 — the site's original cinematic opening (~3.6s, silent).
+     IntroGala20 — the site's original cinematic opening (~5.6s, silent, unhurried).
      Replaces the old camera-flash intro. Matches the homepage identity:
      deep space-blue glass, subtle stars, flowing metallic-gold wireframe
      ribbons (same fine-line language as the hero's two gold waves), then a
      soft HISPA + 20th-anniversary logo reveal and a dissolve into the page.
 
      Phases (desktop; CSS delays via --d* vars, canvas via the same clock):
-       0.0–0.7s  navy atmosphere + stars + centre glow fade in
-       0.7–1.8s  gold ribbon A flows in from the LEFT (upper third),
-                 ribbon B from the RIGHT (lower third) — many fine bezier-
-                 smooth gold lines with a traveling highlight sheen
-       1.5–2.6s  HISPA logo (sharp, undistorted) fades up; 20th mark follows
-       2.6–3.6s  ribbons keep flowing outward toward the hero's wave
-                 positions while the host page dissolves the overlay
-     Mobile compresses to ~2s with fewer ribbon lines. Reduced-motion shows a
+       0.0–1.1s  navy atmosphere + stars + centre glow fade in gradually
+       1.1–3.3s  gold ribbon A unfolds from the LEFT (upper third), ribbon B
+                 from the RIGHT (lower third) — layered gold palette (base
+                 #C99732 / main #E3B84F / highlight #FFE28A / accent #F5A623)
+                 with two slow traveling light pulses per ribbon
+       2.9–4.4s  HISPA logo (sharp, undistorted) rises gently; 20th mark
+                 follows; core strands warm toward the highlight gold
+       4.4–5.6s  ribbons flow outward toward the hero's wave positions while
+                 the host page dissolves the overlay
+     Mobile plays the same arc compressed to ≈4.1s. Reduced-motion shows a
      ≤0.5s static logo fade. No audio. Skip: button (top-right), click
      anywhere, Enter or Escape.
      ============================================================================ */
   .ig-stage{position:fixed;inset:0;overflow:hidden;cursor:default;
-    font-family:'Figtree',system-ui,sans-serif;
+    font-family:'Sofia Pro','Figtree',system-ui,sans-serif;
     background:
       radial-gradient(1100px 700px at 50% 38%, rgba(24,44,92,0.55), transparent 62%),
       linear-gradient(168deg,#0D1A3A 0%,#07132D 52%,#090F23 100%);}
 
-  /* phase 1 — atmosphere */
-  .ig-atmo{position:absolute;inset:0;opacity:0;animation:igFade .8s ease-out forwards;
+  /* phase 1 — atmosphere (gradual ~1.1s fade-in; the scene breathes before the ribbons) */
+  .ig-atmo{position:absolute;inset:0;opacity:0;animation:igFade 1.15s ease-out forwards;
     background:
       radial-gradient(760px 460px at 24% 20%, rgba(64,120,220,0.14), transparent 70%),
       radial-gradient(820px 520px at 78% 74%, rgba(0,140,200,0.10), transparent 70%),
       radial-gradient(560px 380px at 70% 16%, rgba(96,90,220,0.08), transparent 70%);}
   .ig-stars{position:absolute;inset:0;width:100%;height:100%;opacity:0;
-    animation:igFade .9s ease-out .15s forwards;}
+    animation:igFade 1.3s ease-out .2s forwards;}
   .ig-glow{position:absolute;left:50%;top:44%;width:min(56vw,640px);height:min(40vh,420px);
     transform:translate(-50%,-50%);border-radius:50%;opacity:0;pointer-events:none;
     background:radial-gradient(closest-side, rgba(190,222,255,0.20), rgba(140,185,245,0.08) 55%, transparent 75%);
-    animation:igGlowIn 1s ease-out .2s forwards;}
+    animation:igGlowIn 1.5s ease-out .3s forwards;}
   @keyframes igFade{to{opacity:1;}}
   @keyframes igGlowIn{to{opacity:1;}}
   @keyframes igTwinkle{0%,100%{opacity:.3;}50%{opacity:1;}}
@@ -64,7 +66,7 @@
     background:radial-gradient(closest-side, rgba(243,209,126,0.10), rgba(140,185,245,0.07) 55%, transparent 75%);
     animation:igFade .9s ease-out var(--dLogo,1.5s) forwards;}
   .ig-logo,.ig-anniv{opacity:0;transform:translateY(16px);
-    animation:igRise .85s cubic-bezier(.22,.8,.3,1) forwards;
+    animation:igRise 1.15s cubic-bezier(.25,.7,.25,1) forwards;
     filter:drop-shadow(0 10px 34px rgba(2,6,18,0.55));}
   .ig-logo{width:min(58vw,330px);height:auto;animation-delay:var(--dLogo,1.5s);}
   .ig-anniv{width:min(52vw,300px);height:auto;animation-delay:var(--dAnniv,1.9s);}
@@ -75,14 +77,14 @@
   .ig-sheen::after{content:"";position:absolute;top:-20%;bottom:-20%;left:-46%;width:34%;
     background:linear-gradient(104deg, transparent 8%, rgba(210,232,255,0.05) 42%, rgba(230,242,255,0.10) 50%, rgba(210,232,255,0.05) 58%, transparent 92%);
     transform:skewX(-12deg);
-    animation:igSheen 1.3s ease-in-out var(--dSheen,1.9s) forwards;}
+    animation:igSheen 1.8s ease-in-out var(--dSheen,1.9s) forwards;}
   @keyframes igSheen{to{left:112%;}}
 
   /* skip control */
   .ig-skip{position:absolute;top:22px;right:26px;z-index:5;cursor:pointer;
     display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;
     background:rgba(255,255,255,0.07);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,0.2);color:#DCE8F8;font:600 13.5px/1 'Figtree',sans-serif;
+    border:1px solid rgba(255,255,255,0.2);color:#DCE8F8;font:600 13.5px/1 'Sofia Pro','Figtree',sans-serif;
     letter-spacing:0.04em;opacity:0;animation:igFade .5s ease-out .3s forwards;
     transition:background .2s ease,border-color .2s ease;}
   .ig-skip:hover{background:rgba(255,255,255,0.14);border-color:rgba(243,209,126,0.55);}
@@ -136,7 +138,7 @@
   <div class="ig-logos" aria-hidden="true">
     <div class="ig-logo-halo"></div>
     <div class="ig-sheen"></div>
-    <img class="ig-logo" src="brand/hispa-logo-white.svg" alt="" onerror="{{ onAssetFail }}" decoding="async">
+    <img class="ig-logo" src="brand/hispa-logo.svg" alt="" onerror="{{ onAssetFail }}" decoding="async">
     <img class="ig-anniv" src="assets/anniversary20.png" alt="" onerror="{{ onAssetFail }}" decoding="async">
   </div>
 
@@ -147,14 +149,15 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;}}">
 class Component extends DCLogic {
 
-  /* timing (seconds). Desktop ≈3.6s incl. the host page's 1.1s dissolve;
-     mobile compresses to ≈2s of intro before the dissolve begins. */
+  /* timing (seconds). Desktop ≈5.6s incl. the host page's 1.1s dissolve —
+     unhurried pacing: ~1.1s atmosphere, ~2.0–2.2s ribbon sweep, ~1.5s logo
+     settle, ~1.2s transition. Mobile plays the same arc compressed to ≈4.1s. */
   timings(){
     if (this._T) return this._T;
     const mobile = (window.innerWidth || 1024) < 640;
     this._T = mobile
-      ? { rib: 0.4, ribDur: 0.8, logo: 0.9, anniv: 1.2, sheen: 1.2, out: 1.6, done: 1.7, K: 20 }
-      : { rib: 0.7, ribDur: 1.05, logo: 1.5, anniv: 1.9, sheen: 1.9, out: 2.6, done: 2.7, K: 32 };
+      ? { rib: 0.7, ribDur: 1.35, logo: 1.9, anniv: 2.25, sheen: 2.3, out: 2.9, done: 3.0, K: 20 }
+      : { rib: 1.1, ribDur: 2.0,  logo: 2.9, anniv: 3.35, sheen: 3.4, out: 4.4, done: 4.5, K: 32 };
     this._T.mobile = mobile;
     return this._T;
   }
@@ -170,7 +173,7 @@ class Component extends DCLogic {
       { dir: 1,  t0: T.rib,        dur: T.ribDur,        drift: -1,   // A: enters LEFT, upper third
         yC: (u) => 0.26 + 0.055 * Math.sin(u * 4.4 + 0.6) + 0.02 * Math.sin(u * 9.1 + 2.0),
         half: (u) => 0.048 + 0.026 * Math.sin(u * 5.2 + 1.3) },
-      { dir: -1, t0: T.rib + 0.22, dur: T.ribDur + 0.1,  drift: 1,    // B: enters RIGHT, lower third
+      { dir: -1, t0: T.rib + 0.25, dur: T.ribDur + 0.2,  drift: 1,    // B: enters RIGHT, lower third
         yC: (u) => 0.74 + 0.065 * Math.sin(u * 3.8 + 2.2) + 0.02 * Math.sin(u * 8.3 + 0.7),
         half: (u) => 0.055 + 0.030 * Math.sin(u * 4.6 + 3.9) },
     ];
@@ -194,30 +197,48 @@ class Component extends DCLogic {
     ctx.globalCompositeOperation = 'lighter';
     ctx.lineWidth = 1;
     const T = this.timings();
-    const outP = this.ease((t - T.out) / 1.1);          // phase-4 outward flow
+    const outP = this.ease((t - T.out) / 1.2);          // phase-4 outward flow
+    // core strands warm toward the highlight gold while the logo is on screen
+    const logoGlow = this.ease((t - T.logo) / 1.0) * (1 - 0.6 * this.ease((t - T.out) / 1.2));
     const S = 110;
+    // layered gold palette (brand-guided): most strands base→main, every ~6th a warm
+    // accent, only the innermost peaks + light pulses reach the bright highlight
+    const BASE = [201, 151, 50], MAIN = [227, 184, 79], HI = [255, 226, 138], ACC = [245, 166, 35];
+    const mix = (a, b, m) => [Math.round(a[0] + (b[0] - a[0]) * m), Math.round(a[1] + (b[1] - a[1]) * m), Math.round(a[2] + (b[2] - a[2]) * m)];
     for (const def of this.ribbonDefs()) {
       const p = this.ease((t - def.t0) / def.dur);
       if (p <= 0) continue;
-      const sheenU = ((t - def.t0) * 0.5) % 1.35;       // traveling highlight position
+      const sheenBase = (t - def.t0) * 0.3;             // slow, admirable pulse travel
       for (let k = 0; k < T.K; k++) {
         const o = -1 + 2 * k / (T.K - 1);
         const reveal = Math.max(0, Math.min(1, p * 1.25 - Math.abs(o) * 0.25));
         if (reveal <= 0) continue;
         const wgt = Math.pow(1 - Math.abs(o), 1.4);
-        const alpha = (0.10 + 0.45 * wgt) * (0.8 + 0.25 * Math.sin(k * 1.7));
-        // gold ramp: bright core → deep edge, with a bright stop at the sheen
+        const alpha = (0.12 + 0.55 * wgt) * (0.8 + 0.25 * Math.sin(k * 1.7));
+        let core;
+        if (k % 6 === 2) core = ACC;                                 // selected warm-accent strands
+        else if (wgt > 0.8) core = mix(MAIN, HI, (wgt - 0.8) * 3);   // innermost peaks lean highlight
+        else core = mix(BASE, MAIN, wgt / 0.8);
+        const c = 'rgba(' + core[0] + ',' + core[1] + ',' + core[2] + ',';
         const x0 = def.dir > 0 ? -0.08 * w : 1.08 * w;
         const x1 = def.dir > 0 ? 1.16 * w : -1.16 * w;
         const grad = ctx.createLinearGradient(x0, 0, x0 + (x1 - x0), 0);
-        const core = [Math.round(138 + 105 * wgt), Math.round(90 + 119 * wgt), Math.round(18 + 108 * wgt)];
-        const c = 'rgba(' + core[0] + ',' + core[1] + ',' + core[2] + ',';
-        const su = Math.max(0.02, Math.min(0.98, sheenU));
         grad.addColorStop(0, c + (alpha * 0.55) + ')');
-        grad.addColorStop(Math.max(0.01, su - 0.09), c + alpha + ')');
-        grad.addColorStop(su, 'rgba(255,246,220,' + Math.min(1, alpha * 2.1) + ')');
-        grad.addColorStop(Math.min(0.99, su + 0.09), c + alpha + ')');
+        grad.addColorStop(0.18, c + alpha + ')');
+        grad.addColorStop(0.82, c + alpha + ')');
         grad.addColorStop(1, c + (alpha * 0.55) + ')');
+        // two slow traveling light pulses in the bright-highlight gold
+        for (const ph of [0, 0.62]) {
+          const su = (sheenBase + ph) % 1.35;
+          if (su < 0.04 || su > 0.96) continue;
+          const str = ph === 0 ? 2.2 : 1.6;
+          grad.addColorStop(Math.max(0, su - 0.09), c + alpha + ')');
+          grad.addColorStop(su, 'rgba(255,226,138,' + Math.min(1, alpha * str) + ')');
+          grad.addColorStop(Math.min(1, su + 0.09), c + alpha + ')');
+        }
+        if (wgt > 0.5 && logoGlow > 0.05) {
+          grad.addColorStop(0.5, 'rgba(255,226,138,' + Math.min(1, alpha * (1 + 0.9 * logoGlow)) + ')');
+        }
         ctx.strokeStyle = grad;
         ctx.beginPath();
         const n = Math.max(2, Math.round(S * reveal));

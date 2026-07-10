@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -12,15 +12,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* Brand tokens - verified against the official logo assets (brand/hispa-logo.png,
-     brand/anniversary-20th.png) and PRODUCT.md; already live across every page. Declared
-     here because Nav is dc-imported on every page, so these vars are globally available. */
+  /* Brand tokens — OFFICIAL values from the HISPA Brand Guidelines deck (2026-07-10).
+     Declared here because Nav is dc-imported on every page, so these vars are global.
+     Note: the deck's "Orioles Orange" hex (#f0b36f) is a typo — its own RGB(253,77,28)
+     and CMYK(0,70,89,1) agree on #FD4D1C, which is what the swatch shows.
+     Brand type is Sofia Pro (commercial): all sans stacks lead with 'Sofia Pro' so it
+     activates automatically once a licensed webfont kit is added; Figtree/Hanken
+     Grotesk remain the loaded fallbacks until then. */
   :root{
-    --hispa-navy:#102A43;
-    --hispa-orange:#F1601A;
-    --hispa-green:#7CC03B;
-    --hispa-blue:#2E8FB5;
-    --hispa-cream:#FBF6EE;
+    --hispa-orange:#FD4D1C;     /* Orioles Orange — headlines, elements */
+    --hispa-blue:#016995;       /* Sea Blue — subtitles, elements */
+    --hispa-green:#5EB002;      /* Kelly Green — elements */
+    --hispa-cerulean:#00A8E2;   /* Vivid Cerulean (secondary) — elements */
+    --hispa-sheen:#8ACA0C;      /* Sheen Green (secondary) — elements */
+    --hispa-navy:#002B3A;       /* Maastricht Blue — paragraph text */
+    --hispa-cream:#FBF6EE;      /* site page background (not a guideline colour) */
   }
   /* Shared scroll-reveal utility (duration .6s, ease-out, .1s stagger via data-i * 100ms
      JS delay) - reused verbatim by any page/component that reveals content on scroll. */
@@ -30,7 +36,7 @@
     .reveal{transition:none !important;opacity:1 !important;transform:none !important;}
   }
 
-  .hispa-underline{position:absolute;left:0;right:0;bottom:-2px;height:2px;background:#F1601A;border-radius:2px;}
+  .hispa-underline{position:absolute;left:0;right:0;bottom:-2px;height:2px;background:#FD4D1C;border-radius:2px;}
   .hispa-links{display:flex;align-items:center;gap:20px;}
   .hispa-toggle{display:none;}
   /* header height lives in a class (not inline) so the gala theme can be taller on
@@ -84,17 +90,17 @@
   @media (max-width:1180px){
     .hispa-head--gala .hispa-login-btn.hispa-gala-login{display:inline-flex;}
   }
-  .hispa-login-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(16,42,67,0.18);background:transparent;color:#102A43;cursor:pointer;padding:0;}
-  .hispa-login-btn:hover{border-color:rgba(16,42,67,0.4);}
-  .hispa-toggle:focus-visible,.hispa-login-btn:focus-visible,.hispa-links a:focus-visible,.hispa-mobile-link:focus-visible{outline:2px solid #2E8FB5;outline-offset:3px;}
+  .hispa-login-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(0,43,58,0.18);background:transparent;color:#002B3A;cursor:pointer;padding:0;}
+  .hispa-login-btn:hover{border-color:rgba(0,43,58,0.4);}
+  .hispa-toggle:focus-visible,.hispa-login-btn:focus-visible,.hispa-links a:focus-visible,.hispa-mobile-link:focus-visible{outline:2px solid #016995;outline-offset:3px;}
   @media (max-width:1180px){
     .hispa-links{display:none;}
-    .hispa-toggle{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;border:1.5px solid rgba(16,42,67,0.14);background:transparent;cursor:pointer;padding:0;}
+    .hispa-toggle{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;border:1.5px solid rgba(0,43,58,0.14);background:transparent;cursor:pointer;padding:0;}
   }
   @keyframes hispa-panel-in{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}
   .hispa-mobile-panel{animation:hispa-panel-in .22s ease-out both;}
   @media (prefers-reduced-motion:reduce){.hispa-mobile-panel{animation:none;}}
-  .hispa-mobile-link{display:block;padding:14px 4px;font-size:16px;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(16,42,67,0.07);}
+  .hispa-mobile-link{display:block;padding:14px 4px;font-size:16px;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(0,43,58,0.07);}
 </style>
 </helmet>
 <header ref="{{ setHead }}" class="hispa-head{{ galaClass }}" style="position:sticky;top:0;z-index:50;background:{{ headerBg }};backdrop-filter:{{ headerBlur }};-webkit-backdrop-filter:{{ headerBlur }};border-bottom:{{ headerBorder }};box-shadow:{{ headerShadow }};font-family:{{ headerFont }};">
@@ -102,7 +108,7 @@
     <div class="hispa-head-decor" aria-hidden="true">
       <!-- nebula washes (pointer-parallax: each layer eases by cursor × its data-plx factor) -->
       <div class="hispa-neb" data-plx="14" style="left:6%;top:-140%;width:460px;height:300px;background:radial-gradient(closest-side, rgba(64,120,220,0.20), transparent 70%);"></div>
-      <div class="hispa-neb" data-plx="9" style="left:38%;top:-60%;width:560px;height:240px;background:radial-gradient(closest-side, rgba(0,167,210,0.10), transparent 70%);"></div>
+      <div class="hispa-neb" data-plx="9" style="left:38%;top:-60%;width:560px;height:240px;background:radial-gradient(closest-side, rgba(0,168,226,0.10), transparent 70%);"></div>
       <div class="hispa-neb" data-plx="12" style="right:4%;top:-100%;width:420px;height:260px;background:radial-gradient(closest-side, rgba(96,90,220,0.12), transparent 70%);"></div>
       <!-- glass reflection streak — shifts with the cursor -->
       <div class="hispa-sheen" data-plx="26"></div>
@@ -139,9 +145,7 @@
   <div class="hispa-head-inner" style="position:relative;z-index:2;max-width:{{ navMaxW }};margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;">
     <a href="Home.dc.html" style="display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;">
       <img src="{{ logoSrc }}" alt="HISPA" style="height:{{ logoH }};width:auto;display:block;" />
-      <sc-if value="{{ show20th }}" hint-placeholder-val="{{ true }}">
-        <img src="brand/anniversary-20th.png" alt="HISPA 20th Anniversary" style="height:50px;width:auto;display:block;border-left:1px solid rgba(16,42,67,0.15);padding-left:14px;" />
-      </sc-if>
+      <img src="brand/anniversary-20th.png" alt="HISPA 20th Anniversary" style="height:{{ logo20H }};width:auto;display:block;border-left:1px solid {{ lockupDivider }};padding-left:14px;" />
     </a>
     <nav class="hispa-links" aria-label="Primary">
       <a href="What%20HISPA%20Does.dc.html" style="position:relative;text-decoration:none;font-size:{{ linkSize }};font-weight:{{ linkWeight }};color:{{ doesColor }};padding:4px 0;">What We Do
@@ -183,7 +187,7 @@
     </button>
   </div>
   <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
-    <div id="hispaMobilePanel" class="hispa-mobile-panel" role="dialog" aria-label="Site navigation" style="position:absolute;left:0;right:0;background:{{ panelBg }};backdrop-filter:blur(10px);border-bottom:1px solid rgba(16,42,67,0.10);box-shadow:0 16px 28px rgba(16,42,67,0.12);padding:6px 32px 22px;">
+    <div id="hispaMobilePanel" class="hispa-mobile-panel" role="dialog" aria-label="Site navigation" style="position:absolute;left:0;right:0;background:{{ panelBg }};backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,43,58,0.10);box-shadow:0 16px 28px rgba(0,43,58,0.12);padding:6px 32px 22px;">
       <a href="What%20HISPA%20Does.dc.html" class="hispa-mobile-link" style="color:{{ doesColor }};">What We Do</a>
       <a href="How%20HISPA%20Began.dc.html" class="hispa-mobile-link" style="color:{{ beganColor }};">Our Story</a>
       <a href="Timeline.dc.html" class="hispa-mobile-link" style="color:{{ timelineColor }};">Timeline</a>
@@ -258,7 +262,7 @@ class Component extends DCLogic {
     // faint stars/nebula decor, white HISPA logo, light links, metallic-gold CTA.
     // Default (all other pages) stays cream/orange.
     const gala = (this.props.theme || "") === "gala";
-    const navy = gala ? "#EAF2FB" : "#102A43", on = "#F1601A";
+    const navy = gala ? "#EAF2FB" : "#002B3A", on = "#FD4D1C";
     const c = (k) => active === k ? on : navy;
     const menuOpen = !!this.state.menuOpen;
     return {
@@ -267,21 +271,22 @@ class Component extends DCLogic {
       setHead: (el) => { if (el) { this.headEl = el; if (gala && !this._glow) this._glow = this._initGlow(el); } },
       headerBg: gala ? "linear-gradient(135deg, rgba(14,28,62,0.88) 0%, rgba(8,19,45,0.86) 50%, rgba(9,15,35,0.90) 100%)" : "rgba(251,246,238,0.92)",
       headerBlur: gala ? "blur(16px) saturate(1.25)" : "blur(10px)",
-      headerBorder: gala ? "1px solid rgba(120,170,240,0.16)" : "1px solid rgba(16,42,67,0.10)",
+      headerBorder: gala ? "1px solid rgba(120,170,240,0.16)" : "1px solid rgba(0,43,58,0.10)",
       headerShadow: gala ? "0 10px 34px rgba(3,8,22,0.45), inset 0 1px 0 rgba(158,206,255,0.10)" : "none",
-      headerFont: gala ? "'Figtree','Hanken Grotesk',sans-serif" : "'Hanken Grotesk',sans-serif",
+      headerFont: gala ? "'Sofia Pro','Figtree','Hanken Grotesk',sans-serif" : "'Sofia Pro','Hanken Grotesk',sans-serif",
       navMaxW: gala ? "1460px" : "1200px",
       logoSrc: gala ? "brand/hispa-logo-white.svg" : "brand/hispa-logo.svg",
       logoH: gala ? "66px" : "52px",
-      show20th: !gala,
+      logo20H: gala ? "56px" : "50px",
+      lockupDivider: gala ? "rgba(234,242,251,0.25)" : "rgba(0,43,58,0.15)",
       linkSize: gala ? "16px" : "14px",
       linkWeight: gala ? "500" : "600",
-      iconStroke: gala ? "#EAF2FB" : "#102A43",
+      iconStroke: gala ? "#EAF2FB" : "#002B3A",
       ctaSize: gala ? "15px" : "14px",
-      ctaColor: gala ? "#11162B" : "#fff",
-      ctaBg: gala ? "linear-gradient(100deg,#F6DD9A 0%,#DFB253 45%,#C08F38 100%)" : "#F1601A",
+      ctaColor: gala ? "#002B3A" : "#fff",
+      ctaBg: gala ? "linear-gradient(100deg,#F6DD9A 0%,#DFB253 45%,#C08F38 100%)" : "#FD4D1C",
       ctaPad: gala ? "16px 30px" : "10px 20px",
-      ctaShadow: gala ? "0 8px 20px rgba(211,168,78,0.38)" : "0 4px 12px rgba(241,96,26,0.28)",
+      ctaShadow: gala ? "0 8px 20px rgba(211,168,78,0.38)" : "0 4px 12px rgba(253,77,28,0.28)",
       panelBg: gala ? "rgba(9,19,42,0.97)" : "rgba(251,246,238,0.98)",
       isDoes: active === "does", isBegan: active === "began",
       isTimeline: active === "timeline", isVoices: active === "voices",

@@ -28,8 +28,8 @@ Warm, hopeful, kinetic. "A river of stories flowing forward" - the approved stor
 
 1. Representation is the message: real faces and real stories over abstractions.
 2. Motion means momentum: the story flows (rivers, streams, timelines), it never sits still.
-3. HISPA palette carries identity: orange #F1601A, green #7CC03B, blue #2E8FB5, navy #102A43, warm cream #FBF6EE, plus amber and red accents from the stream storyboard.
-4. Serif display (Newsreader) + Hanken Grotesk body is the committed type voice.
+3. HISPA palette carries identity — OFFICIAL Brand Guidelines values (updated 2026-07-10): Orioles Orange #FD4D1C (headlines/elements; the deck's printed hex "#f0b36f" is a typo — its own RGB 253,77,28 and CMYK agree on #FD4D1C), Sea Blue #016995 (subtitles/elements), Kelly Green #5EB002 (elements), Vivid Cerulean #00A8E2 (secondary elements), Sheen Green #8ACA0C (secondary elements), Maastricht Blue #002B3A (paragraph text), plus warm cream #FBF6EE as the site page background.
+4. Brand typeface per the guidelines: Sofia Pro (commercial — all sans stacks lead with 'Sofia Pro' so it activates when a licensed webfont kit is added; Figtree/Hanken Grotesk are the loaded fallbacks). Newsreader serif display remains on the cream pages until a Sofia Pro license lands.
 5. Every decorative flourish must degrade gracefully (placeholders, reduced motion, no-JS).
 
 ## Accessibility & Inclusion
