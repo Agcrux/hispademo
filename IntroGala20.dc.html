@@ -58,22 +58,28 @@
   /* phase 2 — ribbons (canvas) */
   .ig-ribbons{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;}
 
-  /* phase 3 — logos (sharp, no distortion: opacity + small translate only) */
-  .ig-logos{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
-    justify-content:center;gap:26px;pointer-events:none;}
-  .ig-logo-halo{position:absolute;left:50%;top:50%;width:min(64vw,700px);height:min(46vh,460px);
+  /* phase 3 — logo lockup: HISPA | divider | 20th mark SIDE BY SIDE
+     (sharp, no distortion: opacity + small translate only) */
+  .ig-logos{position:absolute;inset:0;display:flex;flex-direction:row;align-items:center;
+    justify-content:center;gap:min(4vw,32px);pointer-events:none;}
+  .ig-logo-halo{position:absolute;left:50%;top:50%;width:min(78vw,860px);height:min(36vh,340px);
     transform:translate(-50%,-50%);border-radius:50%;opacity:0;
     background:radial-gradient(closest-side, rgba(243,209,126,0.10), rgba(140,185,245,0.07) 55%, transparent 75%);
     animation:igFade .9s ease-out var(--dLogo,1.5s) forwards;}
-  .ig-logo,.ig-anniv{opacity:0;transform:translateY(16px);
-    animation:igRise 1.15s cubic-bezier(.25,.7,.25,1) forwards;
-    filter:drop-shadow(0 10px 34px rgba(2,6,18,0.55));}
-  .ig-logo{width:min(58vw,330px);height:auto;animation-delay:var(--dLogo,1.5s);}
-  .ig-anniv{width:min(52vw,300px);height:auto;animation-delay:var(--dAnniv,1.9s);}
+  .ig-logo,.ig-anniv,.ig-div{opacity:0;transform:translateY(16px);
+    animation:igRise 1.15s cubic-bezier(.25,.7,.25,1) forwards;}
+  .ig-logo,.ig-anniv{filter:drop-shadow(0 10px 34px rgba(2,6,18,0.55));}
+  .ig-logo{width:min(38vw,215px);height:auto;animation-delay:var(--dLogo,1.5s);}
+  .ig-anniv{width:min(43vw,245px);height:auto;animation-delay:var(--dAnniv,1.9s);}
+  .ig-div{width:1px;height:min(20vh,140px);background:linear-gradient(180deg,transparent,rgba(207,228,255,0.4) 22%,rgba(207,228,255,0.4) 78%,transparent);
+    animation-delay:var(--dAnniv,1.9s);}
   @keyframes igRise{to{opacity:1;transform:translateY(0);}}
-  /* glass reflection: one soft streak sweeping across the logo block */
-  .ig-sheen{position:absolute;left:50%;top:50%;width:min(70vw,760px);height:min(50vh,500px);
-    transform:translate(-50%,-50%);overflow:hidden;border-radius:24px;pointer-events:none;}
+  /* glass reflection: a soft streak sweeping across the lockup. Radial-masked so it
+     fades away well before its container's bounds — no visible edges or corners. */
+  .ig-sheen{position:absolute;left:50%;top:50%;width:min(80vw,880px);height:min(38vh,360px);
+    transform:translate(-50%,-50%);overflow:hidden;pointer-events:none;
+    -webkit-mask-image:radial-gradient(closest-side, #000 36%, transparent 68%);
+            mask-image:radial-gradient(closest-side, #000 36%, transparent 68%);}
   .ig-sheen::after{content:"";position:absolute;top:-20%;bottom:-20%;left:-46%;width:34%;
     background:linear-gradient(104deg, transparent 8%, rgba(210,232,255,0.05) 42%, rgba(230,242,255,0.10) 50%, rgba(210,232,255,0.05) 58%, transparent 92%);
     transform:skewX(-12deg);
@@ -95,7 +101,7 @@
   .ig--reduced .ig-logo-halo,.ig--reduced .ig-skip{animation:none;opacity:1;}
   .ig--reduced .ig-star{animation:none;opacity:.6;}
   .ig--reduced .ig-sheen::after{animation:none;}
-  .ig--reduced .ig-logo,.ig--reduced .ig-anniv{
+  .ig--reduced .ig-logo,.ig--reduced .ig-anniv,.ig--reduced .ig-div{
     transform:none;animation:igFade .4s ease-out forwards;}
 </style>
 </helmet>
@@ -138,7 +144,8 @@
   <div class="ig-logos" aria-hidden="true">
     <div class="ig-logo-halo"></div>
     <div class="ig-sheen"></div>
-    <img class="ig-logo" src="brand/hispa-logo.svg" alt="" onerror="{{ onAssetFail }}" decoding="async">
+    <img class="ig-logo" src="brand/hispa-logo.png" alt="" onerror="{{ onAssetFail }}" decoding="async">
+    <span class="ig-div" aria-hidden="true"></span>
     <img class="ig-anniv" src="assets/anniversary20.png" alt="" onerror="{{ onAssetFail }}" decoding="async">
   </div>
 
