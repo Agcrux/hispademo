@@ -151,7 +151,7 @@
     const rootName = rootNameForDocument(doc, location);
     runtime.markFetched(rootName);
     runtime.adoptParsed(rootName, parsed);
-    fetch(location.href).then((res) => res.ok ? res.text() : "").then((t) => {
+    fetch(location.href, { cache: "no-cache" }).then((res) => res.ok ? res.text() : "").then((t) => {
       const raw = t ? parseDcText(t) : null;
       if (raw?.template) runtime.updateHtml(rootName, raw.template);
     }).catch(() => {
@@ -1012,7 +1012,7 @@
       cache.set(url, null);
       console.info("[dc-runtime] x-import: loading", url, "(" + kind + ")");
       const ready = kind === "jsx" ? ensureBabel() : Promise.resolve();
-      ready.then(() => fetch(url)).then((r) => {
+      ready.then(() => fetch(url, { cache: "no-cache" })).then((r) => {
         if (!r.ok) throw new Error("HTTP " + r.status);
         return r.text();
       }).then((src) => {
@@ -1288,7 +1288,10 @@
       if (r.fetched) return;
       r.fetched = true;
       const url = COMPONENT_DIR + "/" + encodeURIComponent(name) + ".dc.html";
-      fetch(url).then((res) => {
+      // no-cache: always revalidate component files — the local dev server sends no
+      // cache headers, so browsers otherwise keep serving stale heuristic-cached
+      // copies of edited components (on real hosting this still allows cheap 304s).
+      fetch(url, { cache: "no-cache" }).then((res) => {
         if (!res.ok) {
           console.error(
             "[dc-runtime] sibling fetch for <" + name + "/> failed:",

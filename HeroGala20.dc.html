@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<style>
+  /* ============================================================================
+     HeroGala20 — 20th-anniversary hero rebuilt to the 1672×941 visual reference.
+
+     Composition (desktop): a fixed 1672×756 stage, transform-scaled to the
+     viewport width (exact reference proportions at every size; 1:1 at 1672px).
+
+     Layer order (per the reference spec):
+       1  navy gradient background (on the stage itself)
+       2  BACKGROUND STARS / CONSTELLATION LINES / DOTTED TEXTURE / RADIAL GRAPHICS
+       3  rear gold waves — three.js canvas (GOLD WAVE TOP + GOLD WAVE BOTTOM)
+       4  photo-frame ribbons (PHOTO 01 … PHOTO 27 — every frame a unique slot),
+          each row a slow marquee track (top → right @65s; lower rows → left
+          @60s/72s, out of sync); hover/focus pauses a row; reduced-motion stops it
+       5  foreground gold-wave pass — second three.js canvas, CSS-masked to the
+          right side so the bottom wave reads as weaving IN FRONT of the collage
+       6  glass content card
+       7  gold section headings
+
+     The gold waves are TEXTURED (a ruled mesh of ~46 thin gold lines per wave,
+     additive-blended, varied opacity) — not solid ribbons — and they respond to
+     the mouse: hover tilts them, click-dragging swings them further, and they
+     ease back on release. Reduced-motion renders one static frame. If WebGL or
+     the three.js CDN is unavailable, the same line geometry is emitted as an
+     inline SVG fallback (and mobile always uses the lightweight SVG version).
+     ============================================================================ */
+  :root{
+    --navy-primary:#07132D;
+    --navy-secondary:#0D1A3A;
+    --navy-dark:#090F23;
+    --gold-primary:#D3A84E;
+    --gold-light:#F3D17E;
+    --white-soft:#F7F7F4;
+    --green-highlight:#56AC49;
+    --header-text:#11162B;
+  }
+  .gala-wrap{position:relative;width:100%;overflow:hidden;background:var(--navy-dark);
+    font-family:'Figtree','Hanken Grotesk',system-ui,sans-serif;touch-action:pan-y;}
+  .gala-stage{position:absolute;top:0;left:0;width:1672px;height:756px;transform-origin:0 0;overflow:hidden;
+    background:
+      linear-gradient(90deg, rgba(3,7,18,0.50) 0%, rgba(3,7,18,0) 26%),
+      radial-gradient(1150px 640px at 70% 10%, rgba(24,44,92,0.55), transparent 62%),
+      linear-gradient(168deg, var(--navy-secondary) 0%, var(--navy-primary) 52%, var(--navy-dark) 100%);}
+
+  /* ---- layer 2: background texture stack (each element separately editable) ---- */
+  .gdecor{position:absolute;inset:0;z-index:1;pointer-events:none;}
+  .gdots{position:absolute;z-index:1;pointer-events:none;opacity:.16;
+    background-image:radial-gradient(rgba(211,168,78,0.55) 1px, transparent 1.5px);
+    background-size:17px 17px;
+    -webkit-mask-image:radial-gradient(closest-side, #000, transparent 78%);
+            mask-image:radial-gradient(closest-side, #000, transparent 78%);}
+  .gring{position:absolute;z-index:1;pointer-events:none;border-radius:50%;border:1px solid rgba(211,168,78,0.08);}
+  .gline{position:absolute;z-index:1;pointer-events:none;height:1px;
+    background:linear-gradient(90deg, transparent, rgba(150,175,220,0.14), transparent);}
+
+  /* ---- layers 3 + 5: gold wave canvases ---- */
+  .gwave{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block;}
+  .gwave-rear{z-index:2;}
+  .gwave-front{z-index:5;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0%, transparent 38%, rgba(0,0,0,.85) 56%, #000 72%);
+            mask-image:linear-gradient(90deg, transparent 0%, transparent 38%, rgba(0,0,0,.85) 56%, #000 72%);}
+  .gwave-svg{position:absolute;inset:0;z-index:2;pointer-events:none;display:none;}
+  .gwave-svg svg{position:absolute;inset:0;width:100%;height:100%;}
+
+  /* ---- layer 4: photo ribbon marquee tracks --------------------------------------
+     Each ribbon is one horizontally-animated GROUP (band-height wrapper), holding
+     three tiling copies of its frame pattern (pattern period = --gp px), so the
+     loop is seamless with no empty space. Only the photographs move — the gold
+     waves (separate canvases), decor, headings and card all stay fixed.
+       top "Then" row  → left-to-right, 65s
+       mid "Now" row   → right-to-left, 60s
+       low "Now" row   → right-to-left, 72s, phase-shifted so the rows stay out of sync
+     Hovering a row or focusing a photograph pauses that row; reduced-motion disables
+     the movement entirely (frames rest in the reference composition). ---- */
+  .gtrack{position:absolute;left:0;width:100%;z-index:4;will-change:transform;}
+  .gtrack-rep{position:absolute;top:0;left:0;width:100%;height:100%;}
+  @keyframes gtrack-ltr{from{transform:translateX(calc(-1px * var(--gp)));}to{transform:translateX(0);}}
+  @keyframes gtrack-rtl{from{transform:translateX(0);}to{transform:translateX(calc(-1px * var(--gp)));}}
+  .gtrack-top{top:40px;height:224px;--gp:1550;animation:gtrack-ltr 65s linear infinite;}
+  .gtrack-mid{top:264px;height:266px;--gp:1232;animation:gtrack-rtl 60s linear infinite;}
+  .gtrack-low{top:456px;height:300px;--gp:1867;animation:gtrack-rtl 72s linear infinite;animation-delay:-18s;}
+  .gtrack:hover,.gtrack:focus-within{animation-play-state:paused;}
+  @media (prefers-reduced-motion:reduce){ .gtrack{animation:none !important;} }
+
+  /* ---- gold picture frames (layered metallic border + cream mat) ---- */
+  .grf{position:absolute;margin:0;padding:0;z-index:4;cursor:pointer;}
+  .grf:focus-visible{outline:2px solid #F3D17E;outline-offset:3px;}
+
+  /* ---- photo lightbox: click any frame → large view with prev/next/close.
+          Lives OUTSIDE .gala-stage (the stage is transform-scaled, which would
+          break position:fixed), directly under .gala-wrap. ---- */
+  .glb{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;
+    background:rgba(4,9,22,0.84);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    animation:glbIn .25s ease;}
+  @keyframes glbIn{from{opacity:0;}to{opacity:1;}}
+  .glb-frame{display:block;padding:10px;border-radius:4px;
+    background:linear-gradient(135deg,#F7E3A4 0%,#DFB253 20%,#8A5A12 46%,#E7C06A 70%,#B8791A 88%,#F3D17E 100%);
+    box-shadow:0 34px 90px rgba(0,0,0,0.66), inset 0 1px 0 rgba(255,246,214,0.85), inset 0 -1px 0 rgba(84,52,8,0.85);}
+  .glb-mat{display:block;padding:8px;background:linear-gradient(180deg,#F4EDDC,#EAE1CA);box-shadow:inset 0 1px 3px rgba(58,38,8,0.35);}
+  .glb-img{display:block;max-width:min(86vw,940px);max-height:74vh;width:auto;height:auto;background:#0b1730;animation:glbFade .3s ease;}
+  @keyframes glbFade{from{opacity:0;transform:scale(.985);}to{opacity:1;transform:none;}}
+  .glb-count{margin-top:13px;text-align:center;font:600 13px/1 'Figtree',sans-serif;color:#CFE0F4;letter-spacing:0.09em;}
+  .glb-btn{position:absolute;display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;cursor:pointer;padding:0;
+    background:rgba(255,255,255,0.08);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,0.22);color:#EAF2FB;font-size:27px;line-height:1;
+    transition:background .2s ease,border-color .2s ease;}
+  .glb-btn:hover{background:rgba(255,255,255,0.16);border-color:rgba(243,209,126,0.6);}
+  .glb-btn:focus-visible{outline:2px solid #F3D17E;outline-offset:3px;}
+  .glb-prev{left:26px;top:50%;transform:translateY(-50%);}
+  .glb-next{right:26px;top:50%;transform:translateY(-50%);}
+  .glb-close{top:22px;right:26px;font-size:21px;}
+  @media (max-width:640px){
+    .glb-btn{width:44px;height:44px;}
+    .glb-prev{left:10px;}.glb-next{right:10px;}.glb-close{top:12px;right:12px;}
+    .glb-img{max-width:88vw;max-height:64vh;}
+  }
+  @media (prefers-reduced-motion:reduce){ .glb,.glb-img{animation:none;} }
+  .grf-gold{display:block;width:100%;height:100%;box-sizing:border-box;padding:7px;border-radius:3px;
+    background:linear-gradient(135deg,#F7E3A4 0%,#DFB253 20%,#8A5A12 46%,#E7C06A 70%,#B8791A 88%,#F3D17E 100%);
+    box-shadow:0 0 0 1px rgba(4,9,22,0.9), 0 20px 38px -6px rgba(2,6,18,0.62),
+      inset 0 1px 0 rgba(255,246,214,0.85), inset 0 -1px 0 rgba(84,52,8,0.85);
+    transition:transform .22s ease, box-shadow .22s ease;}
+  .grf:hover .grf-gold{transform:translateY(-5px);
+    box-shadow:0 0 0 1px rgba(4,9,22,0.9), 0 28px 48px -8px rgba(2,6,18,0.7),
+      0 0 24px rgba(211,168,78,0.18), inset 0 1px 0 rgba(255,246,214,0.85), inset 0 -1px 0 rgba(84,52,8,0.85);}
+  .grf-mat{display:block;width:100%;height:100%;box-sizing:border-box;padding:6px;
+    background:linear-gradient(180deg,#F4EDDC 0%,#EAE1CA 100%);
+    box-shadow:inset 0 1px 3px rgba(58,38,8,0.38);}
+  .grf-mat img{width:100%;height:100%;object-fit:cover;display:block;background:#0b1730;}
+
+  /* ---- layer 6: glass content card ---- */
+  .gcard{position:absolute;left:52px;top:236px;width:650px;min-height:300px;border-radius:30px;z-index:6;
+    box-sizing:border-box;padding:32px 38px;
+    background:
+      radial-gradient(430px 250px at 90% -4%, rgba(152,168,200,0.20), transparent 62%),
+      linear-gradient(152deg, rgba(11,20,44,0.58) 0%, rgba(7,12,29,0.70) 55%, rgba(4,8,21,0.76) 100%);
+    backdrop-filter:blur(22px) saturate(1.25); -webkit-backdrop-filter:blur(22px) saturate(1.25);
+    border:1px solid rgba(255,255,255,0.13);
+    box-shadow:0 42px 90px -18px rgba(0,0,0,0.66),
+      inset 0 1px 0 rgba(255,255,255,0.13),
+      inset 0 -20px 44px -34px rgba(211,168,78,0.22);}
+  .gcard-eyebrow{display:flex;align-items:center;gap:9px;margin:0 0 16px;
+    font:600 13px/1 'Figtree',sans-serif;letter-spacing:0.22em;text-transform:uppercase;color:#E9BE62;}
+  .gcard-h1{margin:0;font-family:'Figtree',sans-serif;font-weight:700;font-size:42px;line-height:1.17;
+    letter-spacing:-0.01em;color:var(--white-soft);}
+  .gcard-h1 .accent{color:var(--green-highlight);}
+  .gcard-cities{margin:18px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+    font:500 14px/1.4 'Figtree',sans-serif;color:#C9D3E5;}
+  .gcard-cities .sep{color:var(--gold-primary);}
+  .gcard-cta{margin-top:22px;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    height:46px;padding:0 27px;border-radius:999px;box-sizing:border-box;
+    background:linear-gradient(100deg,#F6DD9A 0%,#DFB253 45%,#C08F38 100%);
+    color:var(--header-text);font:600 15px/1 'Figtree',sans-serif;text-decoration:none;
+    box-shadow:0 10px 24px -6px rgba(211,168,78,0.5), 0 0 22px rgba(243,209,126,0.22);
+    transition:transform .18s ease, box-shadow .18s ease;}
+  .gcard-cta:hover{transform:translateY(-2px);box-shadow:0 14px 30px -6px rgba(211,168,78,0.6), 0 0 28px rgba(243,209,126,0.3);}
+
+  /* ---- layer 7: gold section headings ---- */
+  .gh{position:absolute;z-index:7;margin:0;transform:translateX(-50%);white-space:nowrap;
+    font:500 21px/1.25 'Figtree',sans-serif;color:#E9BE62;letter-spacing:0.015em;
+    text-shadow:0 2px 14px rgba(2,6,18,0.9), 0 0 28px rgba(2,6,18,0.75);pointer-events:none;}
+
+  /* ---- twinkle for the gold background stars ---- */
+  @keyframes gTwinkle{0%,100%{opacity:.35;}50%{opacity:1;}}
+  .gstar-tw{animation:gTwinkle var(--d,4.5s) ease-in-out infinite;animation-delay:var(--dl,0s);}
+  @media (prefers-reduced-motion:reduce){ .gstar-tw{animation:none;opacity:.7;} }
+
+  /* =================== MOBILE (stacked, scrollable ribbons) =================== */
+  .gm{position:relative;overflow:hidden;padding:26px 0 36px;
+    background:
+      radial-gradient(560px 380px at 68% 4%, rgba(24,44,92,0.5), transparent 62%),
+      linear-gradient(168deg, var(--navy-secondary) 0%, var(--navy-primary) 52%, var(--navy-dark) 100%);}
+  .gm-h{position:relative;z-index:3;margin:0 0 14px;text-align:center;
+    font:500 16.5px/1.3 'Figtree',sans-serif;color:#E9BE62;text-shadow:0 2px 12px rgba(2,6,18,0.6);}
+  .gm-row{position:relative;z-index:3;display:flex;overflow-x:auto;padding:16px 22px 22px;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .gm-row::-webkit-scrollbar{display:none;}
+  .gm-row .grf{position:relative;flex:0 0 auto;}
+  .gm-row .grf + .grf{margin-left:-24px;}
+  .gm-card{position:relative;z-index:4;margin:16px 16px 8px;border-radius:22px;box-sizing:border-box;padding:24px 22px 26px;
+    background:
+      radial-gradient(260px 160px at 92% -4%, rgba(152,168,200,0.20), transparent 62%),
+      linear-gradient(152deg, rgba(11,20,44,0.62) 0%, rgba(5,9,22,0.78) 100%);
+    backdrop-filter:blur(18px) saturate(1.25); -webkit-backdrop-filter:blur(18px) saturate(1.25);
+    border:1px solid rgba(255,255,255,0.13);
+    box-shadow:0 30px 60px -16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);}
+  .gm-card .gcard-h1{font-size:33px;}
+  .gm-waves{position:absolute;inset:0;z-index:1;pointer-events:none;}
+  .gm-waves svg{position:absolute;width:100%;}
+</style>
+</helmet>
+
+<div ref="{{ setWrap }}" class="gala-wrap">
+
+  <!-- ============================ DESKTOP STAGE (1672×756) ============================ -->
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+  <div ref="{{ setStage }}" class="gala-stage" data-screen-label="Hero (desktop 1672×756)">
+
+    <!-- BACKGROUND STARS + CONSTELLATION LINES -->
+    <svg class="gdecor" viewBox="0 0 1672 756" aria-hidden="true">
+      <defs>
+        <path id="gstar" d="M12 0C13.2 7.1 16.9 10.8 24 12C16.9 13.2 13.2 16.9 12 24C10.8 16.9 7.1 13.2 0 12C7.1 10.8 10.8 7.1 12 0Z"/>
+      </defs>
+      <!-- CONSTELLATION LINES -->
+      <g stroke="rgba(211,168,78,0.14)" stroke-width="1" fill="none">
+        <path d="M1345,88 L1432,132 L1520,96 L1600,150"/>
+        <path d="M1432,132 L1466,214"/>
+        <path d="M1236,420 L1318,472 L1414,438 L1490,500"/>
+        <path d="M120,470 L196,520 L164,588"/>
+        <path d="M868,470 L942,432 L1022,466"/>
+      </g>
+      <!-- BACKGROUND STARS (gold sparkles + pin dots) -->
+      <g fill="var(--gold-light)">
+        <use href="#gstar" class="gstar-tw" style="--d:4.2s;--dl:-.4s" x="1333" y="76" width="24" height="24" transform="translate(1333,76) scale(0.66)" opacity=".9"/>
+        <use href="#gstar" class="gstar-tw" style="--d:5.1s;--dl:-1.6s" transform="translate(1508,84) scale(0.5)" opacity=".8"/>
+        <use href="#gstar" class="gstar-tw" style="--d:3.8s;--dl:-2.2s" transform="translate(1588,138) scale(0.42)" opacity=".7"/>
+        <use href="#gstar" class="gstar-tw" style="--d:4.7s;--dl:-.9s" transform="translate(1456,204) scale(0.38)" opacity=".7"/>
+        <use href="#gstar" class="gstar-tw" style="--d:5.4s;--dl:-2.8s" transform="translate(1306,462) scale(0.56)" opacity=".85"/>
+        <use href="#gstar" class="gstar-tw" style="--d:4.1s;--dl:-1.2s" transform="translate(1478,490) scale(0.44)" opacity=".7"/>
+        <use href="#gstar" class="gstar-tw" style="--d:4.9s;--dl:-3.4s" transform="translate(110,458) scale(0.5)" opacity=".7"/>
+        <use href="#gstar" class="gstar-tw" style="--d:4.4s;--dl:-.6s" transform="translate(154,578) scale(0.4)" opacity=".6"/>
+        <use href="#gstar" class="gstar-tw" style="--d:5.2s;--dl:-1.9s" transform="translate(930,420) scale(0.46)" opacity=".7"/>
+        <use href="#gstar" class="gstar-tw" style="--d:3.9s;--dl:-2.6s" transform="translate(764,52) scale(0.4)" opacity=".6"/>
+        <use href="#gstar" class="gstar-tw" style="--d:4.6s;--dl:-3.1s" transform="translate(1642,320) scale(0.5)" opacity=".75"/>
+        <use href="#gstar" class="gstar-tw" style="--d:5.0s;--dl:-.2s" transform="translate(1180,560) scale(0.36)" opacity=".6"/>
+      </g>
+      <g fill="rgba(243,209,126,0.5)">
+        <circle cx="1385" cy="176" r="1.6"/><circle cx="1560" cy="238" r="1.4"/><circle cx="1620" cy="88" r="1.5"/>
+        <circle cx="1258" cy="240" r="1.3"/><circle cx="240" cy="510" r="1.5"/><circle cx="76" cy="640" r="1.4"/>
+        <circle cx="1024" cy="500" r="1.4"/><circle cx="820" cy="440" r="1.2"/><circle cx="1530" cy="420" r="1.5"/>
+        <circle cx="1450" cy="640" r="1.4"/><circle cx="360" cy="680" r="1.3"/><circle cx="640" cy="30" r="1.3"/>
+      </g>
+    </svg>
+
+    <!-- RADIAL GRAPHICS (faint circles) -->
+    <div class="gring" style="width:460px;height:460px;left:1240px;top:120px;" aria-hidden="true"></div>
+    <div class="gring" style="width:300px;height:300px;left:1330px;top:200px;border-color:rgba(211,168,78,0.06);" aria-hidden="true"></div>
+    <div class="gring" style="width:380px;height:380px;left:-120px;top:470px;border-color:rgba(150,175,220,0.07);" aria-hidden="true"></div>
+
+    <!-- DOTTED TEXTURE (halftone fields) -->
+    <div class="gdots" style="left:1150px;top:250px;width:430px;height:320px;" aria-hidden="true"></div>
+    <div class="gdots" style="left:40px;top:540px;width:340px;height:210px;opacity:.09;" aria-hidden="true"></div>
+
+    <!-- fine geometric lines -->
+    <div class="gline" style="left:900px;top:392px;width:560px;transform:rotate(-7deg);" aria-hidden="true"></div>
+    <div class="gline" style="left:120px;top:706px;width:420px;transform:rotate(3deg);opacity:.6;" aria-hidden="true"></div>
+
+    <!-- GOLD WAVE TOP + GOLD WAVE BOTTOM — rear pass (three.js) -->
+    <canvas ref="{{ setRearCanvas }}" class="gwave gwave-rear" width="1672" height="756" aria-hidden="true"></canvas>
+    <!-- inline-SVG fallback slot (filled only if WebGL/three.js is unavailable) -->
+    <div ref="{{ setWaveFallback }}" class="gwave-svg" aria-hidden="true"></div>
+
+    <!-- TOP PHOTO RIBBON — PHOTO 01 … PHOTO 11, drifting left-to-right (65s loop) -->
+    <div class="gtrack gtrack-top" role="group" aria-label="HISPA photo ribbon — the beginnings (hover or focus to pause)">
+      <sc-for list="{{ topTrack }}" as="f">
+        <figure class="grf" data-photo-slot="{{ f.slot }}" style="{{ f.style }}" tabindex="{{ f.tab }}" aria-hidden="{{ f.hid }}" role="button" aria-label="{{ f.label }}" onclick="{{ f.open }}">
+          <span class="grf-gold"><span class="grf-mat"><img src="{{ f.src }}" alt="" decoding="async"></span></span>
+        </figure>
+      </sc-for>
+    </div>
+
+    <!-- LOWER COLLAGE, upper ribbon — PHOTO 12 … PHOTO 17, drifting right-to-left (60s loop) -->
+    <div class="gtrack gtrack-mid" role="group" aria-label="HISPA photo ribbon — a growing impact, row one (hover or focus to pause)">
+      <sc-for list="{{ midTrack }}" as="f">
+        <figure class="grf" data-photo-slot="{{ f.slot }}" style="{{ f.style }}" tabindex="{{ f.tab }}" aria-hidden="{{ f.hid }}" role="button" aria-label="{{ f.label }}" onclick="{{ f.open }}">
+          <span class="grf-gold"><span class="grf-mat"><img src="{{ f.src }}" alt="" decoding="async"></span></span>
+        </figure>
+      </sc-for>
+    </div>
+
+    <!-- LOWER COLLAGE, bottom ribbon — PHOTO 18 … PHOTO 27, drifting right-to-left (72s loop, phase-shifted) -->
+    <div class="gtrack gtrack-low" role="group" aria-label="HISPA photo ribbon — a growing impact, row two (hover or focus to pause)">
+      <sc-for list="{{ lowTrack }}" as="f">
+        <figure class="grf" data-photo-slot="{{ f.slot }}" style="{{ f.style }}" tabindex="{{ f.tab }}" aria-hidden="{{ f.hid }}" role="button" aria-label="{{ f.label }}" onclick="{{ f.open }}">
+          <span class="grf-gold"><span class="grf-mat"><img src="{{ f.src }}" alt="" decoding="async"></span></span>
+        </figure>
+      </sc-for>
+    </div>
+
+    <!-- GOLD WAVE BOTTOM — foreground pass (masked to the right, weaves over the collage) -->
+    <canvas ref="{{ setFrontCanvas }}" class="gwave gwave-front" width="1672" height="756" aria-hidden="true"></canvas>
+
+    <!-- gold headings -->
+    <h2 class="gh" style="left:720px;top:48px;">Then: The Beginnings (2006–2015)</h2>
+    <h2 class="gh" style="left:884px;top:448px;">Now: A Growing Impact</h2>
+
+    <!-- MAIN GLASS CONTENT CARD -->
+    <div class="gcard">
+      <div class="gcard-eyebrow">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="#E9BE62" aria-hidden="true"><path d="M12 0C13.2 7.1 16.9 10.8 24 12C16.9 13.2 13.2 16.9 12 24C10.8 16.9 7.1 13.2 0 12C7.1 10.8 10.8 7.1 12 0Z"/></svg>
+        2026 Kick-Off &amp; Recruiting Events
+      </div>
+      <h1 class="gcard-h1">With our voices, cultivating<br>the <span class="accent">next wave</span> of leaders</h1>
+      <div class="gcard-cities">
+        <span>Miami</span><span class="sep">·</span>
+        <span>Palm Beach</span><span class="sep">·</span>
+        <span>New Jersey</span><span class="sep">·</span>
+        <span>New York</span><span class="sep">·</span>
+        <span>Pennsylvania</span>
+      </div>
+      <a class="gcard-cta" href="https://hispakickoff.org" target="_blank" rel="noopener">Become a Role Model <span style="font-size:17px;line-height:0;">&rarr;</span></a>
+    </div>
+
+  </div>
+  </sc-if>
+
+  <!-- ============================ MOBILE (stacked) ============================ -->
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <div class="gm" data-screen-label="Hero (mobile)">
+    <div ref="{{ setMobWaves }}" class="gm-waves" aria-hidden="true"></div>
+
+    <h2 class="gm-h">Then: The Beginnings (2006–2015)</h2>
+    <div class="gm-row" aria-label="HISPA photo gallery — the beginnings">
+      <sc-for list="{{ mobTop }}" as="f">
+        <figure class="grf" data-photo-slot="{{ f.slot }}" style="{{ f.style }}" role="button" aria-label="{{ f.label }}" onclick="{{ f.open }}">
+          <span class="grf-gold"><span class="grf-mat"><img src="{{ f.src }}" alt="" decoding="async"></span></span>
+        </figure>
+      </sc-for>
+    </div>
+
+    <div class="gm-card">
+      <div class="gcard-eyebrow" style="letter-spacing:0.16em;font-size:11.5px;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="#E9BE62" aria-hidden="true"><path d="M12 0C13.2 7.1 16.9 10.8 24 12C16.9 13.2 13.2 16.9 12 24C10.8 16.9 7.1 13.2 0 12C7.1 10.8 10.8 7.1 12 0Z"/></svg>
+        2026 Kick-Off &amp; Recruiting Events
+      </div>
+      <h1 class="gcard-h1">With our voices, cultivating the <span class="accent">next wave</span> of leaders</h1>
+      <div class="gcard-cities" style="gap:9px;font-size:13px;">
+        <span>Miami</span><span class="sep">·</span>
+        <span>Palm Beach</span><span class="sep">·</span>
+        <span>New Jersey</span><span class="sep">·</span>
+        <span>New York</span><span class="sep">·</span>
+        <span>Pennsylvania</span>
+      </div>
+      <a class="gcard-cta" href="https://hispakickoff.org" target="_blank" rel="noopener" style="width:100%;margin-top:20px;">Become a Role Model <span style="font-size:17px;line-height:0;">&rarr;</span></a>
+    </div>
+
+    <h2 class="gm-h" style="margin-top:26px;">Now: A Growing Impact</h2>
+    <div class="gm-row" aria-label="HISPA photo gallery — a growing impact">
+      <sc-for list="{{ mobLow }}" as="f">
+        <figure class="grf" data-photo-slot="{{ f.slot }}" style="{{ f.style }}" role="button" aria-label="{{ f.label }}" onclick="{{ f.open }}">
+          <span class="grf-gold"><span class="grf-mat"><img src="{{ f.src }}" alt="" decoding="async"></span></span>
+        </figure>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============================ PHOTO LIGHTBOX ============================ -->
+  <sc-if value="{{ lbOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="glb" role="dialog" aria-modal="true" aria-label="HISPA photo gallery" onclick="{{ lbBackdrop }}">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <span class="glb-frame"><span class="glb-mat"><img class="glb-img" ref="{{ setLbImg }}" src="{{ lbSrc }}" alt="{{ lbAlt }}"></span></span>
+        <div class="glb-count">{{ lbCount }}</div>
+      </div>
+      <button type="button" class="glb-btn glb-close" ref="{{ setLbClose }}" onclick="{{ lbClose }}" aria-label="Close gallery">&#10005;</button>
+      <button type="button" class="glb-btn glb-prev" onclick="{{ lbPrev }}" aria-label="Previous photo">&#8249;</button>
+      <button type="button" class="glb-btn glb-next" onclick="{{ lbNext }}" aria-label="Next photo">&#8250;</button>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1672,&quot;height&quot;:756},&quot;motionIntensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0,&quot;max&quot;:2,&quot;step&quot;:0.1,&quot;unit&quot;:&quot;x&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Motion&quot;}}">
+class Component extends DCLogic {
+  state = { mode: 'desktop', lb: -1 };   // lb = lightbox gallery index (-1 = closed)
+
+  /* ================= PHOTO SLOTS =================
+     Every visible frame is a uniquely-numbered slot (PHOTO 01 … PHOTO 27).
+     To swap any picture, change the src for its slot here — geometry stays put.
+     Sources come from the site's real photo library (photos/p1..p112.jpg),
+     scattered with a stride coprime to 112 so no two neighbours share an event. */
+  slotSources(){
+    if (this._srcs) return this._srcs;
+    const N = 112, stride = 37, count = 27;
+    this._srcs = Array.from({length: count}, (_, i) => 'photos/p' + (((i * stride) % N) + 1) + '.jpg');
+    return this._srcs;
+  }
+
+  /* Frame geometry (x, y, w, h, rotate, rotateY) on the 1672×756 stage. */
+  frameData(){
+    if (this._fd) return this._fd;
+    const TOP = [ // PHOTO 01–11 — top ribbon: one CONTINUOUS band. Every joint is a
+      // varied 10–22px overlap (never an open gap — exposed background read as a
+      // break in the loop), sizes stay mixed small/medium/large, same dipping arc.
+      // The wrap seam is itself a 16px overlap, so the loop point is invisible.
+      [ -64, 60,188,142,-4,-3],[ 108, 56,132,108, 3, 2],[ 226, 70,158,150,-2, 3],
+      [ 364, 94,174,130, 2,-2],[ 528,118,126,118,-3, 2],[ 636,132,164,124, 4,-3],
+      [ 786,126,146,138,-2, 2],[ 910,106,192,136, 3,-2],[1086, 84,128,104,-3, 3],
+      [1202, 64,170,128, 2,-2],[1352, 58,150,134,-4, 3],
+    ];
+    const MID = [ // PHOTO 12–17 — upper lower-ribbon, runs behind the glass card.
+      // Tightened to ~205px pitch so adjacent frames OVERLAP 12–22px (the bottom
+      // row's ribbon-like rhythm) instead of floating apart with open gaps.
+      [ -96,300,220,160,-3, 2],[ 104,280,232,166, 2,-2],[ 314,302,218,158,-2, 3],
+      [ 512,338,226,162, 3,-2],[ 726,368,214,156,-3, 2],[ 928,340,224,160, 2,-3],
+    ];
+    const LOW = [ // PHOTO 18–27 — bottom ribbon, largest frames, crops both edges
+      [-140,520,264,184,-4, 2],[  96,546,240,176, 3,-2],[ 318,560,256,182,-2, 2],
+      [ 556,544,244,178, 2,-3],[ 788,514,262,186,-3, 2],[1040,498,246,178, 2,-2],
+      [1270,508,258,184,-2, 3],[1494,532,250,180, 3,-2],[ 428,478,210,148,-2, 2],
+      [1176,620,232,130,-3, 2],
+    ];
+    const srcs = this.slotSources();
+    let n = 0;
+    const mk = (rows) => rows.map((r) => {
+      const i = n++;
+      const slot = 'PHOTO ' + String(i + 1).padStart(2, '0');
+      return {
+        slot, src: srcs[i], gi: i,   // gi = position in the gallery (lightbox order)
+        x: r[0], y: r[1], w: r[2], h: r[3], rot: r[4], ry: r[5],
+        style: 'left:' + r[0] + 'px;top:' + r[1] + 'px;width:' + r[2] + 'px;height:' + r[3] + 'px;' +
+               'transform:perspective(760px) rotate(' + r[4] + 'deg) rotateY(' + r[5] + 'deg);',
+      };
+    });
+    this._fd = { top: mk(TOP), mid: mk(MID), low: mk(LOW) };
+    return this._fd;
+  }
+
+  /* Marquee tracks: three tiling copies of each ribbon pattern, positioned inside
+     the row's band wrapper (band top subtracted; copy c shifted by c×period).
+     period MUST match the row's --gp CSS var. Copy 0 is the "real" focusable set;
+     copies 1–2 are presentational duplicates (aria-hidden) for the seamless loop. */
+  trackData(){
+    if (this._td) return this._td;
+    const fd = this.frameData();
+    const build = (list, bandTop, period) => {
+      const out = [];
+      for (let c = 0; c < 3; c++) {
+        for (const f of list) {
+          out.push({ slot: f.slot, src: f.src,
+            tab: c === 0 ? '0' : '-1',
+            hid: c === 0 ? 'false' : 'true',
+            open: () => this.openLb(f.gi),
+            label: 'View ' + f.slot.toLowerCase() + ' larger',
+            style: 'left:' + (f.x + c * period) + 'px;top:' + (f.y - bandTop) + 'px;width:' + f.w + 'px;height:' + f.h + 'px;' +
+                   'transform:perspective(760px) rotate(' + f.rot + 'deg) rotateY(' + f.ry + 'deg);' });
+        }
+      }
+      return out;
+    };
+    this._td = {
+      top: build(fd.top, 40, 1550),
+      mid: build(fd.mid, 264, 1232),
+      low: build(fd.low, 456, 1867),
+    };
+    return this._td;
+  }
+
+  /* ================= PHOTO LIGHTBOX ================= */
+  openLb(i){
+    this._lbReturnFocus = document.activeElement;
+    this._prevBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';            // no background scroll while open
+    this.setState({ lb: i });
+    setTimeout(() => { if (this.lbCloseBtn) this.lbCloseBtn.focus(); }, 60);
+  }
+  closeLb(){
+    if (this.state.lb < 0) return;
+    document.body.style.overflow = this._prevBodyOverflow || '';
+    this.setState({ lb: -1 });
+    const back = this._lbReturnFocus;
+    if (back && back.focus) setTimeout(() => { try { back.focus(); } catch (e) {} }, 30);
+  }
+  stepLb(d){
+    const N = this.slotSources().length;
+    this.setState({ lb: (this.state.lb + d + N) % N });
+    // retrigger the fade-in on the (reused) <img> node after the src swap renders
+    setTimeout(() => {
+      if (!this.lbImg) return;
+      this.lbImg.style.animation = 'none';
+      void this.lbImg.offsetWidth;
+      this.lbImg.style.animation = '';
+    }, 0);
+  }
+
+  /* ================= GOLD WAVE MATH (shared by three.js and the SVG fallback) ================= */
+  smooth(a, b, x){ const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+  seeded(seed){ let a = seed >>> 0; return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+  waveDefs(){
+    if (this._wd) return this._wd;
+    const S = this.smooth;
+    this._wd = {
+      // GOLD WAVE TOP — grows in near x≈800, big crest ~1050, dip ~1280, rises ~1470, exits right
+      top: {
+        x0: 760, x1: 2160, seg: 130, K: 56, seed: 20260710,
+        cy: (x) => 205 - 95 * S(760, 1010, x) * Math.cos((x - 1050) * 0.01366) + 16 * Math.sin(x * 0.0058 + 2.1),
+        half: (x) => (58 + 46 * Math.sin(x * 0.0043 + 0.8)) * S(760, 930, x),
+        z: (x, o) => o * 70 * Math.sin(x * 0.0021 + 0.9) + 26 * Math.sin(x * 0.0037 + o * 1.7),
+        rip: (x, o, t) => 8 * S(760, 1010, x) * Math.sin(x * 0.009 - t * 1.15 + o * 1.5),
+      },
+      // GOLD WAVE BOTTOM — subtle left tail, prominent from ~930, valley ~1130, folds ~1320–1500
+      bot: {
+        x0: -140, x1: 2160, seg: 150, K: 56, seed: 47110815,
+        cy: (x) => { const m = S(700, 1010, x); return (636 + 14 * Math.sin(x * 0.0045 + 1.0)) * (1 - m) + (566 + 96 * Math.cos((x - 1130) * 0.01083)) * m; },
+        half: (x) => (74 + 56 * Math.sin(x * 0.0047 + 3.99)) * (0.35 + 0.65 * S(260, 900, x)),
+        z: (x, o) => o * 80 * Math.sin(x * 0.0019 + 0.4) + 30 * Math.sin(x * 0.0033 + o * 2.0),
+        rip: (x, o, t) => 9 * Math.sin(x * 0.008 - t * 1.0 + o * 1.4),
+      },
+    };
+    return this._wd;
+  }
+
+  /* Per-line metadata: transverse offset o∈[-1,1], gold colour, intensity. */
+  waveLines(def, filter, gain){
+    const rnd = this.seeded(def.seed);
+    const out = [];
+    for (let k = 0; k < def.K; k++) {
+      const o = -1 + 2 * k / (def.K - 1);
+      const jitter = 0.7 + 0.6 * rnd();
+      if (filter && !filter(o)) continue;
+      const w = Math.pow(1 - Math.abs(o), 1.35);
+      const inten = Math.min(1, (0.28 + 0.85 * w) * jitter * gain);
+      out.push({ o, k,
+        r: (0.545 + 0.408 * w) * inten,
+        g: (0.353 + 0.467 * w) * inten,
+        b: (0.070 + 0.424 * w) * inten,
+      });
+    }
+    return out;
+  }
+
+  /* ================= three.js setup (px coords: wx=x-836, wy=378-y) ================= */
+  makeWaveScene(THREE, canvas, defs, filters, gain){
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    } catch (e) { return null; }
+    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    renderer.setSize(1672, 756, false);
+    renderer.setClearAlpha(0);
+    const scene = new THREE.Scene();
+    const cam = new THREE.PerspectiveCamera(45, 1672 / 756, 1, 5000);
+    cam.position.set(0, 0, 913); cam.lookAt(0, 0, 0);
+    const group = new THREE.Group();
+    scene.add(group);
+    const waves = defs.map((def, di) => {
+      const lines = this.waveLines(def, filters[di], gain);
+      const segVerts = def.seg * 2;
+      const total = lines.length * segVerts;
+      const pos = new Float32Array(total * 3);
+      const col = new Float32Array(total * 3);
+      // static vertex colours (metallic shimmer varies along x per line)
+      let vi = 0;
+      for (const L of lines) {
+        for (let i = 0; i < def.seg; i++) {
+          for (let e = 0; e < 2; e++) {
+            const x = def.x0 + (def.x1 - def.x0) * ((i + e) / def.seg);
+            const sh = 0.72 + 0.28 * Math.sin(x * 0.012 + L.k * 1.3);
+            col[vi * 3] = L.r * sh; col[vi * 3 + 1] = L.g * sh; col[vi * 3 + 2] = L.b * sh;
+            vi++;
+          }
+        }
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      const mat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true,
+        blending: THREE.AdditiveBlending, depthWrite: false });
+      const mesh = new THREE.LineSegments(geo, mat);
+      mesh.frustumCulled = false;
+      group.add(mesh);
+      return { def, lines, mesh, pos };
+    });
+    return { renderer, scene, cam, group, waves };
+  }
+
+  updateWaveScene(ws, t){
+    for (const W of ws.waves) {
+      const { def, lines, pos } = W;
+      let vi = 0;
+      const dx = (def.x1 - def.x0) / def.seg;
+      for (const L of lines) {
+        const o = L.o;
+        // sample the polyline once, emit as segment pairs
+        let px = def.x0, py = 0, pz = 0, first = true;
+        for (let i = 0; i <= def.seg; i++) {
+          const x = def.x0 + dx * i;
+          const y = def.cy(x) + o * def.half(x) + def.rip(x, o, t);
+          const z = def.z(x, o) + 12 * Math.sin(x * 0.006 - t * 0.7 + o * 0.9);
+          if (!first) {
+            pos[vi * 3] = px - 836; pos[vi * 3 + 1] = 378 - py; pos[vi * 3 + 2] = pz; vi++;
+            pos[vi * 3] = x - 836;  pos[vi * 3 + 1] = 378 - y;  pos[vi * 3 + 2] = z;  vi++;
+          }
+          px = x; py = y; pz = z; first = false;
+        }
+      }
+      W.mesh.geometry.attributes.position.needsUpdate = true;
+    }
+    ws.group.rotation.y = this._rot.y;
+    ws.group.rotation.x = this._rot.x;
+    ws.group.position.x = this._rot.px;
+    ws.renderer.render(ws.scene, ws.cam);
+  }
+
+  /* SVG fallback / mobile: same geometry at t=0, z flattened into a slight x-skew. */
+  waveSVG(defs, gain, step){
+    let paths = '';
+    for (const def of defs) {
+      const lines = this.waveLines(def, null, gain);
+      for (const L of lines) {
+        if (L.k % (step || 1)) continue;
+        let d = '';
+        for (let i = 0; i <= def.seg; i += 2) {
+          const x = def.x0 + (def.x1 - def.x0) * (i / def.seg);
+          const y = def.cy(x) + L.o * def.half(x);
+          const z = def.z(x, L.o);
+          d += (d ? 'L' : 'M') + Math.round(x + z * 0.05) + ',' + Math.round(y * 10) / 10;
+        }
+        const c = 'rgb(' + Math.round(255 * Math.min(1, L.r * 1.5)) + ',' + Math.round(255 * Math.min(1, L.g * 1.5)) + ',' + Math.round(255 * Math.min(1, L.b * 1.5)) + ')';
+        paths += '<path d="' + d + '" fill="none" stroke="' + c + '" stroke-opacity="' + (0.28 + 0.5 * Math.pow(1 - Math.abs(L.o), 1.4)).toFixed(2) + '" stroke-width="1"/>';
+      }
+    }
+    return '<svg viewBox="0 0 1672 756" preserveAspectRatio="xMidYMid slice">' + paths + '</svg>';
+  }
+
+  /* ================= lifecycle ================= */
+  componentDidMount(){
+    this.reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    this._rot = { x: 0, y: 0, px: 0, tx: 0, ty: 0, dragX: 0, dragY: 0, dragging: false, lx: 0, ly: 0 };
+
+    // --- responsive stage scaling (fixed 1672×756 stage → scaled to width; <640px = mobile) ---
+    this.applyAR = () => { if (!this.wrap) return;
+      const ar = (this.state.mode === 'mobile') ? '' : '1672 / 756';
+      if (this.wrap.style.aspectRatio !== ar) this.wrap.style.aspectRatio = ar; };
+    this.fit = () => {
+      if (!this.wrap) return;
+      const w = this.wrap.clientWidth;
+      if (!w) { cancelAnimationFrame(this._retryRaf); this._retryRaf = requestAnimationFrame(this.fit); return; }
+      const want = w < 640 ? 'mobile' : 'desktop';
+      if (want !== (this.state.mode || 'desktop')) { this.setState({ mode: want }); return; }
+      if (this.stage) this.stage.style.transform = 'scale(' + (w / 1672) + ')';
+    };
+    this.ro = new ResizeObserver(() => this.fit());
+    if (this.wrap) this.ro.observe(this.wrap);
+    this.applyAR(); this.fit();
+    window.addEventListener('resize', this.fit);
+
+    // --- wave interactivity: hover tilts, drag swings further, eases back on release ---
+    this._onMove = (e) => {
+      if (this.reduce || !this.wrap) return;
+      const r = this.wrap.getBoundingClientRect();
+      if (!r.width) return;
+      const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+      const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
+      if (this._rot.dragging) {
+        this._rot.dragX += (e.clientX - this._rot.lx) * 0.0022;
+        this._rot.dragY += (e.clientY - this._rot.ly) * 0.0016;
+        this._rot.dragX = Math.max(-0.3, Math.min(0.3, this._rot.dragX));
+        this._rot.dragY = Math.max(-0.22, Math.min(0.22, this._rot.dragY));
+      }
+      this._rot.lx = e.clientX; this._rot.ly = e.clientY;
+      this._rot.tx = -ny * 0.07 + this._rot.dragY;
+      this._rot.ty = nx * 0.10 + this._rot.dragX;
+      this._rot.tpx = nx * 16;
+    };
+    this._onDown = (e) => { if (this.state.lb >= 0) return; this._rot.dragging = true; this._rot.lx = e.clientX; this._rot.ly = e.clientY; };
+    this._onUp = () => { this._rot.dragging = false; };
+    if (!this.reduce) {
+      window.addEventListener('pointermove', this._onMove, { passive: true });
+      if (this.wrap) this.wrap.addEventListener('pointerdown', this._onDown, { passive: true });
+      window.addEventListener('pointerup', this._onUp, { passive: true });
+    }
+
+    // --- lightbox keyboard support: ←/→ navigate, Esc closes; Enter/Space on a
+    //     focused frame opens it (figures aren't native buttons) ---
+    this._onLbKeys = (e) => {
+      if (this.state.lb < 0) return;
+      if (e.key === 'Escape') this.closeLb();
+      else if (e.key === 'ArrowRight') { e.preventDefault(); this.stepLb(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); this.stepLb(-1); }
+    };
+    window.addEventListener('keydown', this._onLbKeys);
+    this._onFrameKey = (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('grf')) {
+        e.preventDefault(); e.target.click();
+      }
+    };
+    if (this.wrap) this.wrap.addEventListener('keydown', this._onFrameKey);
+
+    // --- pause when hidden/off-screen ---
+    this._vis = true;
+    this.onVis = () => this._pump();
+    document.addEventListener('visibilitychange', this.onVis);
+    if (window.IntersectionObserver && this.wrap) {
+      this.io = new IntersectionObserver((es) => { this._vis = es[0].isIntersecting; this._pump(); }, { threshold: 0 });
+      this.io.observe(this.wrap);
+    }
+
+    // --- boot three.js (poll the CDN script; fall back to SVG waves after ~12s) ---
+    this._initWaves();
+  }
+
+  _initWaves(){
+    this._twStarted = true;
+    if (this.state.mode === 'mobile') { this._mountMobileWaves(); return; }
+    const tryInit = () => {
+      if (this._disposed) return;
+      if (window.THREE) { this._setup3D(); return; }
+      if ((this._tw = (this._tw || 0) + 1) < 240) setTimeout(tryInit, 50);
+      else this._svgFallback();
+    };
+    tryInit();
+  }
+
+  /* Dispose the wave renderers (canvas unmounted or replaced — e.g. crossing the
+     640px mode boundary remounts the desktop stage with FRESH canvas elements;
+     without this the old renderer stays bound to detached canvases and the new
+     ones would remain blank). componentDidUpdate re-inits against the new refs. */
+  _teardown3D(){
+    if (this._raf) { cancelAnimationFrame(this._raf); this._raf = 0; }
+    if (this._three) {
+      for (const k of ['rear', 'front']) {
+        const ws = this._three[k];
+        if (ws) { try { ws.renderer.dispose(); if (ws.renderer.forceContextLoss) ws.renderer.forceContextLoss(); } catch (e) {} }
+      }
+      this._three = null;
+    }
+    this._twStarted = false;
+  }
+
+  _setup3D(){
+    if (this._three || !this.rearCanvas) return;
+    const THREE = window.THREE, defs = this.waveDefs();
+    const rear = this.makeWaveScene(THREE, this.rearCanvas, [defs.top, defs.bot], [null, null], 1.45);
+    if (!rear) { this._svgFallback(); return; }
+    const front = this.frontCanvas
+      ? this.makeWaveScene(THREE, this.frontCanvas, [defs.bot], [(o) => Math.abs(o) <= 0.55], 1.9)
+      : null;
+    this._three = { rear, front };
+    this._t0 = performance.now();
+    if (this.reduce) { this._renderOnce(); return; }
+    this._loop = (now) => {
+      const t = (now - this._t0) / 1000 * (this.props.motionIntensity ?? 1);
+      this._rot.x += (this._rot.tx - this._rot.x) * 0.07;
+      this._rot.y += (this._rot.ty - this._rot.y) * 0.07;
+      this._rot.px += ((this._rot.tpx || 0) - this._rot.px) * 0.07;
+      if (!this._rot.dragging) { this._rot.dragX *= 0.95; this._rot.dragY *= 0.95; }
+      this.updateWaveScene(this._three.rear, t);
+      if (this._three.front) this.updateWaveScene(this._three.front, t);
+      this._raf = requestAnimationFrame(this._loop);
+    };
+    this._pump();
+    this._renderOnce();
+  }
+
+  _renderOnce(){
+    if (!this._three) return;
+    this.updateWaveScene(this._three.rear, 0);
+    if (this._three.front) this.updateWaveScene(this._three.front, 0);
+  }
+
+  _pump(){
+    const run = this._three && !this.reduce && !document.hidden && this._vis !== false;
+    if (run && !this._raf) this._raf = requestAnimationFrame(this._loop);
+    else if (!run && this._raf) { cancelAnimationFrame(this._raf); this._raf = 0; }
+  }
+
+  _svgFallback(){
+    if (!this.waveFallback) return;
+    const defs = this.waveDefs();
+    this.waveFallback.innerHTML = this.waveSVG([defs.top, defs.bot], 1.0, 1);
+    this.waveFallback.style.display = 'block';
+    if (this.rearCanvas) this.rearCanvas.style.display = 'none';
+    if (this.frontCanvas) this.frontCanvas.style.display = 'none';
+  }
+
+  _mountMobileWaves(){
+    if (!this.mobWaves) return;
+    const defs = this.waveDefs();
+    this.mobWaves.innerHTML =
+      '<svg viewBox="700 0 1000 420" preserveAspectRatio="xMidYMin slice" style="top:0;height:44%;opacity:.8;">' +
+        this.waveSVG([defs.top], 1.0, 2).replace(/^<svg[^>]*>|<\/svg>$/g, '') + '</svg>' +
+      '<svg viewBox="600 380 1100 376" preserveAspectRatio="xMidYMax slice" style="bottom:0;height:50%;opacity:.8;">' +
+        this.waveSVG([defs.bot], 1.0, 2).replace(/^<svg[^>]*>|<\/svg>$/g, '') + '</svg>';
+  }
+
+  componentDidUpdate(){
+    if (this.applyAR) this.applyAR();
+    if (this.fit) this.fit();
+    if (this.state.mode === 'mobile') {
+      if (this._three) this._teardown3D();   // desktop canvases were unmounted
+      if (this.mobWaves && !this.mobWaves.childNodes.length) this._mountMobileWaves();
+    }
+    if (this.state.mode === 'desktop' && !this._three && !this._twStarted) this._initWaves();
+  }
+
+  componentWillUnmount(){
+    this._disposed = true;
+    if (this.state.lb >= 0) document.body.style.overflow = this._prevBodyOverflow || '';
+    window.removeEventListener('keydown', this._onLbKeys);
+    if (this.wrap) this.wrap.removeEventListener('keydown', this._onFrameKey);
+    if (this.ro) this.ro.disconnect();
+    if (this.io) this.io.disconnect();
+    window.removeEventListener('resize', this.fit);
+    window.removeEventListener('pointermove', this._onMove);
+    window.removeEventListener('pointerup', this._onUp);
+    if (this.wrap) this.wrap.removeEventListener('pointerdown', this._onDown);
+    document.removeEventListener('visibilitychange', this.onVis);
+    if (this._raf) { cancelAnimationFrame(this._raf); this._raf = 0; }
+    if (this._retryRaf) cancelAnimationFrame(this._retryRaf);
+    if (this._three) {
+      for (const k of ['rear', 'front']) {
+        const ws = this._three[k];
+        if (ws) { try { ws.renderer.dispose(); if (ws.renderer.forceContextLoss) ws.renderer.forceContextLoss(); } catch (e) {} }
+      }
+      this._three = null;
+    }
+  }
+
+  renderVals(){
+    const mode = this.state.mode || 'desktop';
+    const fd = this.frameData();
+    const td = this.trackData();
+    // mobile variants: same slots/sources, flow-layout sizing
+    const mob = (list, w, h) => list.map((f, i) => ({ slot: f.slot, src: f.src,
+      open: () => this.openLb(f.gi),
+      label: 'View ' + f.slot.toLowerCase() + ' larger',
+      style: 'width:' + w + 'px;height:' + h + 'px;transform:rotate(' + (i % 2 ? 2.5 : -2.5) + 'deg);' }));
+    const N = this.slotSources().length, lb = this.state.lb;
+    return {
+      isDesktop: mode !== 'mobile',
+      isMobile: mode === 'mobile',
+      topTrack: td.top, midTrack: td.mid, lowTrack: td.low,
+      mobTop: mob(fd.top, 132, 104),
+      mobLow: mob(fd.mid.concat(fd.low), 152, 114),
+      // lightbox
+      lbOpen: lb >= 0,
+      lbSrc: lb >= 0 ? this.slotSources()[lb] : '',
+      lbAlt: lb >= 0 ? 'HISPA event photo ' + (lb + 1) + ' of ' + N : '',
+      lbCount: (lb + 1) + ' / ' + N,
+      lbClose: () => this.closeLb(),
+      lbPrev: () => this.stepLb(-1),
+      lbNext: () => this.stepLb(1),
+      lbBackdrop: (e) => { if (e.target && e.target.classList && e.target.classList.contains('glb')) this.closeLb(); },
+      setLbImg: (el) => { if (el) this.lbImg = el; },
+      setLbClose: (el) => { if (el) this.lbCloseBtn = el; },
+      setWrap: (el) => { this.wrap = el; if (this.ro && el) { this.ro.disconnect(); this.ro.observe(el); } if (this.io && el) this.io.observe(el); if (this.fit) this.fit(); },
+      setStage: (el) => { if (el) { this.stage = el; if (this.fit) this.fit(); } },
+      setRearCanvas: (el) => { if (el) { if (this.rearCanvas && this.rearCanvas !== el) this._teardown3D(); this.rearCanvas = el; } },
+      setFrontCanvas: (el) => { if (el) this.frontCanvas = el; },
+      setWaveFallback: (el) => { if (el) this.waveFallback = el; },
+      setMobWaves: (el) => { if (el) { this.mobWaves = el; this._mountMobileWaves(); } },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================================
+     Gallery20 — a "premium gallery wall" of ALL 112 real HISPA event photos, each
+     in a metallic-gold frame with an ivory mat, scrolling slowly in two rows
+     (opposite directions). Replaces the film-sprocket look with a curated,
+     framed presentation. Every photo is used (order scattered by a coprime stride
+     so events don't clump); object-fit:cover keeps them undistorted.
+
+     Seamless loop: each row renders its list TWICE and translates by exactly one
+     copy's width. Uniform per-frame margin (not flex gap) makes the two copies
+     tile exactly, so the wrap is invisible.
+     ============================================================================ */
+  .gal-section{position:relative;padding:72px 0 80px;font-family:'Hanken Grotesk',system-ui,sans-serif;}
+  .gal-head{max-width:1200px;margin:0 auto 42px;padding:0 32px;text-align:center;}
+  .gal-eyebrow{font-size:13px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#F6C558;margin-bottom:14px;}
+  .gal-title{font-family:'Newsreader',serif;font-weight:500;font-size:clamp(28px,3.4vw,42px);line-height:1.1;margin:0 0 14px;color:#F3F8FF;}
+  .gal-sub{font-size:17px;line-height:1.6;color:#A9C0DC;margin:0 auto;max-width:600px;}
+
+  .gal-viewport{overflow:hidden;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 5%,#000 95%,transparent 100%);
+            mask-image:linear-gradient(90deg,transparent 0,#000 5%,#000 95%,transparent 100%);}
+  .gal-viewport + .gal-viewport{margin-top:20px;}
+
+  .gal-track{display:flex;width:max-content;will-change:transform;}
+  .gal-left{animation:galScrollL 150s linear infinite;}
+  .gal-right{animation:galScrollR 178s linear infinite;}
+  .gal-viewport:hover .gal-track{animation-play-state:paused;}
+  @keyframes galScrollL{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  @keyframes galScrollR{from{transform:translateX(-50%);}to{transform:translateX(0);}}
+
+  /* metallic gold frame + ivory passe-partout mat */
+  .gal-frame{flex:0 0 auto;box-sizing:border-box;width:186px;height:248px;margin:0 18px 0 0;padding:8px;border-radius:5px;
+    background:linear-gradient(135deg,#FBE9A7 0%,#E7B23F 26%,#B8791A 50%,#E7B23F 74%,#FBE9A7 100%);
+    box-shadow:0 14px 28px rgba(0,0,0,0.42), inset 0 0 0 1px rgba(255,244,205,0.7), 0 1px 0 rgba(0,0,0,0.3);}
+  .gal-mat{width:100%;height:100%;padding:7px;border-radius:2px;background:#F7F1E3;box-shadow:inset 0 1px 4px rgba(0,0,0,0.20);}
+  .gal-mat img{width:100%;height:100%;object-fit:cover;display:block;border-radius:1px;background:#0b1730;}
+
+  @media (max-width:640px){
+    .gal-frame{width:140px;height:190px;margin:0 14px 0 0;padding:6px;}
+    .gal-mat{padding:5px;}
+  }
+
+  /* reduced motion: no auto-scroll; let people browse the wall by hand instead */
+  @media (prefers-reduced-motion:reduce){
+    .gal-track{animation:none !important;}
+    .gal-viewport{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  }
+</style>
+</helmet>
+
+<section class="gal-section" aria-label="Twenty years of HISPA moments">
+  <div class="gal-head">
+    <div class="gal-eyebrow">Twenty years, in the room</div>
+    <h2 class="gal-title">Every frame is a young person who saw their future arrive.</h2>
+    <p class="gal-sub">More than 40,000 students, thousands of role models, one belief — captured across two decades of classrooms, conferences, and celebrations.</p>
+  </div>
+
+  <div class="gal-viewport">
+    <div class="gal-track gal-left">
+      <sc-for list="{{ rowTop }}" as="p">
+        <figure class="gal-frame"><div class="gal-mat"><img src="{{ p.src }}" alt="{{ p.alt }}" decoding="async"></div></figure>
+      </sc-for>
+    </div>
+  </div>
+
+  <div class="gal-viewport">
+    <div class="gal-track gal-right">
+      <sc-for list="{{ rowBottom }}" as="p">
+        <figure class="gal-frame"><div class="gal-mat"><img src="{{ p.src }}" alt="{{ p.alt }}" decoding="async"></div></figure>
+      </sc-for>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:520}}">
+class Component extends DCLogic {
+  // ALL 112 photos, order scattered by a coprime stride (37 ⟂ 112) so consecutive
+  // frames come from different events (the files are grouped by event), then split
+  // into two rows and each row DOUBLED for a seamless marquee loop.
+  buildRows(){
+    if (this._rows) return this._rows;
+    const N = 112, stride = 37;
+    const order = Array.from({length:N}, (_,i)=>((i*stride)%N)+1);
+    const all = order.map(n => ({ src:'photos/p'+n+'.jpg', alt:'HISPA event moment' }));
+    const half = Math.ceil(N/2);
+    const top = all.slice(0, half), bottom = all.slice(half);
+    this._rows = { rowTop: top.concat(top), rowBottom: bottom.concat(bottom) };
+    return this._rows;
+  }
+  renderVals(){
+    const r = this.buildRows();
+    return { rowTop: r.rowTop, rowBottom: r.rowBottom };
+  }
+}
+</script>
+</body>
+</html>
