@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -11,44 +11,107 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>*{box-sizing:border-box;}body{margin:0;}</style>
+<style>
+  *{box-sizing:border-box;}body{margin:0;}
+  /* ============================================================
+     OUR THANK YOUS — per Ivonne's direction (7/14): simple text
+     boxes with names, NO logos, NO tiers, everyone treated the
+     same. Three groups; ~125 names arriving (paste into the
+     NAMES arrays in the script below — everything else adapts).
+     ============================================================ */
+  .ty-controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;}
+  .ty-search{width:min(420px,100%);padding:13px 20px;border-radius:999px;border:1.5px solid rgba(0,43,58,0.18);
+    background:#fff;font:500 15px/1 'Sofia Pro','Hanken Grotesk',sans-serif;color:#002B3A;outline:none;
+    transition:border-color .2s ease, box-shadow .2s ease;}
+  .ty-search:focus{border-color:#FD4D1C;box-shadow:0 0 0 3px rgba(253,77,28,0.15);}
+  .ty-letters{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+  .ty-chip{min-width:34px;height:34px;padding:0 10px;border-radius:999px;border:1px solid rgba(1,105,149,0.30);
+    background:rgba(0,168,226,0.08);color:#016995;font:600 13px/1 'Sofia Pro','Hanken Grotesk',sans-serif;
+    cursor:pointer;transition:background .18s ease,color .18s ease,border-color .18s ease;}
+  .ty-chip:hover{background:rgba(0,168,226,0.16);}
+  .ty-chip[aria-pressed="true"]{background:#FD4D1C;border-color:#FD4D1C;color:#fff;}
+  .ty-chip:focus-visible{outline:2px solid #016995;outline-offset:2px;}
+  /* identical name boxes — deliberately uniform: everyone equal */
+  .ty-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+  .ty-name{border-radius:14px;border:1px solid rgba(0,43,58,0.07);box-shadow:0 1px 3px rgba(0,43,58,0.05);
+    padding:20px 22px;text-align:center;font-family:'Newsreader',serif;font-weight:500;font-size:17px;
+    line-height:1.35;color:#21364A;display:flex;align-items:center;justify-content:center;min-height:72px;
+    opacity:0;animation:tyFadeUp .5s ease-out forwards;animation-delay:var(--dl,0s);}
+  @keyframes tyFadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  /* heartbeat on hover — tiny, human */
+  @keyframes tyHeartbeat{0%{transform:scale(1);}30%{transform:scale(1.035);}55%{transform:scale(1.01);}75%{transform:scale(1.025);}100%{transform:scale(1.015);}}
+  .ty-name:hover{animation:tyHeartbeat .55s ease-in-out forwards;border-color:rgba(253,77,28,0.35);}
+  .ty-empty{border:1px dashed rgba(0,43,58,0.22);border-radius:14px;padding:26px;text-align:center;
+    color:#7E8B99;font-size:14px;font-weight:600;grid-column:1/-1;}
+  @media (prefers-reduced-motion:reduce){
+    .ty-name{animation:none;opacity:1;}
+    .ty-name:hover{animation:none;transform:none;}
+  }
+</style>
 </helmet>
 <div style="background:#FBF6EE;font-family:'Sofia Pro','Hanken Grotesk',sans-serif;color:#002B3A;overflow-x:hidden;">
   <dc-import name="Nav" active="thankyous" hint-size="100%,74px"></dc-import>
 
   <!-- HERO -->
-  <section style="max-width:880px;margin:0 auto;padding:80px 32px 44px;text-align:center;">
+  <section style="max-width:880px;margin:0 auto;padding:80px 32px 40px;text-align:center;">
     <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#FD4D1C;margin-bottom:16px;">Our thank yous</div>
-    <h1 style="font-family:'Newsreader',serif;font-weight:500;font-size:54px;line-height:1.06;letter-spacing:-0.015em;margin:0 0 20px;">None of this happens <span style="font-style:italic;color:#FD4D1C;">alone.</span></h1>
-    <p style="font-size:19px;line-height:1.6;color:#3F586F;max-width:600px;margin:0 auto;">Twenty years of classroom visits, conferences, and role models were made possible by partners who believed in the mission before the results were in.</p>
+    <h1 style="font-family:'Newsreader',serif;font-weight:500;font-size:54px;line-height:1.06;letter-spacing:-0.015em;margin:0 0 20px;">We could not have done it <span style="font-style:italic;color:#FD4D1C;">without you.</span></h1>
+    <p style="font-size:19px;line-height:1.6;color:#3F586F;max-width:600px;margin:0 auto;">Twenty years of classroom visits, Youth Conferences, and role models were made possible by every name on this wall — each one equally part of the story.</p>
   </section>
 
-  <!-- PRESENTING PARTNERS -->
-  <section style="max-width:1120px;margin:0 auto;padding:36px 32px 20px;">
-    <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#C24A12;margin-bottom:22px;">Presenting partners</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;">
-      <div class="reveal" data-i="0" style="background:#fff;border-radius:16px;border:1px solid rgba(0,43,58,0.06);box-shadow:0 1px 3px rgba(0,43,58,0.06);padding:32px;display:flex;align-items:center;justify-content:center;min-height:110px;text-align:center;transition:transform .25s ease,box-shadow .25s ease;" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px rgba(0,43,58,0.12);">
-        <span style="font-family:'Newsreader',serif;font-weight:600;font-size:20px;color:#21364A;line-height:1.3;">Bank of America <span style="display:block;font-size:13px;font-weight:500;color:#7E8B99;font-family:'Sofia Pro','Hanken Grotesk',sans-serif;margin-top:4px;">/ Merrill</span></span>
-      </div>
-      <div class="reveal" data-i="1" style="background:#fff;border-radius:16px;border:1px solid rgba(0,43,58,0.06);box-shadow:0 1px 3px rgba(0,43,58,0.06);padding:32px;display:flex;align-items:center;justify-content:center;min-height:110px;text-align:center;transition:transform .25s ease,box-shadow .25s ease;" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px rgba(0,43,58,0.12);">
-        <span style="font-family:'Newsreader',serif;font-weight:600;font-size:22px;color:#21364A;">Amazon</span>
-      </div>
-      <div class="reveal" data-i="2" style="background:#fff;border-radius:16px;border:1px solid rgba(0,43,58,0.06);box-shadow:0 1px 3px rgba(0,43,58,0.06);padding:32px;display:flex;align-items:center;justify-content:center;min-height:110px;text-align:center;transition:transform .25s ease,box-shadow .25s ease;" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px rgba(0,43,58,0.12);">
-        <span style="font-family:'Newsreader',serif;font-weight:600;font-size:22px;color:#21364A;">NJIT</span>
-      </div>
+  <!-- SEARCH + JUMP-TO-LETTER -->
+  <section style="max-width:1120px;margin:0 auto;padding:8px 32px 30px;">
+    <div class="ty-controls">
+      <input class="ty-search" type="search" placeholder="Find a name…" aria-label="Search names" value="{{ query }}" oninput="{{ onSearch }}">
+    </div>
+    <div class="ty-letters" style="margin-top:16px;" role="group" aria-label="Jump to letter">
+      <sc-for list="{{ letters }}" as="l">
+        <button type="button" class="ty-chip" aria-pressed="{{ l.active }}" onclick="{{ l.onClick }}">{{ l.label }}</button>
+      </sc-for>
     </div>
   </section>
 
-  <!-- SUPPORTING PARTNERS -->
-  <section style="max-width:1120px;margin:0 auto;padding:30px 32px 20px;">
-    <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#1A6E92;margin-bottom:22px;">Supporting partners</div>
-    <div class="reveal" data-i="0" style="border:1px dashed rgba(0,43,58,0.22);border-radius:16px;padding:32px;text-align:center;color:#7E8B99;font-size:14px;font-weight:600;">
-      Add supporting-partner logos here
+  <!-- GROUP 1: CORPORATIONS & FOUNDATIONS -->
+  <section style="max-width:1120px;margin:0 auto;padding:18px 32px 14px;">
+    <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#FD4D1C;margin-bottom:18px;">Corporations &amp; Foundations</div>
+    <div class="ty-grid">
+      <sc-for list="{{ corpNames }}" as="n">
+        <div class="ty-name" style="background:{{ n.bg }};--dl:{{ n.dl }};">{{ n.label }}</div>
+      </sc-for>
+      <sc-if value="{{ corpEmpty }}" hint-placeholder-val="{{ false }}">
+        <div class="ty-empty">{{ corpEmptyText }}</div>
+      </sc-if>
+    </div>
+  </section>
+
+  <!-- GROUP 2: GOVERNMENT & ACADEMIA -->
+  <section style="max-width:1120px;margin:0 auto;padding:26px 32px 14px;">
+    <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#FD4D1C;margin-bottom:18px;">Government &amp; Academia</div>
+    <div class="ty-grid">
+      <sc-for list="{{ govNames }}" as="n">
+        <div class="ty-name" style="background:{{ n.bg }};--dl:{{ n.dl }};">{{ n.label }}</div>
+      </sc-for>
+      <sc-if value="{{ govEmpty }}" hint-placeholder-val="{{ false }}">
+        <div class="ty-empty">{{ govEmptyText }}</div>
+      </sc-if>
+    </div>
+  </section>
+
+  <!-- GROUP 3: INDIVIDUAL DONORS -->
+  <section style="max-width:1120px;margin:0 auto;padding:26px 32px 20px;">
+    <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#FD4D1C;margin-bottom:18px;">Individual Donors</div>
+    <div class="ty-grid">
+      <sc-for list="{{ indNames }}" as="n">
+        <div class="ty-name" style="background:{{ n.bg }};--dl:{{ n.dl }};">{{ n.label }}</div>
+      </sc-for>
+      <sc-if value="{{ indEmpty }}" hint-placeholder-val="{{ false }}">
+        <div class="ty-empty">{{ indEmptyText }}</div>
+      </sc-if>
     </div>
   </section>
 
   <!-- THANK YOU MESSAGE -->
-  <section style="max-width:900px;margin:0 auto;padding:64px 32px;">
+  <section style="max-width:900px;margin:0 auto;padding:56px 32px;">
     <div style="background:linear-gradient(135deg,#1B3A5B 0%,#002B3A 100%);border-radius:24px;padding:56px;text-align:center;position:relative;overflow:hidden;">
       <div style="position:absolute;top:-50px;left:-30px;font-family:'Newsreader',serif;font-size:200px;color:rgba(253,77,28,0.16);line-height:1;">"</div>
       <p style="position:relative;font-family:'Newsreader',serif;font-style:italic;font-size:27px;line-height:1.45;color:#fff;margin:0;">To every sponsor, donor, and partner school who said yes before the mission had proof — thank you. Twenty years of role models exist because you did.</p>
@@ -60,9 +123,9 @@
     <div style="background:#FD4D1C;border-radius:24px;padding:56px;text-align:center;position:relative;overflow:hidden;">
       <div style="position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(255,255,255,0.18),transparent 50%);"></div>
       <div style="position:relative;">
-        <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:38px;line-height:1.1;color:#fff;margin:0 0 14px;">Want to see your organization here next?</h2>
+        <h2 style="font-family:'Newsreader',serif;font-weight:500;font-size:38px;line-height:1.1;color:#fff;margin:0 0 14px;">Want to see your name here next?</h2>
         <p style="font-size:17px;line-height:1.6;color:rgba(255,255,255,0.92);max-width:520px;margin:0 auto 28px;">Partner with HISPA and help bring the next wave of role models into classrooms.</p>
-        <a href="#" style="text-decoration:none;background:#fff;color:#C24A12;font-weight:700;font-size:16px;padding:15px 30px;border-radius:999px;display:inline-block;">Become a partner</a>
+        <a href="https://www.hispa.org" target="_blank" rel="noopener" style="text-decoration:none;background:#fff;color:#C24A12;font-weight:700;font-size:16px;padding:15px 30px;border-radius:999px;display:inline-block;">Become a partner</a>
       </div>
     </div>
   </section>
@@ -72,22 +135,70 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900}}">
 class Component extends DCLogic {
-  componentDidMount(){
-    const reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-    const revealEls = Array.from(document.querySelectorAll('.reveal'));
-    if (reduce){ revealEls.forEach((el) => el.classList.add('is-visible')); return; }
-    this._io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        const el = entry.target;
-        const i = +el.dataset.i || 0;
-        setTimeout(() => el.classList.add('is-visible'), i * 100);
-        this._io.unobserve(el);
-      });
-    }, { threshold: 0.2 });
-    revealEls.forEach((el) => this._io.observe(el));
+  state = { query: '', letter: '' };
+
+  /* ============================================================
+     PASTE THE FINAL ~125 NAMES INTO THESE ARRAYS (one string per
+     name, exactly as it should read on the wall). Everything else
+     — search, letter chips, cascade, alternating tint — adapts.
+     Only the three partners already confirmed on the old page are
+     listed; do NOT add unconfirmed names.
+     ============================================================ */
+  NAMES = {
+    corp: [
+      'Amazon',
+      'Bank of America / Merrill',
+      'NJIT',
+    ],
+    gov: [],
+    ind: [],
+  };
+
+  norm(s){ return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+
+  filtered(list){
+    const q = this.norm(this.state.query || '');
+    const L = this.state.letter || '';
+    return list
+      .filter((n) => !q || this.norm(n).includes(q))
+      .filter((n) => !L || this.norm(n).charAt(0).toUpperCase() === L)
+      .sort((a, b) => a.localeCompare(b));
   }
-  componentWillUnmount(){ if (this._io) this._io.disconnect(); }
+
+  /* identical boxes; subtle alternating off-white / light-blue tint; staggered cascade */
+  boxes(list){
+    return this.filtered(list).map((label, i) => ({
+      label,
+      bg: i % 2 ? '#F2F8FB' : '#FFFFFF',
+      dl: ((i % 14) * 0.045).toFixed(3) + 's',
+    }));
+  }
+
+  renderVals(){
+    const filtering = !!(this.state.query || this.state.letter);
+    const corp = this.boxes(this.NAMES.corp);
+    const gov = this.boxes(this.NAMES.gov);
+    const ind = this.boxes(this.NAMES.ind);
+    const emptyText = (list) => list.length
+      ? 'No names match — clear the search to see everyone.'
+      : 'Names arriving — the final list is being confirmed.';
+    const letters = ['All'].concat('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')).map((ch) => {
+      const val = ch === 'All' ? '' : ch;
+      return {
+        label: ch,
+        active: this.state.letter === val && (ch !== 'All' || !this.state.letter),
+        onClick: () => this.setState({ letter: val }),
+      };
+    });
+    return {
+      query: this.state.query,
+      onSearch: (e) => this.setState({ query: e.target.value }),
+      letters,
+      corpNames: corp, corpEmpty: corp.length === 0, corpEmptyText: emptyText(this.NAMES.corp),
+      govNames: gov, govEmpty: gov.length === 0, govEmptyText: emptyText(this.NAMES.gov),
+      indNames: ind, indEmpty: ind.length === 0, indEmptyText: emptyText(this.NAMES.ind),
+    };
+  }
 }
 </script>
 </body>
