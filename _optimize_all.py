@@ -1,7 +1,13 @@
-"""Build the web photo set from the event photos in photos/ (1.jpg, 2.jpg, ...).
+"""Build the web photo set from the event photos in photos/.
+
+TO ADD PHOTOS: drop the image files straight into photos/ and run this script.
+Any name works - camera names, "unnamed (1).jpg", whatever. Anything not already
+numbered is adopted and renamed to the next free number, because that number is
+what ties an original to its web copies. To remove a photo, delete it from
+photos/ and re-run; its copies are pruned.
 
 The originals sit alone in photos/. Each {n}.jpg produces two web copies, kept in
-their own folders so the originals are never mixed in with generated files:
+their own folders so originals are never mixed in with generated files:
 
   photos/web/p{n}.jpg      720w  - film-strip frames. The largest strip cell is
                                    214px in a 1672px stage, so it renders ~330 CSS
@@ -15,11 +21,10 @@ Images are only ever downscaled, never enlarged: sources already smaller than a
 tier's target are re-encoded at their native size instead of being upscaled.
 
 The library size is not fixed anywhere. This writes photos/manifest.json listing
-exactly the slots that exist, and the pages size themselves from it, so adding or
-removing an original is just: drop the file in (or delete it), re-run this script.
-Copies whose original is gone are pruned so nothing stale survives.
+exactly the slots that exist, and the pages size themselves from it, so the photo
+count follows the folder with no code change.
 
-The originals themselves are never modified.
+Beyond the one-time rename of newly-added files, originals are never modified.
 """
 import glob, json, os, re
 from PIL import Image, ImageOps
@@ -31,27 +36,53 @@ OUT_WEB_LG = os.path.join(SRC, "web-lg")
 MANIFEST = os.path.join(SRC, "manifest.json")
 
 TIERS = [(OUT_WEB, 720, 82), (OUT_WEB_LG, 1800, 86)]
+EXTS = (".jpg", ".jpeg", ".png", ".webp")
+
+
+def source_images():
+    """Every image sitting directly in photos/ (never the generated subfolders)."""
+    out = []
+    for name in os.listdir(SRC):
+        path = os.path.join(SRC, name)
+        if os.path.isfile(path) and os.path.splitext(name)[1].lower() in EXTS:
+            out.append(path)
+    return out
 
 
 def photo_number(path):
-    """The {n} of a photos/{n}.jpg original, or None if not a numbered original."""
+    """The {n} of a photos/{n}.jpg original, or None if it is not numbered yet."""
     stem = os.path.splitext(os.path.basename(path))[0]
     return int(stem) if re.fullmatch(r"\d+", stem) else None
 
 
-originals = sorted(
-    ((photo_number(f), f) for f in glob.glob(os.path.join(SRC, "*.jpg"))
-     if photo_number(f) is not None),
-)
-if not originals:
-    raise SystemExit(f"no numbered originals found in {SRC}")
+images = source_images()
+if not images:
+    raise SystemExit(f"no images found in {SRC}")
+
+numbered = {photo_number(f): f for f in images if photo_number(f) is not None}
+unnumbered = [f for f in images if photo_number(f) is None]
+
+# Adopt anything freshly dropped in, oldest first so it lands in the order it
+# arrived. Existing numbers are never reused or reshuffled, so photos already on
+# the site keep their slot.
+adopted = []
+next_free = 1
+for path in sorted(unnumbered, key=lambda f: (os.path.getmtime(f), f.lower())):
+    while next_free in numbered:
+        next_free += 1
+    ext = os.path.splitext(path)[1].lower()
+    dest = os.path.join(SRC, f"{next_free}{ext}")
+    os.rename(path, dest)
+    numbered[next_free] = dest
+    adopted.append((os.path.basename(path), os.path.basename(dest)))
 
 for out_dir, _, _ in TIERS:
     os.makedirs(out_dir, exist_ok=True)
 
+ids = sorted(numbered)
 totals = {out_dir: 0 for out_dir, _, _ in TIERS}
-for n, path in originals:
-    base = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
+for n in ids:
+    base = ImageOps.exif_transpose(Image.open(numbered[n])).convert("RGB")
     for out_dir, target_w, q in TIERS:
         im = base
         w, h = im.size
@@ -61,9 +92,7 @@ for n, path in originals:
         im.save(out, "JPEG", quality=q, optimize=True, progressive=True)
         totals[out_dir] += os.path.getsize(out)
 
-ids = [n for n, _ in originals]
-
-# Drop copies whose original no longer exists, so the site never serves stale slots.
+# Drop copies whose original is gone, so the site never serves stale slots.
 keep = {f"p{n}.jpg" for n in ids}
 pruned = 0
 for out_dir, _, _ in TIERS:
@@ -75,6 +104,8 @@ for out_dir, _, _ in TIERS:
 with open(MANIFEST, "w", encoding="utf-8") as fh:
     json.dump({"photos": ids}, fh, separators=(",", ":"))
 
+for old, new in adopted:
+    print(f"adopted    {old}  ->  {new}")
 for out_dir, target_w, q in TIERS:
     mb = totals[out_dir] / 1024 / 1024
     rel = os.path.relpath(out_dir, ROOT).replace("\\", "/")

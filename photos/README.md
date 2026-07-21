@@ -12,12 +12,21 @@ subfolder, built by `_optimize_all.py` in the project root.
 
 ## Adding or removing a photo
 
-1. Drop a new numbered `.jpg` in here (or delete one).
+1. Drop the image files straight into `photos/` (this folder — **not** `web/` or
+   `web-lg/`). Any filename works: `DSC_0148.jpg`, `unnamed (2).jpg`, whatever.
+   To remove one, just delete it.
 2. Run `python _optimize_all.py` from the project root.
+3. Commit and push — the new files under `photos/web/` and `photos/web-lg/` have
+   to be pushed too, or the deployed site won't have them.
 
-That regenerates both copy sets, rewrites `manifest.json`, and deletes copies whose
-original is gone. The strips and the lightbox pick up the new count on next load —
-no code change needed.
+The script gives each newly-added file the next free number (that number is what
+ties an original to its copies), rebuilds both copy sets, rewrites `manifest.json`,
+and deletes copies whose original is gone. Photos already on the site keep their
+existing numbers, so nothing gets reshuffled. The strips and the lightbox pick up
+the new count on next load — no code change needed.
+
+Accepted inputs: `.jpg`, `.jpeg`, `.png`, `.webp`. The generated copies are always
+JPEG regardless.
 
 ## Why two generated sizes
 
