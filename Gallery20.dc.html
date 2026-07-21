@@ -98,7 +98,7 @@ class Component extends DCLogic {
     if (!ids || !ids.length) return { rowTop: [], rowBottom: [] };   // uncached
     const N = ids.length, stride = this.coprimeStride(N);
     const order = Array.from({length:N}, (_,i)=>ids[(i*stride)%N]);
-    const all = order.map(n => ({ src:'photos/p'+n+'.jpg', alt:'HISPA event moment' }));
+    const all = order.map(n => ({ src:'photos/web/p'+n+'.jpg', alt:'HISPA event moment' }));
     const half = Math.ceil(N/2);
     const top = all.slice(0, half), bottom = all.slice(half);
     this._rows = { rowTop: top.concat(top), rowBottom: bottom.concat(bottom) };

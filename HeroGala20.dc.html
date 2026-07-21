@@ -372,6 +372,11 @@ class Component extends DCLogic {
      to the library size so no two neighbours share an event. */
   SLOT_COUNT = 27;
 
+  /* Generated copies, kept out of photos/ so the originals sit on their own.
+     web = 720w for frames, web-lg = 1800w for the lightbox. */
+  WEB_DIR = 'photos/web/';
+  WEB_DIR_LG = 'photos/web-lg/';
+
   /* Every photo, in display order — the lightbox gallery. The ribbons can only
      show SLOT_COUNT frames, but the gallery must not be capped to them or every
      photo past the visible frames becomes unreachable. */
@@ -381,7 +386,7 @@ class Component extends DCLogic {
     if (!ids || !ids.length) return [];        // manifest not in yet — strips run bare
     const N = ids.length, stride = this.coprimeStride(N);
     this._gallery = Array.from({length: N},
-      (_, i) => 'photos/p' + ids[(i * stride) % N] + '.jpg');
+      (_, i) => this.WEB_DIR + 'p' + ids[(i * stride) % N] + '.jpg');
     return this._gallery;
   }
 
@@ -403,7 +408,7 @@ class Component extends DCLogic {
      soft there, so only this on-click view pays for the larger download. */
   lgSource(i){
     const s = this.galleryOrder()[i];          // gallery index, not slot index
-    return s ? s.replace('photos/', 'photos/lg/') : '';
+    return s ? s.replace(this.WEB_DIR, this.WEB_DIR_LG) : '';
   }
 
   /* _optimize_all.py rewrites manifest.json from the photos folder, listing exactly

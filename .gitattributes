@@ -5,5 +5,5 @@
 # running `git lfs pull`, so anything left in LFS deploys as a ~130-byte text stub
 # that the browser renders as a broken image. Only ~19 MB, so plain git is fine.
 # The full-size originals stay in LFS: the site never requests them.
-photos/p*.jpg -filter -diff -merge -text
-photos/lg/*.jpg -filter -diff -merge -text
+photos/web/*.jpg -filter -diff -merge -text
+photos/web-lg/*.jpg -filter -diff -merge -text

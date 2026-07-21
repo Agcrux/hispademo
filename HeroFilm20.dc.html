@@ -447,6 +447,11 @@ class Component extends DCLogic {
      it, which is why nothing beyond the visible frames used to be reachable. */
   SLOT_COUNT = 27;
 
+  /* Generated copies, kept out of photos/ so the originals sit on their own.
+     web = 720w for frames, web-lg = 1800w for the lightbox. */
+  WEB_DIR = 'photos/web/';
+  WEB_DIR_LG = 'photos/web-lg/';
+
   /* Every photo, in display order. This is the lightbox gallery. */
   galleryOrder(){
     if (this._gallery) return this._gallery;
@@ -454,7 +459,7 @@ class Component extends DCLogic {
     if (!ids || !ids.length) return [];        // manifest not in yet — strips run bare
     const N = ids.length, stride = this.coprimeStride(N);
     this._gallery = Array.from({length: N},
-      (_, i) => 'photos/p' + ids[(i * stride) % N] + '.jpg');
+      (_, i) => this.WEB_DIR + 'p' + ids[(i * stride) % N] + '.jpg');
     return this._gallery;
   }
 
@@ -471,12 +476,12 @@ class Component extends DCLogic {
     return 1;
   }
 
-  /* Same photo from the 1800w tier. Frames render ~330px so photos/ (720w) suits
+  /* Same photo from the 1800w tier. Frames render ~330px so web/ (720w) suits
      them, but the lightbox scales to min(86vw,940px) — the frame file would be
      soft there, so only this on-click view pays for the larger download. */
   lgSource(i){
     const s = this.galleryOrder()[i];          // gallery index, not slot index
-    return s ? s.replace('photos/', 'photos/lg/') : '';
+    return s ? s.replace(this.WEB_DIR, this.WEB_DIR_LG) : '';
   }
 
   /* _optimize_all.py rewrites manifest.json from the photos folder, listing exactly

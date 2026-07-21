@@ -184,7 +184,7 @@ class Component extends DCLogic {
         const order=Array.from({length:N},(_,i)=>ids[(i*stride)%N]);
         this.photos=order.map(()=>({im:new Image(), focalY:0.38}));
         let leftN=this.photos.length;
-        this.photos.forEach((p,i)=>{ const done=()=>{ if(--leftN<=0) this.start(); }; p.im.onload=done; p.im.onerror=done; p.im.src='photos/p'+order[i]+'.jpg'; });
+        this.photos.forEach((p,i)=>{ const done=()=>{ if(--leftN<=0) this.start(); }; p.im.onload=done; p.im.onerror=done; p.im.src='photos/web/p'+order[i]+'.jpg'; });
       })
       .catch(()=>{});
   }
