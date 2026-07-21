@@ -104,6 +104,12 @@
   .ftrack{position:absolute;inset:0;z-index:4;pointer-events:none;}
   .fband{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
     filter:drop-shadow(0 20px 30px rgba(2,6,18,0.45));}
+  /* The sprocket dashes animate forever, so they get their own UNFILTERED layer.
+     Sharing .fband's surface made every frame re-rasterise the full-stage SVG and
+     recompute its 30px drop-shadow — work that scales with rasterisation
+     resolution, which is exactly what browser zoom multiplies. The band beneath
+     still casts the shadow, so the look is unchanged. */
+  .fband-holes{filter:none;}
   .fband-base{fill:none;stroke:#0A0D15;pointer-events:visibleStroke;}
   .fband-edge{fill:none;stroke:rgba(255,255,255,0.055);}
   .fband-spro{fill:none;stroke:rgba(242,246,251,0.82);stroke-width:7;
@@ -310,6 +316,8 @@
       <svg class="fband" viewBox="0 0 1672 756" preserveAspectRatio="none" aria-hidden="true">
         <path class="fband-base" style="stroke-width:152;" d="M -160 78 C 83 78 264 222 507 222 C 750 222 931 78 1174 78 C 1417 78 1598 222 1841 222"/>
         <path class="fband-edge" style="stroke-width:154;" d="M -160 78 C 83 78 264 222 507 222 C 750 222 931 78 1174 78 C 1417 78 1598 222 1841 222"/>
+      </svg>
+      <svg class="fband fband-holes" viewBox="0 0 1672 756" preserveAspectRatio="none" aria-hidden="true">
         <path class="fband-spro" transform="translate(0,-68)" d="M -160 78 C 83 78 264 222 507 222 C 750 222 931 78 1174 78 C 1417 78 1598 222 1841 222"/>
         <path class="fband-spro" transform="translate(0,68)" d="M -160 78 C 83 78 264 222 507 222 C 750 222 931 78 1174 78 C 1417 78 1598 222 1841 222"/>
       </svg>
@@ -325,6 +333,8 @@
       <svg class="fband" viewBox="0 0 1672 756" preserveAspectRatio="none" aria-hidden="true">
         <path class="fband-base" style="stroke-width:172;" d="M -160 340 C -120 333 -80 332 -40 332 C 203 332 384 434 627 434 C 870 434 1051 332 1294 332 C 1490 332 1640 404 1840 418"/>
         <path class="fband-edge" style="stroke-width:174;" d="M -160 340 C -120 333 -80 332 -40 332 C 203 332 384 434 627 434 C 870 434 1051 332 1294 332 C 1490 332 1640 404 1840 418"/>
+      </svg>
+      <svg class="fband fband-holes" viewBox="0 0 1672 756" preserveAspectRatio="none" aria-hidden="true">
         <path class="fband-spro" transform="translate(0,-78)" d="M -160 340 C -120 333 -80 332 -40 332 C 203 332 384 434 627 434 C 870 434 1051 332 1294 332 C 1490 332 1640 404 1840 418"/>
         <path class="fband-spro" transform="translate(0,78)" d="M -160 340 C -120 333 -80 332 -40 332 C 203 332 384 434 627 434 C 870 434 1051 332 1294 332 C 1490 332 1640 404 1840 418"/>
       </svg>
@@ -340,6 +350,8 @@
       <svg class="fband" viewBox="0 0 1672 756" preserveAspectRatio="none" aria-hidden="true">
         <path class="fband-base" style="stroke-width:184;" d="M -160 610 C -80 575 0 548 80 548 C 323 548 504 660 747 660 C 990 660 1171 548 1414 548 C 1570 548 1700 590 1840 627"/>
         <path class="fband-edge" style="stroke-width:186;" d="M -160 610 C -80 575 0 548 80 548 C 323 548 504 660 747 660 C 990 660 1171 548 1414 548 C 1570 548 1700 590 1840 627"/>
+      </svg>
+      <svg class="fband fband-holes" viewBox="0 0 1672 756" preserveAspectRatio="none" aria-hidden="true">
         <path class="fband-spro" transform="translate(0,-84)" d="M -160 610 C -80 575 0 548 80 548 C 323 548 504 660 747 660 C 990 660 1171 548 1414 548 C 1570 548 1700 590 1840 627"/>
         <path class="fband-spro" transform="translate(0,84)" d="M -160 610 C -80 575 0 548 80 548 C 323 548 504 660 747 660 C 990 660 1171 548 1414 548 C 1570 548 1700 590 1840 627"/>
       </svg>
