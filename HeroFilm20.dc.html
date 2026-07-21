@@ -436,21 +436,31 @@ class Component extends DCLogic {
   state = { mode: 'desktop', lb: -1, photos: null };   // lb = lightbox gallery index (-1 = closed)
 
   /* ================= PHOTO SLOTS =================
-     Every visible frame is a uniquely-numbered slot (PHOTO 01 … PHOTO 27).
-     To swap any picture, change the src for its slot here — geometry stays put.
      The library is whatever photos/manifest.json lists, so adding or removing a
-     photo never needs an edit here. Slots step through it with a stride coprime
-     to the library size so no two neighbours share an event. */
+     photo never needs an edit here. It is walked with a stride coprime to the
+     library size so no two neighbours share an event.
+
+     Two different lengths matter here. The strips have exactly 27 physical frames
+     (9 per strip × 3), but the lightbox browses the WHOLE library — so the frames
+     are just the first 27 of the gallery order, and frame i is gallery index i.
+     Without that split the gallery would stop at 27 and strand every photo past
+     it, which is why nothing beyond the visible frames used to be reachable. */
   SLOT_COUNT = 27;
 
-  slotSources(){
-    if (this._srcs) return this._srcs;
+  /* Every photo, in display order. This is the lightbox gallery. */
+  galleryOrder(){
+    if (this._gallery) return this._gallery;
     const ids = this.state.photos;
     if (!ids || !ids.length) return [];        // manifest not in yet — strips run bare
     const N = ids.length, stride = this.coprimeStride(N);
-    this._srcs = Array.from({length: this.SLOT_COUNT},
+    this._gallery = Array.from({length: N},
       (_, i) => 'photos/p' + ids[(i * stride) % N] + '.jpg');
-    return this._srcs;
+    return this._gallery;
+  }
+
+  /* The 27 the strips can physically show — a window onto the front of the gallery. */
+  slotSources(){
+    return this.galleryOrder().slice(0, this.SLOT_COUNT);
   }
 
   /* Largest stride sharing no factor with the library size, so stepping by it
@@ -465,7 +475,7 @@ class Component extends DCLogic {
      them, but the lightbox scales to min(86vw,940px) — the frame file would be
      soft there, so only this on-click view pays for the larger download. */
   lgSource(i){
-    const s = this.slotSources()[i];
+    const s = this.galleryOrder()[i];          // gallery index, not slot index
     return s ? s.replace('photos/', 'photos/lg/') : '';
   }
 
@@ -477,7 +487,7 @@ class Component extends DCLogic {
       .then((m) => {
         const ids = Array.isArray(m) ? m : (m && m.photos) || [];
         if (!ids.length) return;
-        this._srcs = null; this._fc = null;     // both caches are derived from the library
+        this._gallery = null; this._fc = null;  // both caches are derived from the library
         this.setState({ photos: ids });
       })
       .catch(() => {});
@@ -551,7 +561,7 @@ class Component extends DCLogic {
     if (back && back.focus) setTimeout(() => { try { back.focus(); } catch (e) {} }, 30);
   }
   stepLb(d){
-    const N = this.slotSources().length;
+    const N = this.galleryOrder().length;      // prev/next walks the whole library
     this.setState({ lb: (this.state.lb + d + N) % N });
     // retrigger the fade-in on the (reused) <img> node after the src swap renders
     setTimeout(() => {
@@ -990,7 +1000,7 @@ class Component extends DCLogic {
       slot: f.slot, src: f.src, open: f.open, label: f.label,
       style: 'width:' + w + 'px;height:' + h + 'px;',
     }));
-    const N = this.slotSources().length, lb = this.state.lb;
+    const N = this.galleryOrder().length, lb = this.state.lb;   // counter reads "n / 47"
     return {
       isDesktop: mode !== 'mobile',
       isMobile: mode === 'mobile',

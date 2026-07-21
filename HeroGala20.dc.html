@@ -372,14 +372,22 @@ class Component extends DCLogic {
      to the library size so no two neighbours share an event. */
   SLOT_COUNT = 27;
 
-  slotSources(){
-    if (this._srcs) return this._srcs;
+  /* Every photo, in display order — the lightbox gallery. The ribbons can only
+     show SLOT_COUNT frames, but the gallery must not be capped to them or every
+     photo past the visible frames becomes unreachable. */
+  galleryOrder(){
+    if (this._gallery) return this._gallery;
     const ids = this.state.photos;
     if (!ids || !ids.length) return [];        // manifest not in yet — strips run bare
     const N = ids.length, stride = this.coprimeStride(N);
-    this._srcs = Array.from({length: this.SLOT_COUNT},
+    this._gallery = Array.from({length: N},
       (_, i) => 'photos/p' + ids[(i * stride) % N] + '.jpg');
-    return this._srcs;
+    return this._gallery;
+  }
+
+  /* The frames the ribbons can physically show — the front of the gallery. */
+  slotSources(){
+    return this.galleryOrder().slice(0, this.SLOT_COUNT);
   }
 
   /* Largest stride sharing no factor with the library size, so stepping by it
@@ -394,7 +402,7 @@ class Component extends DCLogic {
      them, but the lightbox scales to min(86vw,940px) — the frame file would be
      soft there, so only this on-click view pays for the larger download. */
   lgSource(i){
-    const s = this.slotSources()[i];
+    const s = this.galleryOrder()[i];          // gallery index, not slot index
     return s ? s.replace('photos/', 'photos/lg/') : '';
   }
 
@@ -406,7 +414,7 @@ class Component extends DCLogic {
       .then((m) => {
         const ids = Array.isArray(m) ? m : (m && m.photos) || [];
         if (!ids.length) return;
-        this._srcs = null; this._fd = null; this._td = null;   // all derived from the library
+        this._gallery = null; this._fd = null; this._td = null;   // all derived from the library
         this.setState({ photos: ids });
       })
       .catch(() => {});
@@ -499,7 +507,7 @@ class Component extends DCLogic {
     if (back && back.focus) setTimeout(() => { try { back.focus(); } catch (e) {} }, 30);
   }
   stepLb(d){
-    const N = this.slotSources().length;
+    const N = this.galleryOrder().length;      // prev/next walks the whole library
     this.setState({ lb: (this.state.lb + d + N) % N });
     // retrigger the fade-in on the (reused) <img> node after the src swap renders
     setTimeout(() => {
@@ -860,7 +868,7 @@ class Component extends DCLogic {
       open: () => this.openLb(f.gi),
       label: 'View ' + f.slot.toLowerCase() + ' larger',
       style: 'width:' + w + 'px;height:' + h + 'px;transform:rotate(' + (i % 2 ? 2.5 : -2.5) + 'deg);' }));
-    const N = this.slotSources().length, lb = this.state.lb;
+    const N = this.galleryOrder().length, lb = this.state.lb;   // counter reads "n / 47"
     return {
       isDesktop: mode !== 'mobile',
       isMobile: mode === 'mobile',
