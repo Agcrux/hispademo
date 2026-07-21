@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* ============================================================================
-     Gallery20 — a "premium gallery wall" of ALL 47 real HISPA event photos, each
+     Gallery20 — a "premium gallery wall" of ALL the real HISPA event photos, each
      in a metallic-gold frame with an ivory mat, scrolling slowly in two rows
      (opposite directions). Replaces the film-sprocket look with a curated,
      framed presentation. Every photo is used (order scattered by a coprime stride
@@ -86,19 +86,49 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:520}}">
 class Component extends DCLogic {
-  // ALL 47 photos, order scattered by a coprime stride (37 ⟂ 47) so consecutive
-  // frames come from different events (the files are grouped by event), then split
-  // into two rows and each row DOUBLED for a seamless marquee loop.
+  state = { photos: null };
+
+  // EVERY photo photos/manifest.json lists, ordered by a stride coprime to the
+  // library size so consecutive frames come from different events (the files are
+  // grouped by event), then split into two rows and each row DOUBLED for a
+  // seamless marquee loop. The wall grows and shrinks with the folder.
   buildRows(){
     if (this._rows) return this._rows;
-    const N = 47, stride = 37;
-    const order = Array.from({length:N}, (_,i)=>((i*stride)%N)+1);
+    const ids = this.state.photos;
+    if (!ids || !ids.length) return { rowTop: [], rowBottom: [] };   // uncached
+    const N = ids.length, stride = this.coprimeStride(N);
+    const order = Array.from({length:N}, (_,i)=>ids[(i*stride)%N]);
     const all = order.map(n => ({ src:'photos/p'+n+'.jpg', alt:'HISPA event moment' }));
     const half = Math.ceil(N/2);
     const top = all.slice(0, half), bottom = all.slice(half);
     this._rows = { rowTop: top.concat(top), rowBottom: bottom.concat(bottom) };
     return this._rows;
   }
+
+  /* Largest stride sharing no factor with the library size, so stepping by it
+     visits every photo exactly once instead of cycling a handful. */
+  coprimeStride(n){
+    const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+    for (const s of [37, 23, 17, 13, 11, 7, 5, 3, 2]) if (s < n && gcd(s, n) === 1) return s;
+    return 1;
+  }
+
+  /* _optimize_all.py rewrites manifest.json from the photos folder, listing exactly
+     the slots that exist on disk — that is what keeps the wall in step with it. */
+  loadPhotos(){
+    fetch('photos/manifest.json', { cache: 'no-cache' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
+      .then((m) => {
+        const ids = Array.isArray(m) ? m : (m && m.photos) || [];
+        if (!ids.length) return;
+        this._rows = null;                     // the row split is library-derived
+        this.setState({ photos: ids });
+      })
+      .catch(() => {});
+  }
+
+  componentDidMount(){ this.loadPhotos(); }
+
   renderVals(){
     const r = this.buildRows();
     return { rowTop: r.rowTop, rowBottom: r.rowBottom };

@@ -135,14 +135,10 @@ class Component extends DCLogic {
     // device GPU texture limit — buildStrip() uses it to size the photo strip so it never overflows
     try{ const _gc=document.createElement('canvas'); const _g=_gc.getContext('webgl')||_gc.getContext('webgl2'); this._maxTex=_g?_g.getParameter(_g.MAX_TEXTURE_SIZE):8192; }catch(e){ this._maxTex=8192; }
 
-    // ALL 112 real HISPA event photos (photos/p1..p112.jpg). A coprime stride scatters the
-    // playback order so consecutive film cells come from different events (files are grouped by
-    // event). focalY=0.38 keeps faces (usually upper-centre) in frame when each cell is cover-cropped.
-    const N=112, stride=37;   // 37 is coprime with 112 → the sequence is a full shuffle of 1..112
-    const order=Array.from({length:N},(_,i)=>((i*stride)%N)+1);
-    this.photos = order.map(()=>({im:new Image(), focalY:0.38}));
-    let leftN=this.photos.length;
-    this.photos.forEach((p,i)=>{ const done=()=>{ if(--leftN<=0) this.start(); }; p.im.onload=done; p.im.onerror=done; p.im.src='photos/p'+order[i]+'.jpg'; });
+    // Every real HISPA event photo photos/manifest.json lists — the strip sizes itself to the
+    // folder. Empty until that arrives; buildStrip() no-ops on an empty set.
+    this.photos = [];
+    this.loadPhotos();
 
     // once three.js finishes loading, make sure a frame renders (covers reduced-motion + async CDN)
     this._pollThree=()=>{ if(window.THREE){ if(this._started) this.frame(this._lastTs||0); } else if((this._tw=(this._tw||0)+1)<240) setTimeout(this._pollThree,50); };
@@ -165,6 +161,32 @@ class Component extends DCLogic {
     if(this._raf){ cancelAnimationFrame(this._raf); this._raf=0; }
     if(this._retryRaf){ cancelAnimationFrame(this._retryRaf); this._retryRaf=0; }
     if(this.three){ try{ this.three.renderer.dispose(); if(this.three.renderer.forceContextLoss) this.three.renderer.forceContextLoss(); }catch(e){} this.three=null; }
+  }
+
+  /* Largest stride sharing no factor with the library size, so the playback order
+     visits every photo exactly once instead of cycling a handful. */
+  coprimeStride(n){
+    const gcd=(a,b)=>(b?gcd(b,a%b):a);
+    for(const s of [37,23,17,13,11,7,5,3,2]) if(s<n && gcd(s,n)===1) return s;
+    return 1;
+  }
+
+  /* _optimize_all.py rewrites manifest.json from the photos folder, listing exactly the
+     slots on disk. focalY=0.38 keeps faces (usually upper-centre) in frame when each
+     cell is cover-cropped. start() fires once every image has settled. */
+  loadPhotos(){
+    fetch('photos/manifest.json',{cache:'no-cache'})
+      .then((r)=>(r.ok?r.json():Promise.reject(new Error('HTTP '+r.status))))
+      .then((m)=>{
+        const ids=Array.isArray(m)?m:(m&&m.photos)||[];
+        if(!ids.length) return;
+        const N=ids.length, stride=this.coprimeStride(N);
+        const order=Array.from({length:N},(_,i)=>ids[(i*stride)%N]);
+        this.photos=order.map(()=>({im:new Image(), focalY:0.38}));
+        let leftN=this.photos.length;
+        this.photos.forEach((p,i)=>{ const done=()=>{ if(--leftN<=0) this.start(); }; p.im.onload=done; p.im.onerror=done; p.im.src='photos/p'+order[i]+'.jpg'; });
+      })
+      .catch(()=>{});
   }
 
   buildStrip(){
@@ -228,9 +250,9 @@ class Component extends DCLogic {
       {y:-0.20, amp:0.34, aph:2.2, zamp:0.62, zph:1.4, x0: 13.5, x1:-13.5},
       {y:-3.00, amp:0.32, aph:3.7, zamp:0.58, zph:2.8, x0: 13.5, x1:-13.5}
     ];
-    // ROWU = how much of the (112-photo) strip one row spans on screen. Kept small so ~10 frames
-    // show at a readable size per row; the animated texture offset scrolls through all 112 over the
-    // loop. MUST match the ROWU used in buildStrip's band-height (no-distortion) formula.
+    // ROWU = how much of the photo strip one row spans on screen. Kept small so ~10 frames
+    // show at a readable size per row; the animated texture offset scrolls through the whole
+    // strip over the loop. MUST match the ROWU used in buildStrip's band-height formula.
     const perRow=90, halfW=0.82, TW=Math.PI*2*0.05, ROWU=0.11, wash=this.props.colorWash ?? 0;
     const up=new THREE.Vector3(0,0,1);
     const pos=[], uv=[], idx=[], base=[], col=[];
@@ -320,7 +342,9 @@ class Component extends DCLogic {
     const {renderer,scene,cam}=this.three;
     const mi=this.reduce?0:(this.props.motionIntensity ?? 1);
     let dt=ts-(this._lt3||ts); this._lt3=ts; if(dt<0||dt>0.1) dt=0.016;
-    if(this.filmTex) this.filmTex.offset.x = this.filmTex.offset.x - 0.0036*mi*dt;   // ~0.05×(8/112): the strip holds 112 photos now, so scale the scroll down to keep the original slow drift
+    // Drift is per-strip, so scale it by the library size (0.05 was tuned for 8 photos) —
+    // the on-screen speed then stays the same however many photos the folder holds.
+    if(this.filmTex) this.filmTex.offset.x = this.filmTex.offset.x - (0.05*8/Math.max(1,this.photos.length))*mi*dt;
     if(this._reelSpin) this._reelSpin.rotation.z += 0.9*mi*dt;
     const wash=this.props.colorWash ?? 0;
     if(this._colAttr && wash!==this._lastWash){ const arr=this._colAttr.array, base=this._specBase; for(let i=0;i<arr.length;i++) arr[i]=(1-wash)+base[i]*wash; this._colAttr.needsUpdate=true; this._lastWash=wash; }
