@@ -367,13 +367,20 @@ class Component extends DCLogic {
   /* ================= PHOTO SLOTS =================
      Every visible frame is a uniquely-numbered slot (PHOTO 01 … PHOTO 27).
      To swap any picture, change the src for its slot here — geometry stays put.
-     Sources come from the site's real photo library (photos/p1..p112.jpg),
-     scattered with a stride coprime to 112 so no two neighbours share an event. */
+     Sources come from the site's real photo library (photos/p1..p47.jpg),
+     scattered with a stride coprime to 47 so no two neighbours share an event. */
   slotSources(){
     if (this._srcs) return this._srcs;
-    const N = 112, stride = 37, count = 27;
+    const N = 47, stride = 37, count = 27;
     this._srcs = Array.from({length: count}, (_, i) => 'photos/p' + (((i * stride) % N) + 1) + '.jpg');
     return this._srcs;
+  }
+
+  /* Same photo from the 1800w tier. Frames render ~330px so photos/ (720w) suits
+     them, but the lightbox scales to min(86vw,940px) — the frame file would be
+     soft there, so only this on-click view pays for the larger download. */
+  lgSource(i){
+    return this.slotSources()[i].replace('photos/', 'photos/lg/');
   }
 
   /* Frame geometry (x, y, w, h, rotate, rotateY) on the 1672×756 stage. */
@@ -831,7 +838,7 @@ class Component extends DCLogic {
       mobLow: mob(fd.mid.concat(fd.low), 152, 114),
       // lightbox
       lbOpen: lb >= 0,
-      lbSrc: lb >= 0 ? this.slotSources()[lb] : '',
+      lbSrc: lb >= 0 ? this.lgSource(lb) : '',
       lbAlt: lb >= 0 ? 'HISPA event photo ' + (lb + 1) + ' of ' + N : '',
       lbCount: (lb + 1) + ' / ' + N,
       lbClose: () => this.closeLb(),

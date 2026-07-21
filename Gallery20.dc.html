@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* ============================================================================
-     Gallery20 — a "premium gallery wall" of ALL 112 real HISPA event photos, each
+     Gallery20 — a "premium gallery wall" of ALL 47 real HISPA event photos, each
      in a metallic-gold frame with an ivory mat, scrolling slowly in two rows
      (opposite directions). Replaces the film-sprocket look with a curated,
      framed presentation. Every photo is used (order scattered by a coprime stride
@@ -86,12 +86,12 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:520}}">
 class Component extends DCLogic {
-  // ALL 112 photos, order scattered by a coprime stride (37 ⟂ 112) so consecutive
+  // ALL 47 photos, order scattered by a coprime stride (37 ⟂ 47) so consecutive
   // frames come from different events (the files are grouped by event), then split
   // into two rows and each row DOUBLED for a seamless marquee loop.
   buildRows(){
     if (this._rows) return this._rows;
-    const N = 112, stride = 37;
+    const N = 47, stride = 37;
     const order = Array.from({length:N}, (_,i)=>((i*stride)%N)+1);
     const all = order.map(n => ({ src:'photos/p'+n+'.jpg', alt:'HISPA event moment' }));
     const half = Math.ceil(N/2);
