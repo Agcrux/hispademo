@@ -2,6 +2,3 @@
 
 # Archived full-resolution source photos (optimized copies live in photos/p*.jpg)
 photo-originals/
-
-# Local one-off image-processing script
-_optimize_all.py
